@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DriveOS.Api/DriveOS.Api.csproj" Id="529a0d7b-10eb-43fc-829a-84d6e0a989da" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/DriveOS.Application.Abstractions/DriveOS.Application.Abstractions.csproj" Id="e741b6c4-008f-49c6-bf8c-b99ac3d7fdb5" />
+    <Project Path="src/BuildingBlocks/DriveOS.SharedKernel/DriveOS.SharedKernel.csproj" Id="10ee4dcc-496b-4b35-920c-288294743c40" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Organizations/">
+    <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Application/DriveOS.Modules.Organizations.Application.csproj" Id="8baf701c-becb-4b9b-aa0f-34a25edf32d4" />
+    <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Contracts/DriveOS.Modules.Organizations.Contracts.csproj" Id="da5190a1-b868-4a06-b05c-df023fa31cab" />
+    <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Domain/DriveOS.Modules.Organizations.Domain.csproj" Id="112bbccb-e436-4a28-8b99-b7374768d669" />
+    <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Infrastructure/DriveOS.Modules.Organizations.Infrastructure.csproj" Id="5cbf3bf1-0066-4423-b44a-9a5ec1dd85bb" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/DriveOS.ArchitectureTests/DriveOS.ArchitectureTests.csproj" Id="bf3894b6-baf2-4af6-95cf-8a731425195e" />
+    <Project Path="tests/DriveOS.IntegrationTests/DriveOS.IntegrationTests.csproj" Id="9529a569-71c9-42d2-bdb2-e54efe2f57f2" />
+    <Project Path="tests/DriveOS.UnitTests/DriveOS.UnitTests.csproj" Id="df3bf9aa-2d16-4ff6-9268-a368d369e4a1" />
+  </Folder>
+</Solution>

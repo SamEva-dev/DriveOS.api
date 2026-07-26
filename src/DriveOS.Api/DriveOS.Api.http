@@ -1,6 +1,14 @@
 @DriveOS.Api_HostAddress = http://localhost:5221
 
-GET {{DriveOS.Api_HostAddress}}/weatherforecast/
+GET {{DriveOS.Api_HostAddress}}/health
 Accept: application/json
 
 ###
+
+
+POST {{DriveOS.Api_HostAddress}}/api/organizations
+Content-Type: application/json
+{
+  "name": "Test Organization"
+}
+

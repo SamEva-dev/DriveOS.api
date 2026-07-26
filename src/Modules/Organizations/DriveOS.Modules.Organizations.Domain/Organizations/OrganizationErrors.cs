@@ -42,4 +42,9 @@ public static class OrganizationErrors
         Error.NotFound(
             code: "Organizations.NotFound",
             messageKey: "errors.organizations.notFound");
+
+    public static readonly Error InvalidId =
+    Error.Validation(
+        code: "Organizations.Id.Invalid",
+        messageKey: "errors.organizations.id.invalid");
 }

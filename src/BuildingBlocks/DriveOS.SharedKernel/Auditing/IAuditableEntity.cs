@@ -11,4 +11,12 @@ public interface IAuditableEntity
     DateTimeOffset? LastModifiedAtUtc { get; }
 
     UserId? LastModifiedByUserId { get; }
+
+    void SetCreatedAudit(
+        DateTimeOffset createdAtUtc,
+        UserId? createdByUserId);
+
+    void SetModifiedAudit(
+        DateTimeOffset modifiedAtUtc,
+        UserId? modifiedByUserId);
 }

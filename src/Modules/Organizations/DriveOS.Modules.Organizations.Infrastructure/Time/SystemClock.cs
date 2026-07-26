@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DriveOS.Application.Abstractions.Time;
 
-namespace DriveOS.Modules.Organizations.Infrastructure.Time
+namespace DriveOS.Modules.Organizations.Infrastructure.Time;
+
+internal sealed class SystemClock : IClock
 {
-    internal class SystemClock
-    {
-    }
+    public DateTimeOffset UtcNow =>
+        DateTimeOffset.UtcNow;
 }

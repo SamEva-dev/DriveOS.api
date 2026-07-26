@@ -3,51 +3,39 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi"
-                    Version="10.0.10" />
-	<PackageVersion Include="Microsoft.OpenApi"
-                Version="2.11.0" />
-
-    <PackageVersion Include="FluentValidation"
-                    Version="12.1.1" />
-
-    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions"
-                    Version="12.1.1" />
-    <PackageVersion Include="DomainRelay"
-                    Version="3.1.3" />
-
-    <PackageVersion Include="DomainRelay.DependencyInjection"
-                    Version="3.1.3" />
-
-    <PackageVersion Include="DomainRelay.Validation"
-                    Version="3.1.3" />
-
-    <PackageVersion Include="DomainRelay.EFCore"
-                    Version="3.1.3" />
-
-    <PackageVersion Include="xunit"
-                    Version="2.9.3" />
-
-    <PackageVersion Include="xunit.runner.visualstudio"
-                    Version="3.1.4" />
-
-    <PackageVersion Include="Microsoft.NET.Test.Sdk"
-                    Version="17.14.1" />
-
-    <PackageVersion Include="NetArchTest.Rules"
-                    Version="1.3.2" />
-	<PackageVersion Include="coverlet.collector"
-					Version="10.0.1" />
-  <PackageVersion Include="Microsoft.EntityFrameworkCore"
-                Version="10.0.10" />
-
-<PackageVersion Include="Microsoft.EntityFrameworkCore.Design"
-                Version="10.0.10" />
-
-<PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL"
-                Version="10.0.0" />
-  
+    <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.11" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="2.11.0" />
+    <PackageVersion Include="FluentValidation" Version="12.1.1" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageVersion Include="DomainRelay" Version="3.1.3" />
+    <PackageVersion Include="DomainRelay.Abstractions" Version="3.1.3" />
+    <PackageVersion Include="DomainRelay.DependencyInjection" Version="3.1.3" />
+    <PackageVersion Include="DomainRelay.Validation" Version="3.1.3" />
+    <PackageVersion Include="DomainRelay.EFCore" Version="3.1.3" />
+    <PackageVersion Include="Serilog" Version="4.4.0" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
+    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.10" />
+    <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageVersion Include="Serilog.Formatting.Compact" Version="3.0.0" />
+    <PackageVersion Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageVersion Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
   </ItemGroup>
 </Project>

@@ -105,6 +105,27 @@ public sealed class Organization :
         return Result.Success(organization);
     }
 
+    public void SetCreatedAudit(
+    DateTimeOffset createdAtUtc,
+    UserId? createdByUserId)
+    {
+        if (CreatedAtUtc != default)
+        {
+            return;
+        }
+
+        CreatedAtUtc = createdAtUtc;
+        CreatedByUserId = createdByUserId;
+    }
+
+    public void SetModifiedAudit(
+        DateTimeOffset modifiedAtUtc,
+        UserId? modifiedByUserId)
+    {
+        LastModifiedAtUtc = modifiedAtUtc;
+        LastModifiedByUserId = modifiedByUserId;
+    }
+
     private static bool IsValidCountryCode(string countryCode)
     {
         return countryCode.Length == 2

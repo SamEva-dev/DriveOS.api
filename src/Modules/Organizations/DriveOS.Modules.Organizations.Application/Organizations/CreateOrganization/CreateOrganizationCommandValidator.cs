@@ -10,14 +10,39 @@ public sealed class CreateOrganizationCommandValidator
     {
         RuleFor(command => command.LegalName)
             .NotEmpty()
-            .MaximumLength(200);
+            .WithErrorCode(
+                "Organizations.LegalName.Empty")
+            .WithMessage(
+                "errors.organizations.legalName.empty");
+
+        RuleFor(command => command.LegalName)
+            .MaximumLength(200)
+            .WithErrorCode(
+                "Organizations.LegalName.TooLong")
+            .WithMessage(
+                "errors.organizations.legalName.tooLong");
 
         RuleFor(command => command.CountryCode)
             .NotEmpty()
-            .Length(2)
-            .Matches("^[A-Za-z]{2}$");
+            .WithErrorCode(
+                "Organizations.CountryCode.Empty")
+            .WithMessage(
+                "errors.organizations.countryCode.empty");
+
+        RuleFor(command => command.CountryCode)
+            .Matches("^[A-Za-z]{2}$")
+            .When(command =>
+                !string.IsNullOrWhiteSpace(command.CountryCode))
+            .WithErrorCode(
+                "Organizations.CountryCode.Invalid")
+            .WithMessage(
+                "errors.organizations.countryCode.invalid");
 
         RuleFor(command => command.OrganizationType)
-            .IsInEnum();
+            .IsInEnum()
+            .WithErrorCode(
+                "Organizations.Type.Invalid")
+            .WithMessage(
+                "errors.organizations.type.invalid");
     }
 }

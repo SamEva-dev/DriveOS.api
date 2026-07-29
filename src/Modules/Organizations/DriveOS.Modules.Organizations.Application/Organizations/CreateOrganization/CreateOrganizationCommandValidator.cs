@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using DriveOS.Modules.Organizations.Domain.Organizations;
+using FluentValidation;
 
 namespace DriveOS.Modules.Organizations.Application
     .Organizations.CreateOrganization;
@@ -38,7 +39,7 @@ public sealed class CreateOrganizationCommandValidator
             .WithMessage(
                 "errors.organizations.countryCode.invalid");
 
-        RuleFor(command => command.OrganizationType)
+        RuleFor(command => (OrganizationType )command.OrganizationType)
             .IsInEnum()
             .WithErrorCode(
                 "Organizations.Type.Invalid")

@@ -1,5 +1,6 @@
 using DomainRelay.Validation;
 using DriveOS.Api;
+using DriveOS.Api.Endpoints.Branches;
 using DriveOS.Api.Endpoints.Organizations;
 using DriveOS.Api.Errors;
 using DriveOS.Api.Infrastructure.Logging;
@@ -59,7 +60,7 @@ try
         });
 
 
-  
+
     //builder.Services.AddValidatorsFromAssembly(
     //    typeof(CreateOrganizationCommandValidator).Assembly);
 
@@ -80,7 +81,8 @@ try
     builder.Configuration
         .GetSection("Cors:AllowedOrigins")
         .Get<string[]>()
-    ?? [];
+    ?? throw new InvalidOperationException(
+        "The CORS allowed origins configuration is missing.");
 
     builder.Services.AddCors(
         options =>
@@ -191,6 +193,7 @@ try
     app.UseCors("DriveOsWeb");
 
     app.MapOrganizationEndpoints();
+    app.MapBranchEndpoints();
 
     app.MapGet(
         "/health",

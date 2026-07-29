@@ -1,4 +1,5 @@
 ﻿using DriveOS.Application.Abstractions.Persistence;
+using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -19,6 +20,12 @@ public sealed class OrganizationsDbContext :
 
     public DbSet<Organization> Organizations =>
         Set<Organization>();
+
+    public DbSet<Branch> Branches =>
+        Set<Branch>();
+
+    public DbSet<BranchStatusHistoryEntry> BranchStatusHistory =>
+        Set<BranchStatusHistoryEntry>();
 
     public bool HasActiveTransaction =>
         _currentTransaction is not null;

@@ -74,6 +74,16 @@ internal sealed class OrganizationConfiguration :
                     ? new UserId(value.Value)
                     : null);
 
+        builder
+            .HasMany(organization => organization.StatusHistory)
+            .WithOne()
+            .HasForeignKey(entry => entry.OrganizationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .Navigation(organization => organization.StatusHistory)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasIndex(
                 organization => new
                 {

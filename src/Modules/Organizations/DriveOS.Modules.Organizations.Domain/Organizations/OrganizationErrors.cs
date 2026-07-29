@@ -1,4 +1,5 @@
-﻿using DriveOS.SharedKernel.Results;
+﻿using DriveOS.SharedKernel.Identifiers;
+using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Domain.Organizations;
 
@@ -47,4 +48,22 @@ public static class OrganizationErrors
     Error.Validation(
         code: "Organizations.Id.Invalid",
         messageKey: "errors.organizations.id.invalid");
+
+    public static readonly Error CurrentUserRequired =
+        Error.Unauthorized(
+            code: "Organizations.CurrentUser.Required",
+            messageKey: "errors.authentication.required");
+
+    public static Error NotFoundById(OrganizationId id) =>
+        Error.NotFound(
+            "Organizations.NotFound",
+            $"The organization '{id}' was not found.");
+
+    public static Error InvalidStatusTransition(
+        OrganizationStatus currentStatus,
+        OrganizationStatus requestedStatus) =>
+        Error.Conflict(
+            "Organizations.InvalidStatusTransition",
+            $"The organization cannot transition from " +
+            $"'{currentStatus}' to '{requestedStatus}'.");
 }

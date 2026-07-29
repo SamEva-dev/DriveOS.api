@@ -43,6 +43,12 @@ public sealed class Organization :
 
     public UserId? LastModifiedByUserId { get; private set; }
 
+    private readonly List<OrganizationStatusHistoryEntry>
+    _statusHistory = [];
+
+    public IReadOnlyCollection<OrganizationStatusHistoryEntry>
+        StatusHistory => _statusHistory.AsReadOnly();
+
     public static Result<Organization> Create(
     OrganizationId id,
     string legalName,
@@ -126,9 +132,149 @@ public sealed class Organization :
         LastModifiedByUserId = modifiedByUserId;
     }
 
+    public void SubmitForActivation(
+    OrganizationStatusChangeReason reason,
+    Guid changedByUserId,
+    DateTimeOffset changedAtUtc)
+    {
+        EnsureStatus(
+            OrganizationStatus.Draft,
+            "Only a draft organization can be submitted for activation.");
+
+        ChangeStatus(
+            OrganizationStatus.PendingActivation,
+            reason,
+            changedByUserId,
+            changedAtUtc);
+    }
+
+    public void Activate(
+        OrganizationStatusChangeReason reason,
+        Guid changedByUserId,
+        DateTimeOffset changedAtUtc)
+    {
+        EnsureStatusIn(
+            [
+                OrganizationStatus.PendingActivation,
+            OrganizationStatus.Restricted,
+            OrganizationStatus.Suspended,
+        ],
+            "The organization cannot be activated from its current status.");
+
+        ChangeStatus(
+            OrganizationStatus.Active,
+            reason,
+            changedByUserId,
+            changedAtUtc);
+    }
+
+    public void Restrict(
+        OrganizationStatusChangeReason reason,
+        Guid changedByUserId,
+        DateTimeOffset changedAtUtc)
+    {
+        EnsureStatus(
+            OrganizationStatus.Active,
+            "Only an active organization can be restricted.");
+
+        ChangeStatus(
+            OrganizationStatus.Restricted,
+            reason,
+            changedByUserId,
+            changedAtUtc);
+    }
+
+    public void Suspend(
+        OrganizationStatusChangeReason reason,
+        Guid changedByUserId,
+        DateTimeOffset changedAtUtc)
+    {
+        EnsureStatusIn(
+            [
+                OrganizationStatus.Active,
+            OrganizationStatus.Restricted,
+        ],
+            "Only an active or restricted organization can be suspended.");
+
+        ChangeStatus(
+            OrganizationStatus.Suspended,
+            reason,
+            changedByUserId,
+            changedAtUtc);
+    }
+
+    public void Close(
+        OrganizationStatusChangeReason reason,
+        Guid changedByUserId,
+        DateTimeOffset changedAtUtc)
+    {
+        EnsureStatusIn(
+            [
+                OrganizationStatus.Active,
+            OrganizationStatus.Restricted,
+            OrganizationStatus.Suspended,
+        ],
+            "The organization cannot be closed from its current status.");
+
+        ChangeStatus(
+            OrganizationStatus.Closed,
+            reason,
+            changedByUserId,
+            changedAtUtc);
+    }
+
     private static bool IsValidCountryCode(string countryCode)
     {
         return countryCode.Length == 2
             && countryCode.All(char.IsLetter);
+    }
+
+    private void ChangeStatus(
+    OrganizationStatus newStatus,
+    OrganizationStatusChangeReason reason,
+    Guid changedByUserId,
+    DateTimeOffset changedAtUtc)
+    {
+        OrganizationStatus previousStatus = Status;
+
+        Status = newStatus;
+
+        _statusHistory.Add(
+            OrganizationStatusHistoryEntry.Create(
+                Id,
+                previousStatus,
+                newStatus,
+                reason,
+                changedByUserId,
+                changedAtUtc));
+
+        RaiseDomainEvent(
+            new OrganizationStatusChangedDomainEvent(
+                Id,
+                previousStatus,
+                newStatus,
+                reason.Value,
+                changedByUserId,
+                changedAtUtc));
+    }
+
+    private void EnsureStatus(
+        OrganizationStatus expectedStatus,
+        string errorMessage)
+    {
+        if (Status != expectedStatus)
+        {
+            throw new InvalidOperationException(errorMessage);
+        }
+    }
+
+    private void EnsureStatusIn(
+        IReadOnlyCollection<OrganizationStatus> allowedStatuses,
+        string errorMessage)
+    {
+        if (!allowedStatuses.Contains(Status))
+        {
+            throw new InvalidOperationException(errorMessage);
+        }
     }
 }

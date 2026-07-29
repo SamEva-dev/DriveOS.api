@@ -7,7 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="DomainRelay.Abstractions" />
 	  <PackageReference Include="DomainRelay.DependencyInjection" />
+	  <PackageReference Include="DomainRelay.Mapping" />
+	  <PackageReference Include="DomainRelay.Mapping.Abstractions" />
 	  <PackageReference Include="DomainRelay.Validation" />
 	  <PackageReference Include="FluentValidation" />
 	  <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
@@ -17,6 +20,10 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\DriveOS.Application.Abstractions\DriveOS.Application.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\DriveOS.SharedKernel\DriveOS.SharedKernel.csproj" />
     <ProjectReference Include="..\DriveOS.Modules.Organizations.Domain\DriveOS.Modules.Organizations.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Mapping\" />
   </ItemGroup>
 
 </Project>

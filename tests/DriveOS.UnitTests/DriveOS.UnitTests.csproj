@@ -9,13 +9,18 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="DomainRelay.Mapping" />
+    <PackageReference Include="DomainRelay.Mapping.Abstractions" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="DomainRelay.Mapping.DependencyInjection" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BuildingBlocks\DriveOS.SharedKernel\DriveOS.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\src\DriveOS.Api\DriveOS.Api.csproj" />
     <ProjectReference Include="..\..\src\Modules\Organizations\DriveOS.Modules.Organizations.Application\DriveOS.Modules.Organizations.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Organizations\DriveOS.Modules.Organizations.Domain\DriveOS.Modules.Organizations.Domain.csproj" />
   </ItemGroup>

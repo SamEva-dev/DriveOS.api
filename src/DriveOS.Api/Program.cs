@@ -1,13 +1,10 @@
-using DomainRelay.DependencyInjection;
 using DomainRelay.Validation;
+using DriveOS.Api;
 using DriveOS.Api.Endpoints.Organizations;
 using DriveOS.Api.Errors;
 using DriveOS.Api.Infrastructure.Logging;
-using DriveOS.Modules.Organizations.Application.Organizations.CreateOrganization;
-using DriveOS.Modules.Organizations.Infrastructure;
-using FluentValidation;
 using DriveOS.Modules.Organizations.Application;
-
+using DriveOS.Modules.Organizations.Infrastructure;
 using Serilog;
 using Serilog.Events;
 
@@ -68,6 +65,7 @@ try
 
 
     builder.Services
+        .AddApiServices()
     .AddOrganizationsApplication()
     .AddOrganizationsInfrastructure(
         builder.Configuration);
@@ -77,6 +75,26 @@ try
         ValidationExceptionHandler>();
 
     builder.Services.AddProblemDetails();
+
+    string[] allowedOrigins =
+    builder.Configuration
+        .GetSection("Cors:AllowedOrigins")
+        .Get<string[]>()
+    ?? [];
+
+    builder.Services.AddCors(
+        options =>
+        {
+            options.AddPolicy(
+                "DriveOsWeb",
+                policy =>
+                {
+                    policy
+                        .WithOrigins(allowedOrigins)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+        });
 
     var app = builder.Build();
     app.UseMiddleware<CorrelationIdMiddleware>();
@@ -170,6 +188,7 @@ try
     }
 
     app.UseHttpsRedirection();
+    app.UseCors("DriveOsWeb");
 
     app.MapOrganizationEndpoints();
 

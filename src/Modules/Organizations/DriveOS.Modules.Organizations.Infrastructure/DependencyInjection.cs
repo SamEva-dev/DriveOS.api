@@ -2,6 +2,7 @@
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
 using DriveOS.Modules.Organizations.Application.Abstractions;
+using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Infrastructure.Authentication;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence.Interceptors;

@@ -2,7 +2,6 @@
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
-using DriveOS.Modules.Organizations.Application.Abstractions;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
@@ -30,7 +29,7 @@ public sealed class ChangeOrganizationStatusCommandHandler(
         Organization? organization =
             await organizationRepository.GetByIdAsync(
                 organizationId,
-                QueryTracking.Tracking,
+                asNoTracking: false,
                 cancellationToken);
 
         if (organization is null)
@@ -57,7 +56,7 @@ public sealed class ChangeOrganizationStatusCommandHandler(
             return transitionResult;
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
 
         return Result.Success();
     }

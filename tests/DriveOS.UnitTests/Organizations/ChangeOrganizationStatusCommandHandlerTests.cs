@@ -1,7 +1,7 @@
-﻿using DriveOS.Application.Abstractions.Authentication;
+﻿using System.Linq.Expressions;
+using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
-using DriveOS.Modules.Organizations.Application.Abstractions;
 using DriveOS.Modules.Organizations.Application.Organizations.Lifecycle;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Identifiers;
@@ -82,11 +82,11 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
 
         Assert.Equal(
             1,
-            unitOfWork.SaveChangesCallCount);
+            unitOfWork.CommitCallCount);
 
         Assert.Equal(
-            QueryTracking.Tracking,
-            repository.LastTrackingMode);
+            false,
+            repository.LastAsNoTracking);
 
         Assert.Equal(
             OrganizationId,
@@ -195,7 +195,7 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
 
         Assert.Equal(
             1,
-            unitOfWork.SaveChangesCallCount);
+            unitOfWork.CommitCallCount);
     }
 
     [Fact]
@@ -252,7 +252,7 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
 
         Assert.Equal(
             1,
-            unitOfWork.SaveChangesCallCount);
+            unitOfWork.CommitCallCount);
     }
 
     [Fact]
@@ -309,7 +309,7 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
 
         Assert.Equal(
             1,
-            unitOfWork.SaveChangesCallCount);
+            unitOfWork.CommitCallCount);
     }
 
     [Fact]
@@ -366,7 +366,7 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
 
         Assert.Equal(
             1,
-            unitOfWork.SaveChangesCallCount);
+            unitOfWork.CommitCallCount);
     }
 
     [Fact]
@@ -423,7 +423,7 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
 
         Assert.Equal(
             1,
-            unitOfWork.SaveChangesCallCount);
+            unitOfWork.CommitCallCount);
     }
 
     [Fact]
@@ -465,11 +465,11 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
 
         Assert.Equal(
             0,
-            unitOfWork.SaveChangesCallCount);
+            unitOfWork.CommitCallCount);
 
         Assert.Equal(
-            QueryTracking.Tracking,
-            repository.LastTrackingMode);
+            false,
+            repository.LastAsNoTracking);
     }
 
     [Fact]
@@ -522,7 +522,7 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
 
         Assert.Equal(
             0,
-            unitOfWork.SaveChangesCallCount);
+            unitOfWork.CommitCallCount);
     }
 
     [Fact]
@@ -579,7 +579,7 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
 
         Assert.Equal(
             0,
-            unitOfWork.SaveChangesCallCount);
+            unitOfWork.CommitCallCount);
     }
 
     [Fact]
@@ -765,7 +765,7 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
 
         Assert.Equal(
             0,
-            unitOfWork.SaveChangesCallCount);
+            unitOfWork.CommitCallCount);
     }
 
     [Fact]
@@ -844,7 +844,7 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
             private set;
         }
 
-        public QueryTracking? LastTrackingMode
+        public bool? LastAsNoTracking
         {
             get;
             private set;
@@ -865,42 +865,76 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
         }
 
         public Task<Organization?> GetByIdAsync(
-            OrganizationId organizationId,
-            QueryTracking tracking = QueryTracking.NoTracking,
+            OrganizationId id,
+            bool asNoTracking = false,
             CancellationToken cancellationToken = default)
         {
-            LastRequestedOrganizationId =
-                organizationId;
+            LastRequestedOrganizationId = id;
+            LastAsNoTracking = asNoTracking;
+            LastCancellationToken = cancellationToken;
 
-            LastTrackingMode =
-                tracking;
-
-            LastCancellationToken =
-                cancellationToken;
-
-            if (
-                Organization is null ||
-                Organization.Id != organizationId)
+            if (Organization is null || Organization.Id != id)
             {
                 return Task.FromResult<Organization?>(null);
             }
 
-            return Task.FromResult<Organization?>(
-                Organization);
+            return Task.FromResult<Organization?>(Organization);
         }
 
-        public void Add(
-            Organization organization)
+        public Task<IReadOnlyCollection<Organization>> GetAllAsync(
+            bool asNoTracking = false,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyCollection<Organization>>(
+                Organization is null ? [] : [Organization]);
+
+        public Task<IReadOnlyCollection<Organization>> FindAsync(
+            Expression<Func<Organization, bool>> predicate,
+            bool asNoTracking = false,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyCollection<Organization>>([]);
+
+        public Task<Organization?> FirstOrDefaultAsync(
+            Expression<Func<Organization, bool>> predicate,
+            bool asNoTracking = false,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(Organization);
+
+        public Task<int> CountAsync(
+            Expression<Func<Organization, bool>>? predicate = null,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(Organization is null ? 0 : 1);
+
+        public Task AddAsync(
+            Organization entity,
+            CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(
-                "Add is not used by lifecycle tests.");
+                "AddAsync is not used by lifecycle tests.");
+        }
+
+        public void Update(Organization entity)
+        {
+            throw new NotSupportedException(
+                "Update is not used by lifecycle tests.");
+        }
+
+        public void Remove(Organization entity)
+        {
+            throw new NotSupportedException(
+                "Remove is not used by lifecycle tests.");
         }
     }
 
     private sealed class FakeUnitOfWork
         : IUnitOfWork
     {
-        public int SaveChangesCallCount
+        public int CommitCallCount
+        {
+            get;
+            private set;
+        }
+
+        public bool HasActiveTransaction
         {
             get;
             private set;
@@ -912,15 +946,40 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
             private set;
         }
 
+        public Task BeginTransactionAsync(
+            CancellationToken cancellationToken = default)
+        {
+            HasActiveTransaction = true;
+            return Task.CompletedTask;
+        }
+
         public Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default)
         {
-            SaveChangesCallCount++;
-
-            LastCancellationToken =
-                cancellationToken;
-
+            LastCancellationToken = cancellationToken;
             return Task.FromResult(1);
+        }
+
+        public Task<int> CommitAsync(
+            CancellationToken cancellationToken = default)
+        {
+            CommitCallCount++;
+            LastCancellationToken = cancellationToken;
+            return Task.FromResult(1);
+        }
+
+        public Task CommitTransactionAsync(
+            CancellationToken cancellationToken = default)
+        {
+            HasActiveTransaction = false;
+            return Task.CompletedTask;
+        }
+
+        public Task RollbackTransactionAsync(
+            CancellationToken cancellationToken = default)
+        {
+            HasActiveTransaction = false;
+            return Task.CompletedTask;
         }
     }
 

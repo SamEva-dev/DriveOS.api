@@ -1,6 +1,5 @@
 ﻿using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
-using DriveOS.Modules.Organizations.Application.Abstractions;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
@@ -63,9 +62,11 @@ public sealed class CreateOrganizationCommandHandler
         Organization organization =
             creationResult.Value;
 
-        _organizationRepository.Add(organization);
+        await _organizationRepository.AddAsync(
+            organization,
+            cancellationToken);
 
-        await _unitOfWork.SaveChangesAsync(
+        await _unitOfWork.CommitAsync(
             cancellationToken);
 
         return Result.Success(organization.Id);

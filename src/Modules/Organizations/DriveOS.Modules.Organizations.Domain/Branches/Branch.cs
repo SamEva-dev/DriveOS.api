@@ -13,6 +13,9 @@ public sealed class Branch :
 {
     private readonly List<BranchStatusHistoryEntry>
         _statusHistory = [];
+    private readonly List<BranchManagerAssignment>
+    _managerAssignments = [];
+
 
     private Branch()
     {
@@ -97,6 +100,11 @@ public sealed class Branch :
     public IReadOnlyCollection<BranchStatusHistoryEntry>
         StatusHistory =>
             _statusHistory.AsReadOnly();
+
+    public IReadOnlyCollection<BranchManagerAssignment>
+    ManagerAssignments =>
+        _managerAssignments.AsReadOnly();
+
 
     public DateTimeOffset CreatedAtUtc
     {
@@ -308,13 +316,19 @@ public sealed class Branch :
     }
 
     public void Activate(
-        BranchStatusChangeReason reason,
-        Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+    BranchStatusChangeReason reason,
+    Guid changedByUserId,
+    DateTimeOffset changedAtUtc)
     {
         EnsureStatus(
             BranchStatus.Draft,
             "Only a draft branch can be activated.");
+
+        if (!HasActiveManagerAt(changedAtUtc))
+        {
+            throw new InvalidOperationException(
+                "An active branch manager is required before branch activation.");
+        }
 
         ChangeStatus(
             BranchStatus.Active,
@@ -400,6 +414,116 @@ public sealed class Branch :
             reason,
             changedByUserId,
             changedAtUtc);
+    }
+
+    public Result AssignPrimaryManager(
+    UserId managerUserId,
+    DateTimeOffset effectiveFromUtc,
+    UserId assignedByUserId,
+    DateTimeOffset assignedAtUtc)
+    {
+        if (Status == BranchStatus.Closed)
+        {
+            return Result.Failure(
+                BranchErrors
+                    .ClosedBranchCannotReceiveManager);
+        }
+
+        if (managerUserId.IsEmpty)
+        {
+            return Result.Failure(
+                BranchErrors.EmptyManagerUserId);
+        }
+
+        if (assignedByUserId.IsEmpty)
+        {
+            return Result.Failure(
+                BranchErrors.EmptyAssignedByUserId);
+        }
+
+        if (
+            effectiveFromUtc ==
+            default)
+        {
+            return Result.Failure(
+                BranchErrors
+                    .ManagerEffectiveDateInvalid);
+        }
+
+        BranchManagerAssignment?
+            currentAssignment =
+                GetActiveManagerAssignmentAt(
+                    effectiveFromUtc);
+
+        if (
+            currentAssignment is not null &&
+            currentAssignment.ManagerUserId ==
+            managerUserId)
+        {
+            return Result.Success();
+        }
+
+        if (currentAssignment is not null)
+        {
+            currentAssignment.End(
+                effectiveFromUtc,
+                assignedByUserId,
+                assignedAtUtc);
+
+            RaiseDomainEvent(
+                new BranchManagerAssignmentEndedDomainEvent(
+                    Id,
+                    OrganizationId,
+                    currentAssignment.Id,
+                    currentAssignment.ManagerUserId,
+                    effectiveFromUtc,
+                    assignedByUserId,
+                    assignedAtUtc));
+        }
+
+        BranchManagerAssignment
+            newAssignment =
+                BranchManagerAssignment.Create(
+                    Id,
+                    managerUserId,
+                    effectiveFromUtc,
+                    assignedByUserId,
+                    assignedAtUtc);
+
+        _managerAssignments.Add(
+            newAssignment);
+
+        RaiseDomainEvent(
+            new BranchManagerAssignedDomainEvent(
+                Id,
+                OrganizationId,
+                newAssignment.Id,
+                managerUserId,
+                effectiveFromUtc,
+                assignedByUserId,
+                assignedAtUtc));
+
+        return Result.Success();
+    }
+
+    public BranchManagerAssignment?
+        GetActiveManagerAssignmentAt(
+            DateTimeOffset dateTimeUtc)
+    {
+        return _managerAssignments
+            .Where(assignment =>
+                assignment.IsActiveAt(
+                    dateTimeUtc))
+            .OrderByDescending(assignment =>
+                assignment.EffectiveFromUtc)
+            .FirstOrDefault();
+    }
+
+    public bool HasActiveManagerAt(
+        DateTimeOffset dateTimeUtc)
+    {
+        return GetActiveManagerAssignmentAt(
+            dateTimeUtc) is not null;
     }
 
     public void SetCreatedAudit(

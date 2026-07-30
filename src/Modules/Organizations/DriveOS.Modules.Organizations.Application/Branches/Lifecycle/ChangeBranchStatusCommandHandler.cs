@@ -185,8 +185,21 @@ public sealed class ChangeBranchStatusCommandHandler(
 
             return Result.Success();
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException exception)
         {
+            if (
+                targetStatus ==
+                    BranchStatus.Active &&
+                currentStatus ==
+                    BranchStatus.Draft &&
+                exception.Message.Contains(
+                    "manager",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return Result.Failure(
+                    BranchErrors.ActiveManagerRequired);
+            }
+
             return Result.Failure(
                 BranchErrors
                     .InvalidStatusTransition(

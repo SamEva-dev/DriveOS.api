@@ -3,6 +3,7 @@ using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
 using DriveOS.Modules.Organizations.Application.Abstractions;
 using DriveOS.Modules.Organizations.Application.Branches;
+using DriveOS.Modules.Organizations.Application.Branches.Managers;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Infrastructure.Authentication;
@@ -71,6 +72,8 @@ public static class DependencyInjection
             serviceProvider =>
                 serviceProvider.GetRequiredService<
                     OrganizationsDbContext>());
+
+        services.AddScoped< IBranchManagerReadService, BranchManagerReadService>();
 
         return services;
     }

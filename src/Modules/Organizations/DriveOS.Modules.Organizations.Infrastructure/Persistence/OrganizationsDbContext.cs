@@ -24,6 +24,9 @@ public sealed class OrganizationsDbContext :
     public DbSet<Branch> Branches =>
         Set<Branch>();
 
+    public DbSet<BranchManagerAssignment> BranchManagerAssignments =>
+        Set<BranchManagerAssignment>();
+
     public DbSet<BranchStatusHistoryEntry> BranchStatusHistory =>
         Set<BranchStatusHistoryEntry>();
 

@@ -61,6 +61,8 @@ internal sealed class BranchConfiguration :
             .HasMaxLength(30)
             .IsRequired();
 
+
+
         builder.OwnsOne(
             branch => branch.Address,
             address =>
@@ -119,12 +121,7 @@ internal sealed class BranchConfiguration :
                 id => id.HasValue ? id.Value.Value : (Guid?)null,
                 value => value.HasValue ? new UserId(value.Value) : null);
 
-        builder.Property(branch =>
-            branch.Status)
-        .HasColumnName("status")
-        .HasConversion<string>()
-        .HasMaxLength(40)
-        .IsRequired();
+        
 
         builder.HasMany(branch =>
                 branch.StatusHistory)
@@ -142,18 +139,20 @@ internal sealed class BranchConfiguration :
                 })
             .IsUnique();
 
-        builder.HasMany(branch =>
-                branch.StatusHistory)
-            .WithOne()
-            .HasForeignKey(entry =>
-                entry.BranchId)
-            .OnDelete(
-                DeleteBehavior.Cascade);
+       
 
-        builder.HasOne<DriveOS.Modules.Organizations.Domain.Organizations.Organization>()
+        builder.HasOne<Domain.Organizations.Organization>()
             .WithMany()
             .HasForeignKey(branch => branch.OrganizationId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(branch =>
+                branch.ManagerAssignments)
+            .WithOne()
+            .HasForeignKey(assignment =>
+                assignment.BranchId)
+            .OnDelete(
+        DeleteBehavior.Cascade);
 
         builder.HasIndex(branch =>
                 new { branch.OrganizationId, branch.NormalizedName })

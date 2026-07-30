@@ -13,6 +13,10 @@ using DriveOS.Modules.Organizations.Application
     .Branches.GetBranches;
 using DriveOS.Modules.Organizations.Application
     .Branches.Lifecycle;
+using DriveOS.Modules.Organizations.Application.Branches.Managers;
+using DriveOS.Modules.Organizations.Application.Branches.Managers.AssignBranchManager;
+using DriveOS.Modules.Organizations.Application.Branches.Managers.GetBranchManagerHistory;
+using DriveOS.Modules.Organizations.Application.Branches.Managers.GetCurrentBranchManager;
 using DriveOS.Modules.Organizations.Application
     .Branches.Models;
 using DriveOS.Modules.Organizations.Application
@@ -175,6 +179,50 @@ public static class BranchEndpoints
                 StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(
                 StatusCodes.Status409Conflict);
+
+        group.MapPost(
+        "/{branchId:guid}/manager",
+        AssignBranchManagerAsync)
+    .WithName(
+        "AssignBranchManager")
+    .WithSummary(
+        "Affecter le responsable principal d’une agence")
+    .Accepts<
+        AssignBranchManagerRequest>(
+        "application/json")
+    .Produces(
+        StatusCodes.Status204NoContent)
+    .Produces<ApiErrorResponse>(
+        StatusCodes.Status400BadRequest)
+    .Produces<ApiErrorResponse>(
+        StatusCodes.Status404NotFound)
+    .Produces<ApiErrorResponse>(
+        StatusCodes.Status409Conflict);
+
+        group.MapGet(
+                "/{branchId:guid}/manager",
+                GetCurrentBranchManagerAsync)
+            .WithName(
+                "GetCurrentBranchManager")
+            .WithSummary(
+                "Obtenir le responsable principal actuel d’une agence")
+            .Produces<
+                BranchManagerAssignmentResponse>(
+                StatusCodes.Status200OK)
+            .Produces<ApiErrorResponse>(
+                StatusCodes.Status404NotFound);
+
+        group.MapGet(
+                "/{branchId:guid}/manager-history",
+                GetBranchManagerHistoryAsync)
+            .WithName(
+                "GetBranchManagerHistory")
+            .WithSummary(
+                "Obtenir l’historique des responsables d’une agence")
+            .Produces<
+                IReadOnlyList<
+                    BranchManagerAssignmentResponse>>(
+                StatusCodes.Status200OK);
 
         return endpoints;
     }
@@ -556,4 +604,131 @@ public static class BranchEndpoints
             StringComparison.OrdinalIgnoreCase)
             ? SortDirection.Descending
             : SortDirection.Ascending;
+
+    private static async Task<IResult>
+    AssignBranchManagerAsync(
+        Guid organizationId,
+        Guid branchId,
+        AssignBranchManagerRequest request,
+        IMediator mediator,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var command =
+            new AssignBranchManagerCommand(
+                new OrganizationId(
+                    organizationId),
+                new BranchId(
+                    branchId),
+                new UserId(
+                    request.ManagerUserId),
+                request.EffectiveFromUtc);
+
+        Result result =
+            await mediator.Send(
+                command,
+                cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error
+                .ToHttpResult(
+                    httpContext);
+        }
+
+        return Results.NoContent();
+    }
+
+    private static async Task<IResult>
+        GetCurrentBranchManagerAsync(
+            Guid organizationId,
+            Guid branchId,
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken)
+    {
+        var query =
+            new GetCurrentBranchManagerQuery(
+                new OrganizationId(
+                    organizationId),
+                new BranchId(
+                    branchId));
+
+        Result<
+            BranchManagerAssignmentItem>
+            result =
+                await mediator.Send(
+                    query,
+                    cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error
+                .ToHttpResult(
+                    httpContext);
+        }
+
+        return Results.Ok(
+            MapManagerResponse(
+                result.Value));
+    }
+
+    private static async Task<IResult>
+        GetBranchManagerHistoryAsync(
+            Guid organizationId,
+            Guid branchId,
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken)
+    {
+        var query =
+            new GetBranchManagerHistoryQuery(
+                new OrganizationId(
+                    organizationId),
+                new BranchId(
+                    branchId));
+
+        Result<
+            IReadOnlyList<
+                BranchManagerAssignmentItem>>
+            result =
+                await mediator.Send(
+                    query,
+                    cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error
+                .ToHttpResult(
+                    httpContext);
+        }
+
+        IReadOnlyList<
+            BranchManagerAssignmentResponse>
+            response =
+                result.Value
+                    .Select(
+                        MapManagerResponse)
+                    .ToList();
+
+        return Results.Ok(response);
+    }
+
+    private static
+        BranchManagerAssignmentResponse
+        MapManagerResponse(
+            BranchManagerAssignmentItem item)
+    {
+        return new BranchManagerAssignmentResponse(
+            item.Id,
+            item.BranchId,
+            item.ManagerUserId,
+            item.EffectiveFromUtc,
+            item.EffectiveToUtc,
+            item.Status,
+            item.AssignedByUserId,
+            item.AssignedAtUtc,
+            item.EndedByUserId,
+            item.EndedAtUtc);
+    }
 }

@@ -125,4 +125,34 @@ public static class BranchErrors
                 ["targetStatus"] =
                     targetStatus.ToString(),
             });
+
+    public static readonly Error EmptyManagerUserId =
+    Error.Validation(
+        "Branches.Manager.UserId.Empty",
+        "errors.branches.manager.userId.empty");
+
+    public static readonly Error EmptyAssignedByUserId =
+        Error.Validation(
+            "Branches.Manager.AssignedBy.Empty",
+            "errors.branches.manager.assignedBy.empty");
+
+    public static readonly Error ManagerEffectiveDateInvalid =
+        Error.Validation(
+            "Branches.Manager.EffectiveDate.Invalid",
+            "errors.branches.manager.effectiveDate.invalid");
+
+    public static readonly Error ClosedBranchCannotReceiveManager =
+        Error.Conflict(
+            "Branches.Manager.ClosedBranch",
+            "errors.branches.manager.closedBranch");
+
+    public static readonly Error ActiveManagerRequired =
+        Error.Conflict(
+            "Branches.Manager.Required",
+            "errors.branches.manager.required");
+
+    public static readonly Error CurrentManagerNotFound =
+        Error.NotFound(
+            "Branches.Manager.NotFound",
+            "errors.branches.manager.notFound");
 }

@@ -53,11 +53,23 @@ internal sealed class BranchRepository(
                 cancellationToken);
 
     public Task<Branch?> GetByIdAsync(
-        BranchId id,
-        bool asNoTracking = false,
-        CancellationToken cancellationToken = default) =>
-        ApplyTracking(dbContext.Branches, asNoTracking)
-            .SingleOrDefaultAsync(branch => branch.Id == id, cancellationToken);
+    BranchId id,
+    bool asNoTracking = false,
+    CancellationToken cancellationToken = default)
+    {
+        IQueryable<Branch> query =
+            dbContext.Branches
+                .Include(branch =>
+                    branch.ManagerAssignments);
+
+        return ApplyTracking(
+                query,
+                asNoTracking)
+            .SingleOrDefaultAsync(
+                branch =>
+                    branch.Id == id,
+                cancellationToken);
+    }
 
     public async Task<IReadOnlyCollection<Branch>> GetAllAsync(
         bool asNoTracking = false,

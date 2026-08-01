@@ -155,4 +155,16 @@ public static class BranchErrors
         Error.NotFound(
             "Branches.Manager.NotFound",
             "errors.branches.manager.notFound");
+
+    public static readonly Error
+    ManagerEffectiveDateCannotBePast =
+        Error.Validation(
+            "Branches.Manager.EffectiveDate.Past",
+            "errors.branches.manager.effectiveDate.past");
+
+    public static readonly Error
+        ManagerEffectiveDateCannotBeFuture =
+            Error.Validation(
+                "Branches.Manager.EffectiveDate.Future",
+                "errors.branches.manager.effectiveDate.future");
 }

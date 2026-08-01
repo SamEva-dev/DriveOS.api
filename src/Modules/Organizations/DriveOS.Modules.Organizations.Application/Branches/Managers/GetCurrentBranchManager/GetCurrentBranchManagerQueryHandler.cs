@@ -22,6 +22,20 @@ internal sealed class
             GetCurrentBranchManagerQuery query,
             CancellationToken cancellationToken)
     {
+        bool branchExists =
+            await readService
+                .BranchExistsAsync(
+                    query.OrganizationId,
+                    query.BranchId,
+                    cancellationToken);
+
+        if (!branchExists)
+        {
+            return Result.Failure<
+                BranchManagerAssignmentItem>(
+                    BranchErrors.NotFound);
+        }
+
         BranchManagerAssignmentItem?
             manager =
                 await readService

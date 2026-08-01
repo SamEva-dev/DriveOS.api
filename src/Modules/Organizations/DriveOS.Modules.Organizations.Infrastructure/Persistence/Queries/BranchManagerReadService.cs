@@ -34,9 +34,10 @@ internal sealed class BranchManagerReadService(
                 branch.Id == branchId &&
                 branch.OrganizationId ==
                     organizationId &&
+                branch.Status !=
+                    BranchStatus.Closed &&
                 assignment.Status ==
-                    BranchManagerAssignmentStatus
-                        .Active &&
+                    BranchManagerAssignmentStatus.Active &&
                 assignment.EffectiveFromUtc <=
                     atUtc &&
                 (
@@ -121,5 +122,20 @@ internal sealed class BranchManagerReadService(
                     assignment.EndedAtUtc)
         ).ToListAsync(
             cancellationToken);
+    }
+
+    public Task<bool> BranchExistsAsync(
+    OrganizationId organizationId,
+    BranchId branchId,
+    CancellationToken cancellationToken = default)
+    {
+        return dbContext.Branches
+            .AsNoTracking()
+            .AnyAsync(
+                branch =>
+                    branch.Id == branchId &&
+                    branch.OrganizationId ==
+                        organizationId,
+                cancellationToken);
     }
 }

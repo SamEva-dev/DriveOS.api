@@ -240,4 +240,131 @@ public sealed class BranchManagerAssignmentTests
 
         return branch.Value;
     }
+
+    [Fact]
+    public void Close_ShouldEndActiveManagerAssignment()
+    {
+        Branch branch =
+            CreateBranch();
+
+        DateTimeOffset now =
+            DateTimeOffset.UtcNow;
+
+        UserId managerUserId =
+            UserId.New();
+
+        UserId changedByUserId =
+            UserId.New();
+
+        branch.AssignPrimaryManager(
+            managerUserId,
+            now,
+            changedByUserId,
+            now);
+
+        branch.Activate(
+            BranchStatusChangeReason.Create(
+                "Agence prête."),
+            changedByUserId.Value,
+            now);
+
+        DateTimeOffset closedAt =
+            now.AddHours(1);
+
+        branch.Close(
+            BranchStatusChangeReason.Create(
+                "Fermeture définitive."),
+            changedByUserId.Value,
+            closedAt);
+
+        branch.Status
+            .Should()
+            .Be(BranchStatus.Closed);
+
+        branch.HasActiveManagerAt(
+                closedAt)
+            .Should()
+            .BeFalse();
+
+        BranchManagerAssignment
+            assignment =
+                branch.ManagerAssignments
+                    .Single();
+
+        assignment.Status
+            .Should()
+            .Be(
+                BranchManagerAssignmentStatus
+                    .Ended);
+
+        assignment.EffectiveToUtc
+            .Should()
+            .Be(closedAt);
+
+        assignment.EndedByUserId
+            .Should()
+            .Be(changedByUserId);
+    }
+
+    [Fact]
+    public void AssignPrimaryManager_WithFutureDate_ShouldFail()
+    {
+        Branch branch =
+            CreateBranch();
+
+        DateTimeOffset assignedAt =
+            DateTimeOffset.UtcNow;
+
+        Result result =
+            branch.AssignPrimaryManager(
+                UserId.New(),
+                assignedAt.AddMinutes(1),
+                UserId.New(),
+                assignedAt);
+
+        result.IsFailure
+            .Should()
+            .BeTrue();
+
+        result.Error
+            .Should()
+            .Be(
+                BranchErrors
+                    .ManagerEffectiveDateCannotBeFuture);
+
+        branch.ManagerAssignments
+            .Should()
+            .BeEmpty();
+    }
+
+    [Fact]
+    public void AssignPrimaryManager_WithPastDate_ShouldFail()
+    {
+        Branch branch =
+            CreateBranch();
+
+        DateTimeOffset assignedAt =
+            DateTimeOffset.UtcNow;
+
+        Result result =
+            branch.AssignPrimaryManager(
+                UserId.New(),
+                assignedAt.AddMinutes(-1),
+                UserId.New(),
+                assignedAt);
+
+        result.IsFailure
+            .Should()
+            .BeTrue();
+
+        result.Error
+            .Should()
+            .Be(
+                BranchErrors
+                    .ManagerEffectiveDateCannotBePast);
+
+        branch.ManagerAssignments
+            .Should()
+            .BeEmpty();
+    }
 }

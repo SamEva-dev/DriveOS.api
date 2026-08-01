@@ -1,4 +1,5 @@
 ﻿using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Application
@@ -21,6 +22,21 @@ internal sealed class
             GetBranchManagerHistoryQuery query,
             CancellationToken cancellationToken)
     {
+        bool branchExists =
+            await readService
+                .BranchExistsAsync(
+                    query.OrganizationId,
+                    query.BranchId,
+                    cancellationToken);
+
+        if (!branchExists)
+        {
+            return Result.Failure<
+                IReadOnlyList<
+                    BranchManagerAssignmentItem>>(
+                        BranchErrors.NotFound);
+        }
+
         IReadOnlyList<
             BranchManagerAssignmentItem>
             assignments =

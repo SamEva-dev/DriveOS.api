@@ -131,15 +131,6 @@ internal sealed class BranchConfiguration :
             .OnDelete(
                 DeleteBehavior.Cascade);
 
-        builder.HasIndex(branch =>
-                new
-                {
-                    branch.OrganizationId,
-                    branch.NormalizedName,
-                })
-            .IsUnique();
-
-       
 
         builder.HasOne<Domain.Organizations.Organization>()
             .WithMany()
@@ -153,6 +144,7 @@ internal sealed class BranchConfiguration :
                 assignment.BranchId)
             .OnDelete(
         DeleteBehavior.Cascade);
+
 
         builder.HasIndex(branch =>
                 new { branch.OrganizationId, branch.NormalizedName })

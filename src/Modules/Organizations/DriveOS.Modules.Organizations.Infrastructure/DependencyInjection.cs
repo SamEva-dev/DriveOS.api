@@ -2,8 +2,10 @@
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
 using DriveOS.Modules.Organizations.Application.Abstractions;
+using DriveOS.Modules.Organizations.Application.BranchAssignments;
 using DriveOS.Modules.Organizations.Application.Branches;
 using DriveOS.Modules.Organizations.Application.Branches.Managers;
+using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Infrastructure.Authentication;
@@ -15,6 +17,7 @@ using DriveOS.Modules.Organizations.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DriveOS.Modules.Organizations.Infrastructure;
 
@@ -34,7 +37,7 @@ public static class DependencyInjection
 
         services.AddSingleton<IClock, SystemClock>();
 
-        services.AddScoped<ICurrentUser, AnonymousCurrentUser>();
+        services.TryAddScoped<ICurrentUser, AnonymousCurrentUser>();
 
         services.AddScoped<AuditableEntityInterceptor>();
 
@@ -73,7 +76,10 @@ public static class DependencyInjection
                 serviceProvider.GetRequiredService<
                     OrganizationsDbContext>());
 
-        services.AddScoped< IBranchManagerReadService, BranchManagerReadService>();
+        services.AddScoped<IBranchManagerReadService, BranchManagerReadService>();
+        services.AddScoped<IBranchUserAssignmentRepository,  BranchUserAssignmentRepository>();
+        services.AddScoped<IBranchUserAssignmentReadService, BranchUserAssignmentReadService>();
+            
 
         return services;
     }

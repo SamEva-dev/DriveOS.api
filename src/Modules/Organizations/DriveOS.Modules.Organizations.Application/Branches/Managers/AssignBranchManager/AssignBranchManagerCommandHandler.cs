@@ -66,16 +66,12 @@ internal sealed class
         DateTimeOffset now =
             clock.UtcNow;
 
-        DateTimeOffset effectiveFromUtc =
-            command.EffectiveFromUtc ??
-            now;
-
         Result assignmentResult =
-            branch.AssignPrimaryManager(
-                command.ManagerUserId,
-                effectiveFromUtc,
-                currentUser.UserId.Value,
-                now);
+    branch.AssignPrimaryManager(
+        command.ManagerUserId,
+        now,
+        currentUser.UserId.Value,
+        now);
 
         if (assignmentResult.IsFailure)
         {

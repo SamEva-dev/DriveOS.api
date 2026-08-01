@@ -7,6 +7,5 @@ namespace DriveOS.Modules.Organizations.Application
 public sealed record AssignBranchManagerCommand(
     OrganizationId OrganizationId,
     BranchId BranchId,
-    UserId ManagerUserId,
-    DateTimeOffset? EffectiveFromUtc)
+    UserId ManagerUserId)
     : ICommand;

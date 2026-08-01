@@ -4,8 +4,6 @@ using DriveOS.Api.Contracts;
 using DriveOS.Api.Errors;
 using DriveOS.Application.Abstractions.Pagination;
 using DriveOS.Application.Abstractions.Sorting;
-using DriveOS.Modules.Organizations.Application
-    .Organizations.CreateOrganization;
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizationById;
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizations;
 using DriveOS.Modules.Organizations.Application.Organizations.Lifecycle;
@@ -13,6 +11,7 @@ using DriveOS.Modules.Organizations.Application.Organizations.OrganizationStatus
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
+using LocaGuest.Security.Contracts;
 
 namespace DriveOS.Api.Endpoints.Organizations;
 
@@ -26,26 +25,6 @@ public static class OrganizationEndpoints
             endpoints.MapGroup("/api/organizations")
                 .WithTags("Organizations");
 
-        group.MapPost(
-        "/",
-        CreateOrganizationAsync)
-        .WithName("CreateOrganization")
-        .WithSummary(
-            "Créer une organisation")
-        .WithDescription(
-            "Crée le tenant principal d’une auto-école, " +
-            "d’un réseau, d’un centre de formation " +
-            "ou d’une autre structure partenaire.")
-        .WithTags("Organizations")
-        .Accepts<CreateOrganizationRequest>(
-            "application/json")
-        .Produces<CreateOrganizationResponse>(
-            StatusCodes.Status201Created)
-        .Produces<ApiErrorResponse>(
-            StatusCodes.Status400BadRequest)
-        .Produces<ApiErrorResponse>(
-        StatusCodes.Status409Conflict);
-
         group.MapGet(
                 "/{organizationId:guid}",
                 GetOrganizationByIdAsync)
@@ -58,7 +37,9 @@ public static class OrganizationEndpoints
             .Produces<GetOrganizationResponse>(
                 StatusCodes.Status200OK)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status404NotFound);
+                StatusCodes.Status404NotFound)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Organizations.Read);
 
         group.MapGet(
                 "/",
@@ -74,7 +55,9 @@ public static class OrganizationEndpoints
                     OrganizationListItemResponse>>(
                 StatusCodes.Status200OK)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status400BadRequest);
+                StatusCodes.Status400BadRequest)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Organizations.Read);
 
         group.MapGet(
                 "/{organizationId:guid}/status-history",
@@ -83,68 +66,47 @@ public static class OrganizationEndpoints
             .WithSummary("Obtenir l’historique des statuts d’une organisation")
             .Produces<IReadOnlyList<OrganizationStatusHistoryItem>>(
                 StatusCodes.Status200OK)
-            .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound);
+            .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Organizations.StatusHistoryRead);
 
         group.MapPost(
             "/{organizationId:guid}/submit-for-activation",
-            SubmitForActivationAsync);
+            SubmitForActivationAsync)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Organizations.SubmitForActivation);
 
         group.MapPost(
             "/{organizationId:guid}/activate",
-            ActivateAsync);
+            ActivateAsync)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Organizations.Activate);
 
         group.MapPost(
             "/{organizationId:guid}/restrict",
-            RestrictAsync);
+            RestrictAsync)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Organizations.Restrict);
 
         group.MapPost(
             "/{organizationId:guid}/suspend",
-            SuspendAsync);
+            SuspendAsync)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Organizations.Suspend);
 
         group.MapPost(
             "/{organizationId:guid}/reactivate",
-            ReactivateAsync);
+            ReactivateAsync)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Organizations.Reactivate);
 
         group.MapPost(
             "/{organizationId:guid}/close",
-            CloseAsync);
+            CloseAsync)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Organizations.Close);
 
         return endpoints;
-    }
-
-    private static async Task<IResult>
-        CreateOrganizationAsync(
-            CreateOrganizationRequest request,
-            IMediator mediator,
-            HttpContext httpContext,
-            CancellationToken cancellationToken)
-    {
-        var command = new CreateOrganizationCommand(
-            request.LegalName,
-            request.CountryCode,
-            request.OrganizationType);
-
-        Result<OrganizationId> result =
-            await mediator.Send(
-                command,
-                cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return result.Error.ToHttpResult(
-                httpContext);
-        }
-
-        Guid organizationId =
-            result.Value.Value;
-
-        var response =
-            new CreateOrganizationResponse(
-                organizationId);
-
-        return Results.Created(
-            $"/api/organizations/{organizationId}",
-            response);
     }
 
     private static async Task<IResult>

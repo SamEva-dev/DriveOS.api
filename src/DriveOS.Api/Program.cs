@@ -1,7 +1,9 @@
 using DomainRelay.Validation;
 using DriveOS.Api;
+using DriveOS.Api.Endpoints.AccessManagement;
 using DriveOS.Api.Endpoints.Branches;
 using DriveOS.Api.Endpoints.Organizations;
+using DriveOS.Api.Endpoints.Provisioning;
 using DriveOS.Api.Errors;
 using DriveOS.Api.Infrastructure.Logging;
 using DriveOS.Modules.Organizations.Application;
@@ -66,7 +68,7 @@ try
 
 
     builder.Services
-        .AddApiServices()
+        .AddApiServices(builder.Configuration)
     .AddOrganizationsApplication()
     .AddOrganizationsInfrastructure(
         builder.Configuration);
@@ -191,9 +193,13 @@ try
 
     app.UseHttpsRedirection();
     app.UseCors("DriveOsWeb");
+    app.UseAuthentication();
+    app.UseAuthorization();
 
     app.MapOrganizationEndpoints();
     app.MapBranchEndpoints();
+    app.MapProvisioningEndpoints();
+    app.MapAccessManagementEndpoints();
 
     app.MapGet(
         "/health",

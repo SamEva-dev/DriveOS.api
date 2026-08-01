@@ -5,6 +5,11 @@ namespace DriveOS.Modules.Organizations.Application
 
 public interface IBranchManagerReadService
 {
+    Task<bool> BranchExistsAsync(
+        OrganizationId organizationId,
+        BranchId branchId,
+        CancellationToken cancellationToken = default);
+
     Task<BranchManagerAssignmentItem?>
         GetCurrentAsync(
             OrganizationId organizationId,

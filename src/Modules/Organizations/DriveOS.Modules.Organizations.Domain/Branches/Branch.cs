@@ -392,17 +392,25 @@ public sealed class Branch :
     }
 
     public void Close(
-        BranchStatusChangeReason reason,
-        Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+    BranchStatusChangeReason reason,
+    Guid changedByUserId,
+    DateTimeOffset changedAtUtc)
     {
         EnsureStatusIn(
             [
                 BranchStatus.Active,
-                BranchStatus.Restricted,
-                BranchStatus.Suspended,
-            ],
+            BranchStatus.Restricted,
+            BranchStatus.Suspended,
+        ],
             "The branch cannot be closed from its current status.");
+
+        var changedBy =
+            new UserId(changedByUserId);
+
+        EndActiveManagerAssignment(
+            changedAtUtc,
+            changedBy,
+            changedAtUtc);
 
         if (IsPrimary)
         {
@@ -450,6 +458,20 @@ public sealed class Branch :
                     .ManagerEffectiveDateInvalid);
         }
 
+        if (effectiveFromUtc < assignedAtUtc)
+        {
+            return Result.Failure(
+                BranchErrors
+                    .ManagerEffectiveDateCannotBePast);
+        }
+
+        if (effectiveFromUtc > assignedAtUtc)
+        {
+            return Result.Failure(
+                BranchErrors
+                    .ManagerEffectiveDateCannotBeFuture);
+        }
+
         BranchManagerAssignment?
             currentAssignment =
                 GetActiveManagerAssignmentAt(
@@ -465,20 +487,10 @@ public sealed class Branch :
 
         if (currentAssignment is not null)
         {
-            currentAssignment.End(
+            EndActiveManagerAssignment(
                 effectiveFromUtc,
                 assignedByUserId,
                 assignedAtUtc);
-
-            RaiseDomainEvent(
-                new BranchManagerAssignmentEndedDomainEvent(
-                    Id,
-                    OrganizationId,
-                    currentAssignment.Id,
-                    currentAssignment.ManagerUserId,
-                    effectiveFromUtc,
-                    assignedByUserId,
-                    assignedAtUtc));
         }
 
         BranchManagerAssignment
@@ -551,6 +563,36 @@ public sealed class Branch :
 
         LastModifiedByUserId =
             modifiedByUserId;
+    }
+    private void EndActiveManagerAssignment(
+    DateTimeOffset effectiveToUtc,
+    UserId endedByUserId,
+    DateTimeOffset endedAtUtc)
+    {
+        BranchManagerAssignment?
+            currentAssignment =
+                GetActiveManagerAssignmentAt(
+                    effectiveToUtc);
+
+        if (currentAssignment is null)
+        {
+            return;
+        }
+
+        currentAssignment.End(
+            effectiveToUtc,
+            endedByUserId,
+            endedAtUtc);
+
+        RaiseDomainEvent(
+            new BranchManagerAssignmentEndedDomainEvent(
+                Id,
+                OrganizationId,
+                currentAssignment.Id,
+                currentAssignment.ManagerUserId,
+                effectiveToUtc,
+                endedByUserId,
+                endedAtUtc));
     }
 
     private void ChangeStatus(

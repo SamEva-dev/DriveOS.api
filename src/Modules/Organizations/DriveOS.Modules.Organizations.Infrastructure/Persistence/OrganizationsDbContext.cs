@@ -1,4 +1,5 @@
 ﻿using DriveOS.Application.Abstractions.Persistence;
+using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,10 @@ public sealed class OrganizationsDbContext :
 
     public DbSet<BranchManagerAssignment> BranchManagerAssignments =>
         Set<BranchManagerAssignment>();
+    public DbSet<BranchUserAssignment>
+    BranchUserAssignments =>
+        Set<BranchUserAssignment>();
+
 
     public DbSet<BranchStatusHistoryEntry> BranchStatusHistory =>
         Set<BranchStatusHistoryEntry>();

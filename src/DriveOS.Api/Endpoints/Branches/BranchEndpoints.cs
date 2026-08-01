@@ -28,6 +28,7 @@ using DriveOS.Modules.Organizations.Application
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
+using LocaGuest.Security.Contracts;
 
 namespace DriveOS.Api.Endpoints.Branches;
 
@@ -53,7 +54,9 @@ public static class BranchEndpoints
             .Produces<ApiErrorResponse>(
                 StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status409Conflict);
+                StatusCodes.Status409Conflict)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.Create);
 
         group.MapGet(
                 "/",
@@ -62,7 +65,9 @@ public static class BranchEndpoints
             .Produces<
                 PagedResponse<
                     BranchListItemResponse>>(
-                StatusCodes.Status200OK);
+                StatusCodes.Status200OK)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.Read);
 
         group.MapGet(
                 "/{branchId:guid}",
@@ -71,7 +76,9 @@ public static class BranchEndpoints
             .Produces<GetBranchResponse>(
                 StatusCodes.Status200OK)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status404NotFound);
+                StatusCodes.Status404NotFound)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.Read);
 
         group.MapPut(
                 "/{branchId:guid}",
@@ -86,7 +93,9 @@ public static class BranchEndpoints
             .Produces<ApiErrorResponse>(
                 StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status409Conflict);
+                StatusCodes.Status409Conflict)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.Update);
 
         group.MapPost(
                 "/{branchId:guid}/set-primary",
@@ -97,7 +106,9 @@ public static class BranchEndpoints
             .Produces<ApiErrorResponse>(
                 StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status409Conflict);
+                StatusCodes.Status409Conflict)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.SetPrimary);
 
         group.MapGet(
                 "/{branchId:guid}/status-history",
@@ -111,7 +122,9 @@ public static class BranchEndpoints
                     BranchStatusHistoryItem>>(
                 StatusCodes.Status200OK)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status404NotFound);
+                StatusCodes.Status404NotFound)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.StatusHistoryRead);
 
         group.MapPost(
                 "/{branchId:guid}/activate",
@@ -126,7 +139,9 @@ public static class BranchEndpoints
             .Produces<ApiErrorResponse>(
                 StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status409Conflict);
+                StatusCodes.Status409Conflict)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.Activate);
 
         group.MapPost(
                 "/{branchId:guid}/restrict",
@@ -139,7 +154,9 @@ public static class BranchEndpoints
             .Produces<ApiErrorResponse>(
                 StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status409Conflict);
+                StatusCodes.Status409Conflict)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.Restrict);
 
         group.MapPost(
                 "/{branchId:guid}/suspend",
@@ -152,7 +169,9 @@ public static class BranchEndpoints
             .Produces<ApiErrorResponse>(
                 StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status409Conflict);
+                StatusCodes.Status409Conflict)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.Suspend);
 
         group.MapPost(
                 "/{branchId:guid}/reactivate",
@@ -165,7 +184,9 @@ public static class BranchEndpoints
             .Produces<ApiErrorResponse>(
                 StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status409Conflict);
+                StatusCodes.Status409Conflict)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.Reactivate);
 
         group.MapPost(
                 "/{branchId:guid}/close",
@@ -178,7 +199,9 @@ public static class BranchEndpoints
             .Produces<ApiErrorResponse>(
                 StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status409Conflict);
+                StatusCodes.Status409Conflict)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Branches.Close);
 
         group.MapPost(
         "/{branchId:guid}/manager",
@@ -197,7 +220,9 @@ public static class BranchEndpoints
     .Produces<ApiErrorResponse>(
         StatusCodes.Status404NotFound)
     .Produces<ApiErrorResponse>(
-        StatusCodes.Status409Conflict);
+        StatusCodes.Status409Conflict)
+    .RequireAuthorization(
+        DriveOsPermissionCodes.BranchManagers.Assign);
 
         group.MapGet(
                 "/{branchId:guid}/manager",
@@ -210,7 +235,9 @@ public static class BranchEndpoints
                 BranchManagerAssignmentResponse>(
                 StatusCodes.Status200OK)
             .Produces<ApiErrorResponse>(
-                StatusCodes.Status404NotFound);
+                StatusCodes.Status404NotFound)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.BranchManagers.Read);
 
         group.MapGet(
                 "/{branchId:guid}/manager-history",
@@ -222,7 +249,9 @@ public static class BranchEndpoints
             .Produces<
                 IReadOnlyList<
                     BranchManagerAssignmentResponse>>(
-                StatusCodes.Status200OK);
+                StatusCodes.Status200OK)
+            .RequireAuthorization(
+                DriveOsPermissionCodes.BranchManagers.HistoryRead);
 
         return endpoints;
     }
@@ -621,8 +650,7 @@ public static class BranchEndpoints
                 new BranchId(
                     branchId),
                 new UserId(
-                    request.ManagerUserId),
-                request.EffectiveFromUtc);
+                    request.ManagerUserId));
 
         Result result =
             await mediator.Send(

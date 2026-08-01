@@ -12,7 +12,10 @@
   <ItemGroup>
     <PackageReference Include="DomainRelay.Mapping.DependencyInjection" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="LocaGuest.Security.Contracts" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" />
     <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
@@ -27,6 +30,8 @@
     <PackageReference Include="Serilog.Enrichers.Thread" />
 
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
   </ItemGroup>
 
   <ItemGroup>

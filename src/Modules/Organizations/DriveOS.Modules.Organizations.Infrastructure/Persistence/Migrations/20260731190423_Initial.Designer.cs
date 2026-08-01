@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(OrganizationsDbContext))]
-    [Migration("20260730081514_AddBranchManagerAssignments")]
-    partial class AddBranchManagerAssignments
+    [Migration("20260731190423_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,119 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.BranchAssignments.BranchUserAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AssignmentType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("assignment_type");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<DateTimeOffset?>("EffectiveEndAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("effective_end_at_utc");
+
+                    b.Property<string>("EndReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("end_reason");
+
+                    b.Property<DateTimeOffset?>("EndedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ended_at_utc");
+
+                    b.Property<Guid?>("EndedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ended_by_user_id");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_at_utc");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by_user_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset?>("PlannedEndAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("planned_end_at_utc");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("role");
+
+                    b.Property<DateTimeOffset>("StartsAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("starts_at_utc");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("SuspendedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("suspended_at_utc");
+
+                    b.Property<Guid?>("SuspendedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("suspended_by_user_id");
+
+                    b.Property<string>("SuspensionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("suspension_reason");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("OrganizationId", "BranchId", "Status")
+                        .HasDatabaseName("ix_branch_user_assignments_branch_status");
+
+                    b.HasIndex("OrganizationId", "UserId", "AssignmentType")
+                        .IsUnique()
+                        .HasDatabaseName("ux_branch_user_assignments_primary_user")
+                        .HasFilter("assignment_type = 'Primary' AND status <> 'Ended'");
+
+                    b.HasIndex("OrganizationId", "UserId", "Status")
+                        .HasDatabaseName("ix_branch_user_assignments_user_status");
+
+                    b.HasIndex("OrganizationId", "BranchId", "UserId", "Role")
+                        .IsUnique()
+                        .HasDatabaseName("ux_branch_user_assignments_open_role")
+                        .HasFilter("status <> 'Ended'");
+
+                    b.ToTable("branch_user_assignments", "organization");
+                });
 
             modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Branches.Branch", b =>
                 {
@@ -313,6 +426,15 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_organization_status_history_org_date");
 
                     b.ToTable("organization_status_history", "organization");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.BranchAssignments.BranchUserAssignment", b =>
+                {
+                    b.HasOne("DriveOS.Modules.Organizations.Domain.Branches.Branch", null)
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Branches.Branch", b =>

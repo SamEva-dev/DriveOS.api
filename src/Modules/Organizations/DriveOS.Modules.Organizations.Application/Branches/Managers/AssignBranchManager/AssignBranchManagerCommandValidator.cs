@@ -28,12 +28,12 @@ internal sealed class
             .WithMessage(
                 "errors.branches.manager.userId.empty");
 
-        RuleFor(command =>
-                command.EffectiveFromUtc)
-            .Must(value =>
-                value is null ||
-                value.Value != default)
-            .WithMessage(
-                "errors.branches.manager.effectiveDate.invalid");
+        //RuleFor(command =>
+        //        command.EffectiveFromUtc)
+        //    .Must(value =>
+        //        value is null ||
+        //        value.Value != default)
+        //    .WithMessage(
+        //        "errors.branches.manager.effectiveDate.invalid");
     }
 }

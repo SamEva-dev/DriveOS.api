@@ -1,5 +1,6 @@
 ﻿using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Modules.Organizations.Domain.BranchAssignments;
+using DriveOS.Modules.Organizations.Domain.BranchConfigurationOverrides;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Domain.Organizations;
@@ -46,6 +47,9 @@ public sealed class OrganizationsDbContext :
 
     public DbSet<OrganizationConfiguration> OrganizationConfigurations =>
     Set<OrganizationConfiguration>();
+
+    public DbSet<BranchConfigurationOverride> BranchConfigurationOverrides =>
+    Set<BranchConfigurationOverride>();
 
     public bool HasActiveTransaction =>
         _currentTransaction is not null;

@@ -17,4 +17,6 @@ public sealed record EffectiveOrganizationConfiguration(
     string PayloadJson,
     DateTimeOffset EffectiveFromUtc,
     DateTimeOffset? EffectiveToUtc,
-    OrganizationConfigurationSource Source);
+    OrganizationConfigurationSource Source,
+    Guid? BaseConfigurationId = null,
+    int? BranchOverrideVersionNumber = null);

@@ -1,7 +1,9 @@
 using DomainRelay.Validation;
 using DriveOS.Api;
 using DriveOS.Api.Endpoints.AccessManagement;
+using DriveOS.Api.Endpoints.BranchConfigurationOverrides;
 using DriveOS.Api.Endpoints.Branches;
+using DriveOS.Api.Endpoints.OrganizationConfigurations;
 using DriveOS.Api.Endpoints.Organizations;
 using DriveOS.Api.Endpoints.OrganizationSettings;
 using DriveOS.Api.Endpoints.OrganizationSubscriptions;
@@ -205,6 +207,8 @@ try
     app.MapBranchEndpoints();
     app.MapProvisioningEndpoints();
     app.MapAccessManagementEndpoints();
+    app.MapBranchConfigurationOverrideEndpoints();
+    app.MapOrganizationConfigurationEndpoints();
 
     app.MapGet(
         "/health",

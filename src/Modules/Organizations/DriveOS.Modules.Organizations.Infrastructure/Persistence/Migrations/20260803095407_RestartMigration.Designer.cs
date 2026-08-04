@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(OrganizationsDbContext))]
-    [Migration("20260731190423_Initial")]
-    partial class Initial
+    [Migration("20260803095407_RestartMigration")]
+    partial class RestartMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -329,6 +329,46 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                     b.ToTable("branch_status_history", "organizations");
                 });
 
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_at_utc");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by_user_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_organization_settings_organization_id");
+
+                    b.ToTable("organization_settings", "organization");
+                });
+
             modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Organizations.Organization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -428,6 +468,78 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                     b.ToTable("organization_status_history", "organization");
                 });
 
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Subscriptions.OrganizationSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BillingCycle")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("billing_cycle");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("ExternalProvider")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("external_provider");
+
+                    b.Property<string>("ExternalSubscriptionId")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("external_subscription_id");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_at_utc");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by_user_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("PlanCode")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("plan_code");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_organization_subscriptions_organization_id");
+
+                    b.HasIndex("ExternalProvider", "ExternalSubscriptionId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_organization_subscriptions_external_reference")
+                        .HasFilter("external_provider IS NOT NULL AND external_subscription_id IS NOT NULL");
+
+                    b.ToTable("organization_subscriptions", "organization");
+                });
+
             modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.BranchAssignments.BranchUserAssignment", b =>
                 {
                     b.HasOne("DriveOS.Modules.Organizations.Domain.Branches.Branch", null)
@@ -510,6 +622,230 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationSettings", b =>
+                {
+                    b.HasOne("DriveOS.Modules.Organizations.Domain.Organizations.Organization", null)
+                        .WithOne()
+                        .HasForeignKey("DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationSettings", "OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationAddress", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("OrganizationSettingsId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("City")
+                                .HasMaxLength(120)
+                                .HasColumnType("character varying(120)")
+                                .HasColumnName("city");
+
+                            b1.Property<string>("CountryCode")
+                                .IsRequired()
+                                .HasMaxLength(2)
+                                .HasColumnType("character(2)")
+                                .HasColumnName("address_country_code")
+                                .IsFixedLength();
+
+                            b1.Property<string>("Line1")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("address_line1");
+
+                            b1.Property<string>("Line2")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("address_line2");
+
+                            b1.Property<string>("PostalCode")
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("postal_code");
+
+                            b1.Property<string>("Region")
+                                .HasMaxLength(120)
+                                .HasColumnType("character varying(120)")
+                                .HasColumnName("region");
+
+                            b1.HasKey("OrganizationSettingsId");
+
+                            b1.ToTable("organization_settings", "organization");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationSettingsId");
+                        });
+
+                    b.OwnsOne("DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationContactInformation", "Contact", b1 =>
+                        {
+                            b1.Property<Guid>("OrganizationSettingsId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Email")
+                                .HasMaxLength(320)
+                                .HasColumnType("character varying(320)")
+                                .HasColumnName("contact_email");
+
+                            b1.Property<string>("Phone")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)")
+                                .HasColumnName("contact_phone");
+
+                            b1.Property<string>("Website")
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("website");
+
+                            b1.HasKey("OrganizationSettingsId");
+
+                            b1.ToTable("organization_settings", "organization");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationSettingsId");
+                        });
+
+                    b.OwnsOne("DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationOperationalSettings", "Operational", b1 =>
+                        {
+                            b1.Property<Guid>("OrganizationSettingsId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<bool>("AllowStudentSelfBooking")
+                                .HasColumnType("boolean")
+                                .HasColumnName("allow_student_self_booking");
+
+                            b1.Property<int>("DefaultBookingLeadTimeMinutes")
+                                .HasColumnType("integer")
+                                .HasColumnName("default_booking_lead_time_minutes");
+
+                            b1.Property<Guid?>("DefaultBranchId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("default_branch_id");
+
+                            b1.Property<int>("DefaultCancellationDelayHours")
+                                .HasColumnType("integer")
+                                .HasColumnName("default_cancellation_delay_hours");
+
+                            b1.Property<int>("DefaultSessionDurationMinutes")
+                                .HasColumnType("integer")
+                                .HasColumnName("default_session_duration_minutes");
+
+                            b1.Property<bool>("RequireBranchForOperations")
+                                .HasColumnType("boolean")
+                                .HasColumnName("require_branch_for_operations");
+
+                            b1.HasKey("OrganizationSettingsId");
+
+                            b1.ToTable("organization_settings", "organization");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationSettingsId");
+                        });
+
+                    b.OwnsOne("DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationProfile", "Profile", b1 =>
+                        {
+                            b1.Property<Guid>("OrganizationSettingsId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("RegistrationNumber")
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("registration_number");
+
+                            b1.Property<string>("TaxNumber")
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("tax_number");
+
+                            b1.Property<string>("TradeName")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("trade_name");
+
+                            b1.HasKey("OrganizationSettingsId");
+
+                            b1.ToTable("organization_settings", "organization");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationSettingsId");
+                        });
+
+                    b.OwnsOne("DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationRegionalSettings", "Regional", b1 =>
+                        {
+                            b1.Property<Guid>("OrganizationSettingsId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("CurrencyCode")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character(3)")
+                                .HasColumnName("currency_code")
+                                .IsFixedLength();
+
+                            b1.Property<string>("DateFormat")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("date_format");
+
+                            b1.Property<string>("DefaultLanguage")
+                                .IsRequired()
+                                .HasMaxLength(15)
+                                .HasColumnType("character varying(15)")
+                                .HasColumnName("default_language");
+
+                            b1.Property<string>("FirstDayOfWeek")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("first_day_of_week");
+
+                            b1.Property<string>("MeasurementSystem")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("measurement_system");
+
+                            b1.Property<string>("SupportedLanguages")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("supported_languages");
+
+                            b1.Property<string>("TimeFormat")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("time_format");
+
+                            b1.Property<string>("TimeZoneId")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("time_zone_id");
+
+                            b1.HasKey("OrganizationSettingsId");
+
+                            b1.ToTable("organization_settings", "organization");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationSettingsId");
+                        });
+
+                    b.Navigation("Address")
+                        .IsRequired();
+
+                    b.Navigation("Contact")
+                        .IsRequired();
+
+                    b.Navigation("Operational")
+                        .IsRequired();
+
+                    b.Navigation("Profile")
+                        .IsRequired();
+
+                    b.Navigation("Regional")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Organizations.OrganizationStatusHistoryEntry", b =>
                 {
                     b.HasOne("DriveOS.Modules.Organizations.Domain.Organizations.Organization", null)
@@ -517,6 +853,141 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Subscriptions.OrganizationSubscription", b =>
+                {
+                    b.HasOne("DriveOS.Modules.Organizations.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("DriveOS.Modules.Organizations.Domain.Subscriptions.SubscriptionPeriod", "CurrentPeriod", b1 =>
+                        {
+                            b1.Property<Guid>("OrganizationSubscriptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTimeOffset?>("EndsAtUtc")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("current_period_ends_at_utc");
+
+                            b1.Property<DateTimeOffset>("StartsAtUtc")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("current_period_starts_at_utc");
+
+                            b1.HasKey("OrganizationSubscriptionId");
+
+                            b1.ToTable("organization_subscriptions", "organization");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationSubscriptionId");
+                        });
+
+                    b.OwnsOne("DriveOS.Modules.Organizations.Domain.Subscriptions.SubscriptionPeriod", "TrialPeriod", b1 =>
+                        {
+                            b1.Property<Guid>("OrganizationSubscriptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTimeOffset?>("EndsAtUtc")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("trial_ends_at_utc");
+
+                            b1.Property<DateTimeOffset>("StartsAtUtc")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("trial_starts_at_utc");
+
+                            b1.HasKey("OrganizationSubscriptionId");
+
+                            b1.ToTable("organization_subscriptions", "organization");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationSubscriptionId");
+                        });
+
+                    b.OwnsOne("DriveOS.Modules.Organizations.Domain.Subscriptions.SubscriptionCancellation", "Cancellation", b1 =>
+                        {
+                            b1.Property<Guid>("OrganizationSubscriptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTimeOffset>("EffectiveAtUtc")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("cancellation_effective_at_utc");
+
+                            b1.Property<string>("Reason")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("cancellation_reason");
+
+                            b1.Property<DateTimeOffset>("RequestedAtUtc")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("cancellation_requested_at_utc");
+
+                            b1.Property<Guid>("RequestedByUserId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("cancellation_requested_by_user_id");
+
+                            b1.HasKey("OrganizationSubscriptionId");
+
+                            b1.ToTable("organization_subscriptions", "organization");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationSubscriptionId");
+                        });
+
+                    b.OwnsMany("DriveOS.Modules.Organizations.Domain.Subscriptions.SubscriptionEntitlement", "Entitlements", b1 =>
+                        {
+                            b1.Property<Guid>("OrganizationSubscriptionId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("organization_subscription_id");
+
+                            b1.Property<string>("Code")
+                                .HasMaxLength(150)
+                                .HasColumnType("character varying(150)")
+                                .HasColumnName("entitlement_code");
+
+                            b1.HasKey("OrganizationSubscriptionId", "Code");
+
+                            b1.ToTable("organization_subscription_entitlements", "organization");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationSubscriptionId");
+                        });
+
+                    b.OwnsMany("DriveOS.Modules.Organizations.Domain.Subscriptions.SubscriptionLimit", "Limits", b1 =>
+                        {
+                            b1.Property<Guid>("OrganizationSubscriptionId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("organization_subscription_id");
+
+                            b1.Property<string>("Code")
+                                .HasMaxLength(150)
+                                .HasColumnType("character varying(150)")
+                                .HasColumnName("limit_code");
+
+                            b1.Property<long>("Value")
+                                .HasColumnType("bigint")
+                                .HasColumnName("limit_value");
+
+                            b1.HasKey("OrganizationSubscriptionId", "Code");
+
+                            b1.ToTable("organization_subscription_limits", "organization");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationSubscriptionId");
+                        });
+
+                    b.Navigation("Cancellation");
+
+                    b.Navigation("CurrentPeriod")
+                        .IsRequired();
+
+                    b.Navigation("Entitlements");
+
+                    b.Navigation("Limits");
+
+                    b.Navigation("TrialPeriod");
                 });
 
             modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Branches.Branch", b =>

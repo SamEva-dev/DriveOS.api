@@ -38,6 +38,12 @@ public sealed class BranchLifecycleTests
         Branch branch =
             CreateDraftBranch();
 
+        branch.AssignPrimaryManager(
+            UserId.New(),
+            ChangedAtUtc,
+            UserId.New(),
+            ChangedAtUtc);
+
         branch.Activate(
             BranchStatusChangeReason.Create(
                 "Agence prête à démarrer."),
@@ -209,6 +215,16 @@ public sealed class BranchLifecycleTests
         Branch branch =
             CreateDraftBranch(
                 isPrimary);
+
+        Result managerAssignmentResult =
+            branch.AssignPrimaryManager(
+                UserId.New(),
+                ChangedAtUtc,
+                UserId.New(),
+                ChangedAtUtc);
+
+        managerAssignmentResult.IsSuccess.Should()
+            .BeTrue();
 
         branch.Activate(
             BranchStatusChangeReason.Create(

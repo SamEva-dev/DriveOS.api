@@ -11,7 +11,7 @@ using DriveOS.Modules.Organizations.Application.Organizations.OrganizationStatus
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
-using LocaGuest.Security.Contracts;
+using DriveOS.Security.Contracts;
 
 namespace DriveOS.Api.Endpoints.Organizations;
 

@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Folder Include="Mapping\" />
+    <Folder Include="OrganizationSettings\" />
   </ItemGroup>
 
 </Project>

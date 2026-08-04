@@ -5,10 +5,18 @@ using DriveOS.Modules.Organizations.Application.Abstractions;
 using DriveOS.Modules.Organizations.Application.BranchAssignments;
 using DriveOS.Modules.Organizations.Application.Branches;
 using DriveOS.Modules.Organizations.Application.Branches.Managers;
+using DriveOS.Modules.Organizations.Application.OrganizationConfigurations;
+using DriveOS.Modules.Organizations.Application.OrganizationConfigurations.Effective;
+using DriveOS.Modules.Organizations.Application.OrganizationSettings;
+using DriveOS.Modules.Organizations.Application.OrganizationSubscriptions;
 using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.Branches;
+using DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Domain.Organizations;
+using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
+using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using DriveOS.Modules.Organizations.Infrastructure.Authentication;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence.Interceptors;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence.Queries;
@@ -68,6 +76,19 @@ public static class DependencyInjection
             IOrganizationReadService,
             OrganizationReadService>();
 
+        services.AddScoped<
+            IOrganizationSubscriptionRepository,
+            OrganizationSubscriptionRepository>();
+
+        services.AddScoped<
+            IOrganizationSubscriptionReadService,
+            OrganizationSubscriptionReadService>();
+        services.AddScoped<IOrganizationSettingsRepository, OrganizationSettingsRepository>();
+
+        services.AddScoped<
+                IOrganizationConfigurationRepository,
+                OrganizationConfigurationRepository>();
+
         services.AddScoped<IBranchRepository, BranchRepository>();
         services.AddScoped<IBranchReadService, BranchReadService>();
 
@@ -77,10 +98,21 @@ public static class DependencyInjection
                     OrganizationsDbContext>());
 
         services.AddScoped<IBranchManagerReadService, BranchManagerReadService>();
-        services.AddScoped<IBranchUserAssignmentRepository,  BranchUserAssignmentRepository>();
+        services.AddScoped<IBranchUserAssignmentRepository, BranchUserAssignmentRepository>();
         services.AddScoped<IBranchUserAssignmentReadService, BranchUserAssignmentReadService>();
-            
+        services.AddScoped<IOrganizationSettingsReadService, OrganizationSettingsReadService>();
+        services.AddScoped<IOrganizationConfigurationReadService, OrganizationConfigurationReadService>();
 
+        services.AddSingleton<OrganizationConfigurationMemoryCache>();
+
+        services.AddSingleton<IOrganizationConfigurationCacheInvalidator>(
+            serviceProvider =>
+                serviceProvider.GetRequiredService<
+                    OrganizationConfigurationMemoryCache>());
+
+        services.AddScoped<
+            IEffectiveOrganizationConfigurationResolver,
+            EffectiveOrganizationConfigurationResolver>();
         return services;
     }
 }

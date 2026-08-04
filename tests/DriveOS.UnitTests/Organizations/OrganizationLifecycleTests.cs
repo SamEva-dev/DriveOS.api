@@ -13,7 +13,7 @@ public class OrganizationLifecycleTests
             OrganizationTestData.CreatePendingActivation();
 
         DateTimeOffset changedAtUtc =
-            new(2026, 7, 28, 10, 0, 0, TimeSpan.Zero);
+            new(2026, 7, 29, 10, 0, 0, TimeSpan.Zero);
 
         Guid changedByUserId = Guid.NewGuid();
 
@@ -29,10 +29,10 @@ public class OrganizationLifecycleTests
             .Be(OrganizationStatus.Active);
 
         organization.StatusHistory.Should()
-            .ContainSingle();
+            .HaveCount(2);
 
         OrganizationStatusHistoryEntry entry =
-            organization.StatusHistory.Single();
+            organization.StatusHistory.Last();
 
         entry.PreviousStatus.Should()
             .Be(OrganizationStatus.PendingActivation);

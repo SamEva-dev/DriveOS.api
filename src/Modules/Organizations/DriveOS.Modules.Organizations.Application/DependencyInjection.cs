@@ -2,6 +2,7 @@
 using DomainRelay.Validation;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.Access;
 
 namespace DriveOS.Modules.Organizations.Application;
 
@@ -23,6 +24,9 @@ public static class DependencyInjection
             typeof(DependencyInjection).Assembly);
 
         services.AddDomainRelayValidation();
+
+        services.AddScoped<IOrganizationEntitlementChecker, OrganizationEntitlementChecker>();
+        services.AddScoped<IOrganizationLimitChecker, OrganizationLimitChecker>();
 
         return services;
     }

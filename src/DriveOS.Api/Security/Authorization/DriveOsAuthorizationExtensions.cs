@@ -1,4 +1,4 @@
-﻿using LocaGuest.Security.Contracts;
+﻿using DriveOS.Security.Contracts;
 using Microsoft.AspNetCore.Authorization;
 
 namespace DriveOS.Api.Security.Authorization;

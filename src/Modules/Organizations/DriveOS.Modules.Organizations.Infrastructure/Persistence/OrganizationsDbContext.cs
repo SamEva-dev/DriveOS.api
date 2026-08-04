@@ -1,7 +1,10 @@
 ﻿using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.Branches;
+using DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Domain.Organizations;
+using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
+using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -22,6 +25,12 @@ public sealed class OrganizationsDbContext :
     public DbSet<Organization> Organizations =>
         Set<Organization>();
 
+    public DbSet<OrganizationSettings> OrganizationSettings =>
+        Set<OrganizationSettings>();
+
+    public DbSet<OrganizationSubscription> OrganizationSubscriptions =>
+        Set<OrganizationSubscription>();
+
     public DbSet<Branch> Branches =>
         Set<Branch>();
 
@@ -34,6 +43,9 @@ public sealed class OrganizationsDbContext :
 
     public DbSet<BranchStatusHistoryEntry> BranchStatusHistory =>
         Set<BranchStatusHistoryEntry>();
+
+    public DbSet<OrganizationConfiguration> OrganizationConfigurations =>
+    Set<OrganizationConfiguration>();
 
     public bool HasActiveTransaction =>
         _currentTransaction is not null;

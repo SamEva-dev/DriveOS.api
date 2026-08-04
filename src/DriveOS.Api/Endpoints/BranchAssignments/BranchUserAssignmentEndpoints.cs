@@ -25,7 +25,7 @@ using DriveOS.Modules.Organizations.Domain
     .BranchAssignments;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
-using LocaGuest.Security.Contracts;
+using DriveOS.Security.Contracts;
 
 namespace DriveOS.Api.Endpoints
     .BranchAssignments;

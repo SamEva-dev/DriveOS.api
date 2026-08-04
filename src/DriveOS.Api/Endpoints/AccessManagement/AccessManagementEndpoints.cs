@@ -26,7 +26,7 @@ public static class AccessManagementEndpoints
 
     private static async Task<IResult> GetOrganizationsAsync(IMediator mediator, CancellationToken ct)
     {
-        var query = new GetOrganizationsQuery(1, 2000, null, OrganizationSortField.LegalName, SortDirection.Ascending);
+        var query = new GetOrganizationsQuery(1, PaginationParameters.MaximumPageSize, null, OrganizationSortField.LegalName, SortDirection.Ascending);
         Result<PagedResult<OrganizationListItem>> result = await mediator.Send(query, ct);
         if (result.IsFailure) return Results.BadRequest(new { code = result.Error.Code, message = result.Error.MessageKey });
 
@@ -46,7 +46,7 @@ public static class AccessManagementEndpoints
         var query = new GetBranchesQuery(
             new OrganizationId(organizationId),
             1,
-            2000,
+            PaginationParameters.MaximumPageSize,
             null,
             BranchSortField.Name,
             SortDirection.Ascending);

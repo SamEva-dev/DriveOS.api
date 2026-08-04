@@ -3,6 +3,8 @@ using DriveOS.Api;
 using DriveOS.Api.Endpoints.AccessManagement;
 using DriveOS.Api.Endpoints.Branches;
 using DriveOS.Api.Endpoints.Organizations;
+using DriveOS.Api.Endpoints.OrganizationSettings;
+using DriveOS.Api.Endpoints.OrganizationSubscriptions;
 using DriveOS.Api.Endpoints.Provisioning;
 using DriveOS.Api.Errors;
 using DriveOS.Api.Infrastructure.Logging;
@@ -161,6 +163,7 @@ try
                 };
         });
     app.UseExceptionHandler();
+    app.ApplyMigrations();
 
     if (app.Environment.IsDevelopment())
     {
@@ -197,6 +200,8 @@ try
     app.UseAuthorization();
 
     app.MapOrganizationEndpoints();
+    app.MapOrganizationSettingsEndpoints();
+    app.MapOrganizationSubscriptionEndpoints();
     app.MapBranchEndpoints();
     app.MapProvisioningEndpoints();
     app.MapAccessManagementEndpoints();

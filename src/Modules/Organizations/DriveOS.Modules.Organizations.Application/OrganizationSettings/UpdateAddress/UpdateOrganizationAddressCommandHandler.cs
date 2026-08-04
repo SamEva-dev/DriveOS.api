@@ -1,0 +1,30 @@
+using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Application.Abstractions.Persistence;
+using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
+using DriveOS.SharedKernel.Results;
+
+namespace DriveOS.Modules.Organizations.Application.OrganizationSettings.UpdateAddress;
+
+public sealed class UpdateOrganizationAddressCommandHandler(
+    IOrganizationSettingsRepository repository,
+    IUnitOfWork unitOfWork)
+    : ICommandHandler<UpdateOrganizationAddressCommand>
+{
+    public async Task<Result> Handle(UpdateOrganizationAddressCommand command, CancellationToken cancellationToken)
+    {
+        var settings = await repository.GetForUpdateAsync(command.OrganizationId, cancellationToken);
+        if (settings is null) return Result.Failure(OrganizationSettingsErrors.NotFound);
+        if (settings.Version != command.ExpectedVersion) return Result.Failure(OrganizationSettingsErrors.ConcurrentUpdate);
+
+        Result<OrganizationAddress> valueResult = OrganizationAddress.Create(
+            command.AddressLine1, command.AddressLine2, command.PostalCode,
+            command.City, command.Region, command.AddressCountryCode);
+        if (valueResult.IsFailure) return Result.Failure(valueResult.Error);
+
+        Result updateResult = settings.UpdateAddress(valueResult.Value);
+        if (updateResult.IsFailure) return updateResult;
+
+        await unitOfWork.CommitAsync(cancellationToken);
+        return Result.Success();
+    }
+}

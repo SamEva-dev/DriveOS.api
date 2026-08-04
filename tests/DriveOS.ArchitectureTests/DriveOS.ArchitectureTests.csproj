@@ -15,6 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\DriveOS.Api\DriveOS.Api.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Organizations\DriveOS.Modules.Organizations.Domain\DriveOS.Modules.Organizations.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 

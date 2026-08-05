@@ -10,6 +10,7 @@ using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
+using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence;
 
@@ -58,6 +59,9 @@ public sealed class OrganizationsDbContext :
 
         public DbSet<OrganizationRepresentative> OrganizationRepresentatives =>
     Set<OrganizationRepresentative>();
+
+    public DbSet<OrganizationLegalProfile> OrganizationLegalProfiles =>
+    Set<OrganizationLegalProfile>();
 
     public bool HasActiveTransaction =>
         _currentTransaction is not null;

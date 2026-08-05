@@ -16,6 +16,7 @@ using DriveOS.Modules.Organizations.Infrastructure;
 using Serilog;
 using Serilog.Events;
 using DriveOS.Api.Endpoints.OrganizationRepresentatives;
+using DriveOS.Api.Endpoints.OrganizationLegalProfiles;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -213,6 +214,7 @@ try
     app.MapOrganizationConfigurationEndpoints();
     app.MapOrganizationSequenceEndpoints();
     app.MapOrganizationRepresentativeEndpoints();
+    app.MapOrganizationLegalProfileEndpoints();
 
     app.MapGet(
         "/health",

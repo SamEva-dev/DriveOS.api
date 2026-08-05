@@ -38,6 +38,9 @@ using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.Acce
 using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives;
 using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.AccessSynchronization;
 using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.Expiration;
+using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
+using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles;
 
 namespace DriveOS.Modules.Organizations.Infrastructure;
 
@@ -125,6 +128,10 @@ public static class DependencyInjection
     IOrganizationRepresentativeRepository,
     OrganizationRepresentativeRepository>();
 
+    services.AddScoped<
+    IOrganizationLegalProfileRepository,
+    OrganizationLegalProfileRepository>();
+
 
         services.AddScoped<IBranchRepository, BranchRepository>();
         services.AddScoped<IBranchReadService, BranchReadService>();
@@ -182,6 +189,12 @@ public static class DependencyInjection
 
         services.AddScoped<OrganizationRepresentativeAccessSynchronizationService>();
         services.AddHostedService<OrganizationRepresentativeExpirationWorker>();
+
+        services.AddScoped<IOrganizationLegalProfileReadService, OrganizationLegalProfileReadService>();
+        services.AddScoped<IOrganizationLegalProfileCountryRules, GenericOrganizationLegalProfileCountryRules>();
+services.AddScoped<IOrganizationLegalProfileCountryRules, FranceOrganizationLegalProfileCountryRules>();
+services.AddScoped<IOrganizationLegalProfileCountryRulesProvider, OrganizationLegalProfileCountryRulesProvider>();
+services.AddScoped<IOrganizationLegalProfileComplianceService, OrganizationLegalProfileComplianceService>();
         return services;
     }
 }

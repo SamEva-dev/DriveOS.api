@@ -34,7 +34,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using DriveOS.Modules.Organizations.Application.OrganizationSequences;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives;
+using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.AccessSynchronization;
 using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.AccessSynchronization;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.Expiration;
 
 namespace DriveOS.Modules.Organizations.Infrastructure;
 
@@ -160,6 +163,25 @@ public static class DependencyInjection
         services.AddSingleton<IJsonConfigurationMerger, JsonConfigurationMerger>();
         services.AddSingleton<IBranchConfigurationMergePolicy, BranchConfigurationMergePolicy>();
         services.AddScoped<IOrganizationRepresentativeReadService, OrganizationRepresentativeReadService>();
+
+        services.Configure<AuthGateRepresentativeAccessOptions>(options =>
+            configuration
+                .GetSection(AuthGateRepresentativeAccessOptions.SectionName)
+                .Bind(options));
+
+        services.Configure<OrganizationRepresentativeExpirationOptions>(options =>
+            configuration
+                .GetSection(OrganizationRepresentativeExpirationOptions.SectionName)
+                .Bind(options));
+
+        services.AddHttpClient<IOrganizationRepresentativeAccessSynchronizer,
+            AuthGateOrganizationRepresentativeAccessSynchronizer>(client =>
+            {
+                client.BaseAddress = new Uri(configuration["AuthGate:BaseUrl"]!);
+            });
+
+        services.AddScoped<OrganizationRepresentativeAccessSynchronizationService>();
+        services.AddHostedService<OrganizationRepresentativeExpirationWorker>();
         return services;
     }
 }

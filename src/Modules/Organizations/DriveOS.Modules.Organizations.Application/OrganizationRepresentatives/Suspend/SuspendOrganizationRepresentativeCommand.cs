@@ -1,0 +1,3 @@
+using DriveOS.Application.Abstractions.Messaging; using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives; using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.Suspend;
+public sealed record SuspendOrganizationRepresentativeCommand(OrganizationId OrganizationId,OrganizationRepresentativeId RepresentativeId,string Reason,int ExpectedRevision):ICommand;

@@ -5,9 +5,11 @@ using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
+using DriveOS.Modules.Organizations.Domain.OrganizationSequences;
 using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence;
 
@@ -49,7 +51,13 @@ public sealed class OrganizationsDbContext :
     Set<OrganizationConfiguration>();
 
     public DbSet<BranchConfigurationOverride> BranchConfigurationOverrides =>
-    Set<BranchConfigurationOverride>();
+        Set<BranchConfigurationOverride>();
+
+    public DbSet<OrganizationSequence> OrganizationSequences =>
+        Set<OrganizationSequence>();
+
+        public DbSet<OrganizationRepresentative> OrganizationRepresentatives =>
+    Set<OrganizationRepresentative>();
 
     public bool HasActiveTransaction =>
         _currentTransaction is not null;

@@ -3,6 +3,7 @@ using System;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(OrganizationsDbContext))]
-    partial class OrganizationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260805073745_fixeMigrationError")]
+    partial class fixeMigrationError
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -491,83 +494,6 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                     b.ToTable("organization_configurations", "organization");
                 });
 
-            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives.OrganizationRepresentative", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<Guid?>("CreatedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by_user_id");
-
-                    b.Property<DateOnly>("EffectiveFrom")
-                        .HasColumnType("date")
-                        .HasColumnName("effective_from");
-
-                    b.Property<DateOnly?>("EffectiveTo")
-                        .HasColumnType("date")
-                        .HasColumnName("effective_to");
-
-                    b.Property<bool>("IsPrimaryOwner")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_primary_owner");
-
-                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_modified_at_utc");
-
-                    b.Property<Guid?>("LastModifiedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("last_modified_by_user_id");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("organization_id");
-
-                    b.Property<Guid>("PersonId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("person_id");
-
-                    b.Property<int>("RepresentativeType")
-                        .HasColumnType("integer")
-                        .HasColumnName("representative_type");
-
-                    b.Property<int>("Revision")
-                        .IsConcurrencyToken()
-                        .HasColumnType("integer")
-                        .HasColumnName("revision");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizationId")
-                        .IsUnique()
-                        .HasDatabaseName("ux_organization_representatives_primary_owner")
-                        .HasFilter("is_primary_owner = TRUE AND status = 2");
-
-                    b.HasIndex("OrganizationId", "Status")
-                        .HasDatabaseName("ix_organization_representatives_org_status");
-
-                    b.HasIndex("OrganizationId", "PersonId", "RepresentativeType")
-                        .IsUnique()
-                        .HasDatabaseName("ux_organization_representatives_active_identity")
-                        .HasFilter("status IN (1, 2, 3)");
-
-                    b.ToTable("organization_representatives", "organization");
-                });
-
             modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.OrganizationSequences.OrganizationSequence", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1025,37 +951,6 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("Payload")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives.OrganizationRepresentative", b =>
-                {
-                    b.HasOne("DriveOS.Modules.Organizations.Domain.Organizations.Organization", null)
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.OwnsOne("DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives.RepresentativeAuthorityScope", "AuthorityScope", b1 =>
-                        {
-                            b1.Property<Guid>("OrganizationRepresentativeId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(2000)
-                                .HasColumnType("character varying(2000)")
-                                .HasColumnName("authority_scope");
-
-                            b1.HasKey("OrganizationRepresentativeId");
-
-                            b1.ToTable("organization_representatives", "organization");
-
-                            b1.WithOwner()
-                                .HasForeignKey("OrganizationRepresentativeId");
-                        });
-
-                    b.Navigation("AuthorityScope")
                         .IsRequired();
                 });
 

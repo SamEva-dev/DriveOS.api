@@ -1,4 +1,5 @@
-﻿using DriveOS.Application.Abstractions.Authentication;
+﻿using DriveOS.Modules.Organizations.Infrastructure.OrganizationSequences;
+using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
 using DriveOS.Modules.Organizations.Application.Abstractions;
@@ -16,6 +17,7 @@ using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
+using DriveOS.Modules.Organizations.Domain.OrganizationSequences;
 using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using DriveOS.Modules.Organizations.Infrastructure.Authentication;
 using DriveOS.Modules.Organizations.Infrastructure.BranchConfigurationOverrides;
@@ -29,6 +31,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using DriveOS.Modules.Organizations.Application.OrganizationSequences;
+using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
+using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives;
 
 namespace DriveOS.Modules.Organizations.Infrastructure;
 
@@ -91,9 +97,30 @@ public static class DependencyInjection
         services.AddScoped<
                 IOrganizationConfigurationRepository,
                 OrganizationConfigurationRepository>();
+
         services.AddScoped<
-    IBranchConfigurationOverrideRepository,
-    BranchConfigurationOverrideRepository>();
+            IOrganizationSequenceRepository,
+            OrganizationSequenceRepository>();
+
+        services.AddScoped<
+            IOrganizationSequenceReadService,
+            OrganizationSequenceReadService>();
+
+        services.Configure<OrganizationSequenceReservationOptions>(options =>
+            configuration
+                .GetSection(OrganizationSequenceReservationOptions.SectionName)
+                .Bind(options));
+
+        services.AddScoped<
+            IOrganizationSequenceNumberGenerator,
+            OrganizationSequenceNumberGenerator>();
+        services.AddScoped<
+            IBranchConfigurationOverrideRepository,
+            BranchConfigurationOverrideRepository>();
+
+        services.AddScoped<
+    IOrganizationRepresentativeRepository,
+    OrganizationRepresentativeRepository>();
 
 
         services.AddScoped<IBranchRepository, BranchRepository>();
@@ -132,6 +159,7 @@ public static class DependencyInjection
 
         services.AddSingleton<IJsonConfigurationMerger, JsonConfigurationMerger>();
         services.AddSingleton<IBranchConfigurationMergePolicy, BranchConfigurationMergePolicy>();
+        services.AddScoped<IOrganizationRepresentativeReadService, OrganizationRepresentativeReadService>();
         return services;
     }
 }

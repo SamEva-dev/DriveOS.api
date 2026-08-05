@@ -1,0 +1,3 @@
+using DriveOS.Application.Abstractions.Messaging; using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives; using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.SetPrimaryOwner;
+public sealed record SetPrimaryOrganizationOwnerCommand(OrganizationId OrganizationId,OrganizationRepresentativeId RepresentativeId,int ExpectedRevision):ICommand;

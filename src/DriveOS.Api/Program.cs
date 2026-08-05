@@ -4,6 +4,7 @@ using DriveOS.Api.Endpoints.AccessManagement;
 using DriveOS.Api.Endpoints.BranchConfigurationOverrides;
 using DriveOS.Api.Endpoints.Branches;
 using DriveOS.Api.Endpoints.OrganizationConfigurations;
+using DriveOS.Api.Endpoints.OrganizationSequences;
 using DriveOS.Api.Endpoints.Organizations;
 using DriveOS.Api.Endpoints.OrganizationSettings;
 using DriveOS.Api.Endpoints.OrganizationSubscriptions;
@@ -14,6 +15,7 @@ using DriveOS.Modules.Organizations.Application;
 using DriveOS.Modules.Organizations.Infrastructure;
 using Serilog;
 using Serilog.Events;
+using DriveOS.Api.Endpoints.OrganizationRepresentatives;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -209,6 +211,8 @@ try
     app.MapAccessManagementEndpoints();
     app.MapBranchConfigurationOverrideEndpoints();
     app.MapOrganizationConfigurationEndpoints();
+    app.MapOrganizationSequenceEndpoints();
+    app.MapOrganizationRepresentativeEndpoints();
 
     app.MapGet(
         "/health",

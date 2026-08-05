@@ -1,0 +1,2 @@
+using FluentValidation; namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.End;
+internal sealed class EndOrganizationRepresentativeCommandValidator:AbstractValidator<EndOrganizationRepresentativeCommand>{public EndOrganizationRepresentativeCommandValidator(){RuleFor(x=>x.OrganizationId).NotEmpty();RuleFor(x=>x.RepresentativeId).NotEmpty();RuleFor(x=>x.Reason).NotEmpty().MaximumLength(500);RuleFor(x=>x.ExpectedRevision).GreaterThan(0);}}

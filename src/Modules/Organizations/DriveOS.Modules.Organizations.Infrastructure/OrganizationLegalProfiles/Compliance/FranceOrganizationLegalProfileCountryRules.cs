@@ -3,7 +3,7 @@ using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Compli
 
 namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles.Compliance;
 
-internal sealed partial class FranceOrganizationLegalProfileCountryRules : IOrganizationLegalProfileCountryRules
+public sealed partial class FranceOrganizationLegalProfileCountryRules : IOrganizationLegalProfileCountryRules
 {
     public string CountryCode => "FR";
 

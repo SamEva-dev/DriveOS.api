@@ -5,6 +5,8 @@ using DriveOS.Api.Errors;
 using DriveOS.Application.Abstractions.Pagination;
 using DriveOS.Application.Abstractions.Sorting;
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizationById;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.GetOrganizationActivationReadiness;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Models;
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizations;
 using DriveOS.Modules.Organizations.Application.Organizations.Lifecycle;
 using DriveOS.Modules.Organizations.Application.Organizations.OrganizationStatusHistory;
@@ -58,6 +60,15 @@ public static class OrganizationEndpoints
                 StatusCodes.Status400BadRequest)
             .RequireAuthorization(
                 DriveOsPermissionCodes.Organizations.Read);
+
+        group.MapGet(
+                "/{organizationId:guid}/activation-readiness",
+                GetOrganizationActivationReadinessAsync)
+            .WithName("GetOrganizationActivationReadiness")
+            .WithSummary("Évaluer les prérequis d’activation d’une organisation")
+            .Produces<OrganizationActivationReadinessResponse>(StatusCodes.Status200OK)
+            .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
+            .RequireAuthorization(DriveOsPermissionCodes.Organizations.Read);
 
         group.MapGet(
                 "/{organizationId:guid}/status-history",
@@ -238,6 +249,49 @@ public static class OrganizationEndpoints
                 : SortDirection.Ascending;
     }
 
+
+
+    private static async Task<IResult> GetOrganizationActivationReadinessAsync(
+        Guid organizationId,
+        IMediator mediator,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        if (organizationId == Guid.Empty)
+        {
+            return OrganizationErrors.InvalidId.ToHttpResult(httpContext);
+        }
+
+        var query = new GetOrganizationActivationReadinessQuery(
+            new OrganizationId(organizationId));
+
+        Result<OrganizationActivationReadinessReport> result =
+            await mediator.Send(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.ToHttpResult(httpContext);
+        }
+
+        static OrganizationActivationRequirementResponse MapRequirement(
+            OrganizationActivationRequirementResult requirement) =>
+            new(
+                requirement.Code,
+                requirement.IsSatisfied,
+                requirement.Severity.ToString(),
+                requirement.MessageKey,
+                requirement.Parameters);
+
+        OrganizationActivationReadinessReport report = result.Value;
+
+        var response = new OrganizationActivationReadinessResponse(
+            report.OrganizationId.Value,
+            report.IsReady,
+            report.Requirements.Select(MapRequirement).ToArray(),
+            report.BlockingRequirements.Select(MapRequirement).ToArray());
+
+        return Results.Ok(response);
+    }
 
     private static async Task<IResult> GetOrganizationStatusHistoryAsync(
         Guid organizationId,

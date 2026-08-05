@@ -2,7 +2,7 @@ using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Compli
 
 namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles.Compliance;
 
-internal sealed class GenericOrganizationLegalProfileCountryRules : IOrganizationLegalProfileCountryRules
+public sealed class GenericOrganizationLegalProfileCountryRules : IOrganizationLegalProfileCountryRules
 {
     public string CountryCode => "*";
 

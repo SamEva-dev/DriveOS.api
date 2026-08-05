@@ -2,6 +2,10 @@
 using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Audit;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Models;
 using DriveOS.Modules.Organizations.Application.Organizations.Lifecycle;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Identifiers;
@@ -57,6 +61,9 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
         var handler =
             new ChangeOrganizationStatusCommandHandler(
                 repository,
+                new AlwaysReadyActivationReadinessService(),
+                new FakeActivationReadinessReportCache(),
+                new FakeActivationReadinessAuditSink(),
                 unitOfWork,
                 currentUser,
                 clock);
@@ -147,6 +154,9 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
         var handler =
             new ChangeOrganizationStatusCommandHandler(
                 repository,
+                new AlwaysReadyActivationReadinessService(),
+                new FakeActivationReadinessReportCache(),
+                new FakeActivationReadinessAuditSink(),
                 unitOfWork,
                 currentUser,
                 clock);
@@ -614,6 +624,9 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
         var handler =
             new ChangeOrganizationStatusCommandHandler(
                 repository,
+                new AlwaysReadyActivationReadinessService(),
+                new FakeActivationReadinessReportCache(),
+                new FakeActivationReadinessAuditSink(),
                 unitOfWork,
                 currentUser,
                 clock);
@@ -679,6 +692,9 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
         var handler =
             new ChangeOrganizationStatusCommandHandler(
                 repository,
+                new AlwaysReadyActivationReadinessService(),
+                new FakeActivationReadinessReportCache(),
+                new FakeActivationReadinessAuditSink(),
                 unitOfWork,
                 currentUser,
                 clock);
@@ -733,6 +749,9 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
         var handler =
             new ChangeOrganizationStatusCommandHandler(
                 repository,
+                new AlwaysReadyActivationReadinessService(),
+                new FakeActivationReadinessReportCache(),
+                new FakeActivationReadinessAuditSink(),
                 unitOfWork,
                 currentUser,
                 clock);
@@ -827,10 +846,55 @@ public sealed class ChangeOrganizationStatusCommandHandlerTests
     {
         return new ChangeOrganizationStatusCommandHandler(
             repository,
+            new AlwaysReadyActivationReadinessService(),
+            new FakeActivationReadinessReportCache(),
+            new FakeActivationReadinessAuditSink(),
             unitOfWork,
             FakeCurrentUser.Authenticated(
                 CurrentUserId),
             new FakeClock(UtcNow));
+    }
+
+    private sealed class AlwaysReadyActivationReadinessService
+        : IOrganizationActivationReadinessService
+    {
+        public Task<OrganizationActivationReadinessReport> EvaluateAsync(
+            OrganizationId organizationId,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(
+                new OrganizationActivationReadinessReport(
+                    organizationId,
+                    true,
+                    []));
+        }
+    }
+
+    private sealed class FakeActivationReadinessReportCache
+        : IOrganizationActivationReadinessReportCache
+    {
+        public Task<OrganizationActivationReadinessReport> GetOrCreateAsync(
+            OrganizationId organizationId,
+            Func<CancellationToken, Task<OrganizationActivationReadinessReport>> factory,
+            CancellationToken cancellationToken = default)
+        {
+            return factory(cancellationToken);
+        }
+
+        public void Invalidate(OrganizationId organizationId)
+        {
+        }
+    }
+
+    private sealed class FakeActivationReadinessAuditSink
+        : IOrganizationActivationReadinessAuditSink
+    {
+        public Task WriteAsync(
+            OrganizationActivationReadinessAuditEntry entry,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
     }
 
     private sealed class FakeOrganizationRepository

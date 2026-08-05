@@ -17,6 +17,8 @@ using Serilog;
 using Serilog.Events;
 using DriveOS.Api.Endpoints.OrganizationRepresentatives;
 using DriveOS.Api.Endpoints.OrganizationLegalProfiles;
+using DriveOS.Api.Endpoints.OrganizationClosures;
+using DriveOS.Api.Configuration;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -92,6 +94,11 @@ try
         .Get<string[]>()
     ?? throw new InvalidOperationException(
         "The CORS allowed origins configuration is missing.");
+
+        builder.Services.ConfigureHttpJsonOptions(options =>
+            {
+                options.ConfigureDriveOsEnums();
+            });
 
     builder.Services.AddCors(
         options =>
@@ -215,6 +222,7 @@ try
     app.MapOrganizationSequenceEndpoints();
     app.MapOrganizationRepresentativeEndpoints();
     app.MapOrganizationLegalProfileEndpoints();
+    app.MapOrganizationClosureEndpoints();
 
     app.MapGet(
         "/health",

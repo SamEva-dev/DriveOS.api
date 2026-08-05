@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
+using DriveOS.Modules.Organizations.Domain.OrganizationClosures;
 
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence;
 
@@ -63,6 +64,8 @@ public sealed class OrganizationsDbContext :
     public DbSet<OrganizationLegalProfile> OrganizationLegalProfiles =>
     Set<OrganizationLegalProfile>();
 
+public DbSet<OrganizationClosure> OrganizationClosures =>
+        Set<OrganizationClosure>();
     public bool HasActiveTransaction =>
         _currentTransaction is not null;
 

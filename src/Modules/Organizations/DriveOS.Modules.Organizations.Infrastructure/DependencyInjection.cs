@@ -41,6 +41,19 @@ using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.E
 using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles;
 using DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationReadiness;
+using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.Expiration;
+using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Compliance;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles.Compliance;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Rules;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationReadiness.Cache;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationReadiness.Audit;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Audit;
+using DriveOS.Modules.Organizations.Application.OrganizationClosures.Readiness;
+using DriveOS.Modules.Organizations.Application.OrganizationClosures.Commands;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationClosures;
 
 namespace DriveOS.Modules.Organizations.Infrastructure;
 
@@ -206,9 +219,47 @@ public static class DependencyInjection
 
         services.AddScoped<IOrganizationLegalProfileReadService, OrganizationLegalProfileReadService>();
         services.AddScoped<IOrganizationLegalProfileCountryRules, GenericOrganizationLegalProfileCountryRules>();
-services.AddScoped<IOrganizationLegalProfileCountryRules, FranceOrganizationLegalProfileCountryRules>();
-services.AddScoped<IOrganizationLegalProfileCountryRulesProvider, OrganizationLegalProfileCountryRulesProvider>();
-services.AddScoped<IOrganizationLegalProfileComplianceService, OrganizationLegalProfileComplianceService>();
+        services.AddScoped<IOrganizationLegalProfileCountryRules, FranceOrganizationLegalProfileCountryRules>();
+        services.AddScoped<IOrganizationLegalProfileCountryRulesProvider, OrganizationLegalProfileCountryRulesProvider>();
+        services.AddScoped<IOrganizationLegalProfileComplianceService, OrganizationLegalProfileComplianceService>();
+
+        services.AddScoped<
+            IOrganizationActivationReadinessDataSource,
+            OrganizationActivationReadinessDataSource>();
+
+            services.AddScoped<IOrganizationActivationReadinessService, OrganizationActivationReadinessService>();
+            services.AddScoped<IOrganizationActivationReadinessRule, LegalProfileActivationRule>();
+            services.AddScoped<IOrganizationActivationReadinessRule, OwnerActivationRule>();
+            services.AddScoped<IOrganizationActivationReadinessRule, SubscriptionActivationRule>();
+            services.AddScoped<IOrganizationActivationReadinessRule, OperationalSettingsActivationRule>();
+            services.AddScoped<IOrganizationActivationReadinessRule, PrimaryBranchActivationRule>();
+
+        services.AddMemoryCache();
+
+services.Configure<OrganizationActivationReadinessCacheOptions>(options =>
+    configuration
+        .GetSection(OrganizationActivationReadinessCacheOptions.SectionName)
+        .Bind(options));
+
+services.AddSingleton<IOrganizationActivationReadinessReportCache,
+    OrganizationActivationReadinessMemoryCache>();
+
+services.AddScoped<IOrganizationActivationReadinessAuditSink,
+    LoggerOrganizationActivationReadinessAuditSink>();
+
+    services.AddScoped<
+    IOrganizationActivationReadinessCacheInvalidator,
+    OrganizationActivationReadinessCacheInvalidator>();
+
+ services.AddScoped<IOrganizationClosureReadinessService, OrganizationClosureReadinessService>();
+services.AddScoped<IOrganizationClosureReadinessSnapshotSource, OrganizationClosureReadinessSnapshotSource>();
+services.AddScoped<IOrganizationClosureOrchestrator, OrganizationClosureOrchestrator>();
+services.AddScoped<IOrganizationArchiveService, OrganizationArchiveService>();
+services.AddScoped<IOrganizationAnonymizationService, OrganizationAnonymizationService>();
+services.AddScoped<IOrganizationClosureAuditSink, OrganizationClosureAuditSink>();
+services.AddScoped<IOrganizationClosureScheduler, OrganizationClosureScheduler>();
+services.AddHostedService<OrganizationClosureWorker>();
+
         return services;
     }
 }

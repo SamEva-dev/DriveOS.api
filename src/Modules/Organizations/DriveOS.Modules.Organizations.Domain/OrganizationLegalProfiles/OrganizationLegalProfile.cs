@@ -123,6 +123,7 @@ public sealed class OrganizationLegalProfile :
         IncorporationDate = incorporationDate;
         RegisteredAddress = registeredAddress;
         Revision++;
+        RaiseDomainEvent(new OrganizationLegalProfileUpdatedDomainEvent(Id, OrganizationId, Revision));
         return Result.Success();
     }
 

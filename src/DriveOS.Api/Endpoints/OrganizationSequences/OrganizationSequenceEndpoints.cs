@@ -29,14 +29,14 @@ public static class OrganizationSequenceEndpoints
             .WithName("GetOrganizationSequences")
             .Produces<IReadOnlyList<OrganizationSequenceListItemContract>>()
             .Produces<ApiErrorResponse>(StatusCodes.Status403Forbidden)
-            .RequireAuthorization(DriveOsPermissionCodes.OrganizationConfigurations.Read);
+            .RequireAuthorization(DriveOsPermissionCodes.OrganizationSequences.Read);
 
         group.MapGet("/{sequenceId:guid}", GetByIdAsync)
             .WithName("GetOrganizationSequence")
             .Produces<OrganizationSequenceResponseContract>()
             .Produces<ApiErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
-            .RequireAuthorization(DriveOsPermissionCodes.OrganizationConfigurations.Read);
+            .RequireAuthorization(DriveOsPermissionCodes.OrganizationSequences.Read);
 
         group.MapPost("/", CreateAsync)
             .WithName("CreateOrganizationSequence")
@@ -45,7 +45,7 @@ public static class OrganizationSequenceEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
-            .RequireAuthorization(DriveOsPermissionCodes.OrganizationConfigurations.Create);
+            .RequireAuthorization(DriveOsPermissionCodes.OrganizationSequences.Create);
 
         group.MapPost("/reserve", ReserveAsync)
             .WithName("ReserveOrganizationSequenceNumber")
@@ -54,19 +54,19 @@ public static class OrganizationSequenceEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
-            .RequireAuthorization(DriveOsPermissionCodes.OrganizationConfigurations.Update);
+            .RequireAuthorization(DriveOsPermissionCodes.OrganizationSequences.Reserve);
 
         group.MapPost("/{sequenceId:guid}/suspend", SuspendAsync)
             .WithName("SuspendOrganizationSequence")
-            .RequireAuthorization(DriveOsPermissionCodes.OrganizationConfigurations.Update);
+            .RequireAuthorization(DriveOsPermissionCodes.OrganizationSequences.Suspend);
 
         group.MapPost("/{sequenceId:guid}/reactivate", ReactivateAsync)
             .WithName("ReactivateOrganizationSequence")
-            .RequireAuthorization(DriveOsPermissionCodes.OrganizationConfigurations.Update);
+            .RequireAuthorization(DriveOsPermissionCodes.OrganizationSequences.Reactivate);
 
         group.MapPost("/{sequenceId:guid}/archive", ArchiveAsync)
             .WithName("ArchiveOrganizationSequence")
-            .RequireAuthorization(DriveOsPermissionCodes.OrganizationConfigurations.Archive);
+            .RequireAuthorization(DriveOsPermissionCodes.OrganizationSequences.Archive);
 
         return endpoints;
     }

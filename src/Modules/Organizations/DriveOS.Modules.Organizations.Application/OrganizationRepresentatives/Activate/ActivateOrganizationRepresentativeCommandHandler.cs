@@ -1,7 +1,35 @@
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
+using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.AccessSynchronization;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 using DriveOS.SharedKernel.Results;
+
 namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.Activate;
-internal sealed class ActivateOrganizationRepresentativeCommandHandler(IOrganizationRepresentativeRepository repository,IUnitOfWork unitOfWork):ICommandHandler<ActivateOrganizationRepresentativeCommand>
-{ public async Task<Result> Handle(ActivateOrganizationRepresentativeCommand c,CancellationToken ct){ var e=await repository.GetForUpdateAsync(c.RepresentativeId,c.OrganizationId,ct); if(e is null)return Result.Failure(OrganizationRepresentativeErrors.NotFound); if(e.Revision!=c.ExpectedRevision)return Result.Failure(OrganizationRepresentativeErrors.ConcurrentUpdate); var r=e.Activate(); if(r.IsFailure)return r; await unitOfWork.CommitAsync(ct); return Result.Success(); } }
+
+internal sealed class ActivateOrganizationRepresentativeCommandHandler(
+    IOrganizationRepresentativeRepository repository,
+    OrganizationRepresentativeAccessSynchronizationService accessSynchronizationService,
+    IUnitOfWork unitOfWork)
+    : ICommandHandler<ActivateOrganizationRepresentativeCommand>
+{
+    public async Task<Result> Handle(ActivateOrganizationRepresentativeCommand command, CancellationToken cancellationToken)
+    {
+        OrganizationRepresentative? representative = await repository.GetForUpdateAsync(
+            command.RepresentativeId,
+            command.OrganizationId,
+            cancellationToken);
+
+        if (representative is null)
+            return Result.Failure(OrganizationRepresentativeErrors.NotFound);
+        if (representative.Revision != command.ExpectedRevision)
+            return Result.Failure(OrganizationRepresentativeErrors.ConcurrentUpdate);
+
+        Result result = representative.Activate();
+        if (result.IsFailure)
+            return result;
+
+        await unitOfWork.CommitAsync(cancellationToken);
+        await accessSynchronizationService.SynchronizeAsync(representative, cancellationToken);
+        return Result.Success();
+    }
+}

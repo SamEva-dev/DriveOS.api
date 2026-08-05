@@ -3,6 +3,7 @@ using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Api.Endpoints.OrganizationSequences;
 
+
 public sealed record CreateOrganizationSequenceRequest(
     Guid? BranchId,
     OrganizationSequenceScope Scope,

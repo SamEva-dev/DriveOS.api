@@ -181,13 +181,27 @@ public static class DependencyInjection
                 .GetSection(OrganizationRepresentativeExpirationOptions.SectionName)
                 .Bind(options));
 
-        services.AddHttpClient<IOrganizationRepresentativeAccessSynchronizer,
-            AuthGateOrganizationRepresentativeAccessSynchronizer>(client =>
-            {
-                client.BaseAddress = new Uri(configuration["AuthGate:BaseUrl"]!);
-            });
+        bool representativeAuthGateEnabled =
+            configuration.GetValue<bool>("AuthGate:OrganizationRepresentatives:Enabled");
+        string? authGateBaseUrl = configuration["AuthGate:BaseUrl"];
+
+        if (representativeAuthGateEnabled && Uri.TryCreate(authGateBaseUrl, UriKind.Absolute, out Uri? authGateUri))
+        {
+            services.AddHttpClient<IOrganizationRepresentativeAccessSynchronizer,
+                AuthGateOrganizationRepresentativeAccessSynchronizer>(client =>
+                {
+                    client.BaseAddress = authGateUri;
+                });
+        }
+        else
+        {
+            services.AddScoped<IOrganizationRepresentativeAccessSynchronizer,
+                NoOpOrganizationRepresentativeAccessSynchronizer>();
+        }
 
         services.AddScoped<OrganizationRepresentativeAccessSynchronizationService>();
+        services.AddScoped<IOrganizationRepresentativeExpirationProcessor,
+            OrganizationRepresentativeExpirationProcessor>();
         services.AddHostedService<OrganizationRepresentativeExpirationWorker>();
 
         services.AddScoped<IOrganizationLegalProfileReadService, OrganizationLegalProfileReadService>();

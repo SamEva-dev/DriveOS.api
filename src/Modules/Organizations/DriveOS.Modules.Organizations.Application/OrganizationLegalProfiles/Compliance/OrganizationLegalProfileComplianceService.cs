@@ -2,7 +2,7 @@ using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Compliance;
 
-internal sealed class OrganizationLegalProfileComplianceService(
+public sealed class OrganizationLegalProfileComplianceService(
     IOrganizationLegalProfileCountryRulesProvider rulesProvider)
     : IOrganizationLegalProfileComplianceService
 {

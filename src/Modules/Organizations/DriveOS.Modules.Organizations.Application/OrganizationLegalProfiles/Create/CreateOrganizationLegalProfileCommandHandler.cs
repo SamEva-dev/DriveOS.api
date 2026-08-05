@@ -6,18 +6,20 @@ using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Compli
 using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Results;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Create;
 
 internal sealed class CreateOrganizationLegalProfileCommandHandler(
     IOrganizationReadService organizationReadService,
     IOrganizationLegalProfileRepository repository,
+    IOrganizationLegalProfileComplianceService complianceService,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser)
     : ICommandHandler<CreateOrganizationLegalProfileCommand, OrganizationLegalProfileId>
 {
-    public async Task<Result<OrganizationLegalProfileId>> Handle(CreateOrganizationLegalProfileCommand command, CancellationToken cancellationToken)
+    public async Task<Result<OrganizationLegalProfileId>> Handle(
+        CreateOrganizationLegalProfileCommand command,
+        CancellationToken cancellationToken)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
             return Result.Failure<OrganizationLegalProfileId>(OrganizationLegalProfileErrors.CurrentUserRequired);
@@ -36,7 +38,8 @@ internal sealed class CreateOrganizationLegalProfileCommandHandler(
         if (await repository.RegistrationNumberExistsAsync(countryCode, registrationNumber, null, cancellationToken))
             return Result.Failure<OrganizationLegalProfileId>(OrganizationLegalProfileErrors.DuplicateRegistrationNumber);
 
-        Result<RegisteredAddress> addressResult = RegisteredAddress.Create(command.AddressLine1, command.AddressLine2, command.PostalCode, command.City, command.Region, command.CountryCode);
+        Result<RegisteredAddress> addressResult = RegisteredAddress.Create(
+            command.AddressLine1, command.AddressLine2, command.PostalCode, command.City, command.Region, command.CountryCode);
         if (addressResult.IsFailure)
             return Result.Failure<OrganizationLegalProfileId>(addressResult.Error);
 
@@ -48,6 +51,11 @@ internal sealed class CreateOrganizationLegalProfileCommandHandler(
 
         if (command.ActivateImmediately)
         {
+            OrganizationLegalProfileComplianceResult compliance = complianceService.Validate(result.Value);
+            if (!compliance.IsCompliant)
+                return Result.Failure<OrganizationLegalProfileId>(
+                    OrganizationLegalProfileComplianceErrors.ActivationBlocked(compliance.Issues));
+
             Result activation = result.Value.Activate();
             if (activation.IsFailure)
                 return Result.Failure<OrganizationLegalProfileId>(activation.Error);

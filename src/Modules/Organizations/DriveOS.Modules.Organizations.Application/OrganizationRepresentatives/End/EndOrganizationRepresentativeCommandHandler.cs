@@ -1,3 +1,32 @@
-using DriveOS.Application.Abstractions.Authentication; using DriveOS.Application.Abstractions.Messaging; using DriveOS.Application.Abstractions.Persistence; using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives; using DriveOS.SharedKernel.Results;
+using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.AccessSynchronization;
+using DriveOS.Application.Abstractions.Authentication; 
+using DriveOS.Application.Abstractions.Messaging; 
+using DriveOS.Application.Abstractions.Persistence; 
+using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives; 
+using DriveOS.SharedKernel.Results;
+
 namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.End;
-internal sealed class EndOrganizationRepresentativeCommandHandler(IOrganizationRepresentativeRepository repository,IUnitOfWork unitOfWork,ICurrentUser currentUser):ICommandHandler<EndOrganizationRepresentativeCommand>{public async Task<Result> Handle(EndOrganizationRepresentativeCommand c,CancellationToken ct){if(!currentUser.IsAuthenticated||currentUser.UserId is null)return Result.Failure(OrganizationRepresentativeErrors.CurrentUserRequired);var e=await repository.GetForUpdateAsync(c.RepresentativeId,c.OrganizationId,ct);if(e is null)return Result.Failure(OrganizationRepresentativeErrors.NotFound);if(e.Revision!=c.ExpectedRevision)return Result.Failure(OrganizationRepresentativeErrors.ConcurrentUpdate);int remaining=e.IsOwner?await repository.CountActiveOwnersAsync(c.OrganizationId,e.Id,ct):1;var r=e.End(c.EffectiveTo,c.Reason,currentUser.UserId.Value,e.IsOwner&&remaining==0);if(r.IsFailure)return r;await unitOfWork.CommitAsync(ct);return Result.Success();}}
+internal sealed class EndOrganizationRepresentativeCommandHandler(IOrganizationRepresentativeRepository repository,
+OrganizationRepresentativeAccessSynchronizationService accessSynchronizationService,
+    IUnitOfWork unitOfWork,
+    ICurrentUser currentUser):ICommandHandler<EndOrganizationRepresentativeCommand>
+    {
+        public async Task<Result> Handle(EndOrganizationRepresentativeCommand c,CancellationToken ct)
+        {
+            if(!currentUser.IsAuthenticated||currentUser.UserId is null)
+                return Result.Failure(OrganizationRepresentativeErrors.CurrentUserRequired);
+            var e=await repository.GetForUpdateAsync(c.RepresentativeId,c.OrganizationId,ct);
+            if(e is null)
+                return Result.Failure(OrganizationRepresentativeErrors.NotFound);
+            if(e.Revision!=c.ExpectedRevision)
+                return Result.Failure(OrganizationRepresentativeErrors.ConcurrentUpdate);
+            int remaining = e.IsOwner?await repository.CountActiveOwnersAsync(c.OrganizationId,e.Id,ct):1;
+            var r = e.End(c.EffectiveTo,c.Reason,currentUser.UserId.Value,e.IsOwner&&remaining==0);
+            if(r.IsFailure)
+                return r;
+                
+            await unitOfWork.CommitAsync(ct);
+            await accessSynchronizationService.SynchronizeAsync(e,ct);
+            return Result.Success();
+        }
+    }

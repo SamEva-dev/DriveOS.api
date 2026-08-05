@@ -3,7 +3,8 @@ namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentativ
 public sealed class OrganizationRepresentativeExpirationOptions
 {
     public const string SectionName = "OrganizationRepresentatives:Expiration";
-    public bool Enabled { get; init; } = true;
+    public bool Enabled { get; init; } = false;
     public int IntervalMinutes { get; init; } = 60;
     public int BatchSize { get; init; } = 100;
+    public string? SystemUserId { get; init; }
 }

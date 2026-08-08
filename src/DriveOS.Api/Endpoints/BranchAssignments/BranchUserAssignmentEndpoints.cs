@@ -268,7 +268,7 @@ public static class
             HttpContext httpContext,
             CancellationToken cancellationToken)
     {
-        Result<BranchUserAssignmentStatus?>
+        Result<OptionalEnum<BranchUserAssignmentStatus>>
             statusResult =
                 ParseOptionalEnum<
                     BranchUserAssignmentStatus>(
@@ -283,7 +283,7 @@ public static class
                     httpContext);
         }
 
-        Result<BranchAssignmentRole?>
+        Result<OptionalEnum<BranchAssignmentRole>>
             roleResult =
                 ParseOptionalEnum<
                     BranchAssignmentRole>(
@@ -298,7 +298,7 @@ public static class
                     httpContext);
         }
 
-        Result<BranchAssignmentType?>
+        Result<OptionalEnum<BranchAssignmentType>>
             typeResult =
                 ParseOptionalEnum<
                     BranchAssignmentType>(
@@ -322,9 +322,9 @@ public static class
                 request.PageNumber,
                 request.PageSize,
                 request.Search,
-                statusResult.Value,
-                roleResult.Value,
-                typeResult.Value,
+                statusResult.Value.Value,
+                roleResult.Value.Value,
+                typeResult.Value.Value,
                 ParseSortField(
                     request.SortBy),
                 ParseSortDirection(
@@ -360,7 +360,7 @@ public static class
             HttpContext httpContext,
             CancellationToken cancellationToken)
     {
-        Result<BranchUserAssignmentStatus?>
+        Result<OptionalEnum<BranchUserAssignmentStatus>>
             statusResult =
                 ParseOptionalEnum<
                     BranchUserAssignmentStatus>(
@@ -375,7 +375,7 @@ public static class
                     httpContext);
         }
 
-        Result<BranchAssignmentRole?>
+        Result<OptionalEnum<BranchAssignmentRole>>
             roleResult =
                 ParseOptionalEnum<
                     BranchAssignmentRole>(
@@ -390,7 +390,7 @@ public static class
                     httpContext);
         }
 
-        Result<BranchAssignmentType?>
+        Result<OptionalEnum<BranchAssignmentType>>
             typeResult =
                 ParseOptionalEnum<
                     BranchAssignmentType>(
@@ -413,9 +413,9 @@ public static class
                     userId),
                 request.PageNumber,
                 request.PageSize,
-                statusResult.Value,
-                roleResult.Value,
-                typeResult.Value,
+                statusResult.Value.Value,
+                roleResult.Value.Value,
+                typeResult.Value.Value,
                 ParseSortField(
                     request.SortBy),
                 ParseSortDirection(
@@ -578,7 +578,7 @@ public static class
     }
 
     private static
-        Result<TEnum?>
+        Result<OptionalEnum<TEnum>>
         ParseOptionalEnum<TEnum>(
             string? value,
             Error error)
@@ -586,27 +586,24 @@ public static class
             struct,
             Enum
     {
-        if (
-            string.IsNullOrWhiteSpace(
-                value))
+        if (string.IsNullOrWhiteSpace(value))
         {
-            return Result.Success<
-                TEnum?>(
-                    null);
+            return Result.Success(
+                new OptionalEnum<TEnum>(null));
         }
 
         return Enum.TryParse<TEnum>(
-            value.Trim(),
-            ignoreCase: true,
-            out TEnum parsedValue) &&
-            Enum.IsDefined(parsedValue)
-                ? Result.Success<
-                    TEnum?>(
-                        parsedValue)
-                : Result.Failure<
-                    TEnum?>(
-                        error);
+                   value.Trim(),
+                   ignoreCase: true,
+                   out TEnum parsedValue) &&
+               Enum.IsDefined(parsedValue)
+            ? Result.Success(
+                new OptionalEnum<TEnum>(parsedValue))
+            : Result.Failure<OptionalEnum<TEnum>>(error);
     }
+
+    private sealed record OptionalEnum<TEnum>(TEnum? Value)
+        where TEnum : struct, Enum;
 
     private static
         BranchUserAssignmentSortField

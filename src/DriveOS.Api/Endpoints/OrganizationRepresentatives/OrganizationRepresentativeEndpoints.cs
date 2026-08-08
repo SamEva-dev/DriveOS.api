@@ -142,10 +142,19 @@ public static class OrganizationRepresentativeEndpoints
             return InvalidIdentifier("personId", context);
         if (request.UserId == Guid.Empty)
             return InvalidIdentifier("userId", context);
+        if (!request.PersonId.HasValue && !request.UserId.HasValue)
+            return InvalidIdentifier("userId", context);
+
+        // PersonId is an internal domain identifier. The UI must never ask a business user
+        // to type a GUID. Until DriveOS has a dedicated Person directory, a representative
+        // created from an AuthGate account gets a server-generated PersonId.
+        PersonId personId = request.PersonId.HasValue
+            ? new PersonId(request.PersonId.Value)
+            : PersonId.New();
 
         var model = new CreateOrganizationRepresentativeApiModel(
             organization,
-            new PersonId(request.PersonId),
+            personId,
             request.UserId.HasValue ? new UserId(request.UserId.Value) : null,
             request.RepresentativeType,
             request.AuthorityScope,

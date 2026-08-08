@@ -3,6 +3,7 @@ using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
 using DriveOS.Modules.Organizations.Domain.Branches;
+using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Results;
 
@@ -12,6 +13,7 @@ namespace DriveOS.Modules.Organizations.Application
 public sealed class ChangeBranchStatusCommandHandler(
     IBranchRepository branchRepository,
     IOrganizationRepository organizationRepository,
+    IBranchUserAssignmentRepository branchUserAssignmentRepository,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
     IClock clock)
@@ -89,13 +91,58 @@ public sealed class ChangeBranchStatusCommandHandler(
                     command.TargetStatus));
         }
 
+        DateTimeOffset now = clock.UtcNow;
+
+        // Compatibility bridge between the branch-team assignment model and
+        // the historical primary-manager aggregate. In the current UI, the
+        // "responsable d'agence" is created as a Primary AdministrativeManager
+        // branch assignment. Activation, however, checks Branch.ManagerAssignments.
+        // Keep the domain invariant and synchronize the aggregate before activation.
+        if (
+            command.TargetStatus == BranchStatus.Active &&
+            currentStatus == BranchStatus.Draft &&
+            !branch.HasActiveManagerAt(now))
+        {
+            IReadOnlyCollection<BranchUserAssignment> assignments =
+                await branchUserAssignmentRepository.GetOpenAssignmentsByBranchAsync(
+                    command.OrganizationId,
+                    command.BranchId,
+                    asNoTracking: true,
+                    cancellationToken);
+
+            BranchUserAssignment? primaryAdministrativeManager = assignments
+                .Where(assignment =>
+                    assignment.Status == BranchUserAssignmentStatus.Active &&
+                    assignment.Role == BranchAssignmentRole.AdministrativeManager &&
+                    assignment.AssignmentType == BranchAssignmentType.Primary &&
+                    assignment.StartsAtUtc <= now &&
+                    (!assignment.PlannedEndAtUtc.HasValue || assignment.PlannedEndAtUtc.Value > now) &&
+                    (!assignment.EffectiveEndAtUtc.HasValue || assignment.EffectiveEndAtUtc.Value > now))
+                .OrderByDescending(assignment => assignment.StartsAtUtc)
+                .FirstOrDefault();
+
+            if (primaryAdministrativeManager is not null)
+            {
+                Result managerResult = branch.AssignPrimaryManager(
+                    primaryAdministrativeManager.UserId,
+                    now,
+                    currentUser.UserId.Value,
+                    now);
+
+                if (managerResult.IsFailure)
+                {
+                    return managerResult;
+                }
+            }
+        }
+
         Result transitionResult =
             ApplyTransition(
                 branch,
                 command.TargetStatus,
                 reason,
                 currentUser.UserId.Value.Value,
-                clock.UtcNow,
+                now,
                 currentStatus);
 
         if (transitionResult.IsFailure)

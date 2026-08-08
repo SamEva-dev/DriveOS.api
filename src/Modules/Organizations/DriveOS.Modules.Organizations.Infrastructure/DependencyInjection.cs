@@ -1,5 +1,4 @@
-﻿using DriveOS.Modules.Organizations.Infrastructure.OrganizationSequences;
-using DriveOS.Application.Abstractions.Authentication;
+﻿using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
 using DriveOS.Modules.Organizations.Application.Abstractions;
@@ -7,21 +6,46 @@ using DriveOS.Modules.Organizations.Application.BranchAssignments;
 using DriveOS.Modules.Organizations.Application.BranchConfigurationOverrides;
 using DriveOS.Modules.Organizations.Application.Branches;
 using DriveOS.Modules.Organizations.Application.Branches.Managers;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Audit;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Rules;
+using DriveOS.Modules.Organizations.Application.OrganizationClosures.Commands;
+using DriveOS.Modules.Organizations.Application.OrganizationClosures.Readiness;
 using DriveOS.Modules.Organizations.Application.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Application.OrganizationConfigurations.Effective;
+using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles;
+using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Compliance;
+using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives;
+using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.AccessSynchronization;
+using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.Expiration;
+using DriveOS.Modules.Organizations.Application.OrganizationSequences;
 using DriveOS.Modules.Organizations.Application.OrganizationSettings;
 using DriveOS.Modules.Organizations.Application.OrganizationSubscriptions;
 using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.BranchConfigurationOverrides;
 using DriveOS.Modules.Organizations.Domain.Branches;
+using DriveOS.Modules.Organizations.Domain.OrganizationClosures;
 using DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
+using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
+using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 using DriveOS.Modules.Organizations.Domain.Organizations;
-using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
 using DriveOS.Modules.Organizations.Domain.OrganizationSequences;
+using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
 using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using DriveOS.Modules.Organizations.Infrastructure.Authentication;
 using DriveOS.Modules.Organizations.Infrastructure.BranchConfigurationOverrides;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationReadiness;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationReadiness.Audit;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationReadiness.Cache;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationClosures;
 using DriveOS.Modules.Organizations.Infrastructure.OrganizationConfigurations;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles.Compliance;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.AccessSynchronization;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.Expiration;
+using DriveOS.Modules.Organizations.Infrastructure.OrganizationSequences;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence.Interceptors;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence.Queries;
@@ -31,29 +55,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using DriveOS.Modules.Organizations.Application.OrganizationSequences;
-using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
-using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives;
-using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.AccessSynchronization;
-using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives;
-using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.AccessSynchronization;
-using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.Expiration;
-using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
-using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles;
-using DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles;
-using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness;
-using DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationReadiness;
-using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.Expiration;
-using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Compliance;
-using DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles.Compliance;
-using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Rules;
-using DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationReadiness.Cache;
-using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
-using DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationReadiness.Audit;
-using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Audit;
-using DriveOS.Modules.Organizations.Application.OrganizationClosures.Readiness;
-using DriveOS.Modules.Organizations.Application.OrganizationClosures.Commands;
-using DriveOS.Modules.Organizations.Infrastructure.OrganizationClosures;
 
 namespace DriveOS.Modules.Organizations.Infrastructure;
 
@@ -144,6 +145,10 @@ public static class DependencyInjection
     services.AddScoped<
     IOrganizationLegalProfileRepository,
     OrganizationLegalProfileRepository>();
+    
+        services.AddScoped<
+            IOrganizationClosureRepository,
+            OrganizationClosureRepository>();
 
 
         services.AddScoped<IBranchRepository, BranchRepository>();

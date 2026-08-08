@@ -10,46 +10,63 @@ internal sealed class OrganizationConfigurationReadService(
     OrganizationsDbContext dbContext)
     : IOrganizationConfigurationReadService
 {
-    public Task<OrganizationConfigurationResponse?> GetByIdAsync(
+    public async Task<OrganizationConfigurationResponse?> GetByIdAsync(
         OrganizationId organizationId,
         OrganizationConfigurationId configurationId,
-        CancellationToken cancellationToken = default) =>
-        dbContext.OrganizationConfigurations
+        CancellationToken cancellationToken = default)
+    {
+        // Status is persisted as a string ("Draft", "Published", ...).
+        // Casting the enum to int inside the EF projection makes Npgsql try
+        // to cast that text column to integer (e.g. "Draft"::integer), which
+        // fails with PostgreSQL 22P02. Materialize first, then cast in memory.
+        var configuration = await dbContext.OrganizationConfigurations
             .AsNoTracking()
-            .Where(configuration =>
-                configuration.OrganizationId == organizationId &&
-                configuration.Id == configurationId)
-            .Select(configuration => new OrganizationConfigurationResponse(
-                configuration.Id.Value,
-                configuration.OrganizationId.Value,
-                configuration.VersionNumber,
-                configuration.CountryCode,
-                configuration.Payload.Json,
-                (int)configuration.Status,
-                configuration.EffectiveFromUtc,
-                configuration.EffectiveToUtc,
-                configuration.PublishedAtUtc,
-                configuration.PublishedByUserId.HasValue
-                    ? configuration.PublishedByUserId.Value.Value
-                    : null,
-                configuration.Revision,
-                configuration.CreatedAtUtc,
-                configuration.CreatedByUserId.HasValue
-                    ? configuration.CreatedByUserId.Value.Value
-                    : null,
-                configuration.LastModifiedAtUtc,
-                configuration.LastModifiedByUserId.HasValue
-                    ? configuration.LastModifiedByUserId.Value.Value
-                    : null))
-            .SingleOrDefaultAsync(cancellationToken);
+            .SingleOrDefaultAsync(
+                candidate =>
+                    candidate.OrganizationId == organizationId &&
+                    candidate.Id == configurationId,
+                cancellationToken);
+
+        if (configuration is null)
+        {
+            return null;
+        }
+
+        return new OrganizationConfigurationResponse(
+            configuration.Id.Value,
+            configuration.OrganizationId.Value,
+            configuration.VersionNumber,
+            configuration.CountryCode,
+            configuration.Payload.Json,
+            (int)configuration.Status,
+            configuration.EffectiveFromUtc,
+            configuration.EffectiveToUtc,
+            configuration.PublishedAtUtc,
+            configuration.PublishedByUserId.HasValue
+                ? configuration.PublishedByUserId.Value.Value
+                : null,
+            configuration.Revision,
+            configuration.CreatedAtUtc,
+            configuration.CreatedByUserId.HasValue
+                ? configuration.CreatedByUserId.Value.Value
+                : null,
+            configuration.LastModifiedAtUtc,
+            configuration.LastModifiedByUserId.HasValue
+                ? configuration.LastModifiedByUserId.Value.Value
+                : null);
+    }
 
     public async Task<IReadOnlyList<OrganizationConfigurationListItemResponse>> GetVersionsAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default) =>
-        await dbContext.OrganizationConfigurations
+        CancellationToken cancellationToken = default)
+    {
+        var configurations = await dbContext.OrganizationConfigurations
             .AsNoTracking()
             .Where(configuration => configuration.OrganizationId == organizationId)
             .OrderByDescending(configuration => configuration.VersionNumber)
+            .ToListAsync(cancellationToken);
+
+        return configurations
             .Select(configuration => new OrganizationConfigurationListItemResponse(
                 configuration.Id.Value,
                 configuration.VersionNumber,
@@ -60,5 +77,6 @@ internal sealed class OrganizationConfigurationReadService(
                 configuration.PublishedAtUtc,
                 configuration.Revision,
                 configuration.CreatedAtUtc))
-            .ToListAsync(cancellationToken);
+            .ToList();
+    }
 }

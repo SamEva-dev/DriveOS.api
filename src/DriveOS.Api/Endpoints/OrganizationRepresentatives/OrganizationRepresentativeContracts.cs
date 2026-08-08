@@ -4,7 +4,7 @@ using DriveOS.SharedKernel.Identifiers;
 namespace DriveOS.Api.Endpoints.OrganizationRepresentatives;
 
 public sealed record CreateOrganizationRepresentativeRequest(
-    Guid PersonId,
+    Guid? PersonId,
     Guid? UserId,
     OrganizationRepresentativeType RepresentativeType,
     string AuthorityScope,

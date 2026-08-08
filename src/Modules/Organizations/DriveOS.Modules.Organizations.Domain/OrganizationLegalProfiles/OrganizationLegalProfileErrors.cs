@@ -34,7 +34,7 @@ public static class OrganizationLegalProfileErrors
 
     public static readonly Error NotFound = Error.NotFound(
         "OrganizationLegalProfiles.NotFound",
-        "The organization legal profile was not found.");
+        "errors.organizationLegalProfiles.notFound");
 
     public static readonly Error AlreadyExists = Error.Conflict(
         "OrganizationLegalProfiles.AlreadyExists",

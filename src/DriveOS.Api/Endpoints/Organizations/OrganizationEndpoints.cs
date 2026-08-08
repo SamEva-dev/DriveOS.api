@@ -4,6 +4,7 @@ using DriveOS.Api.Contracts;
 using DriveOS.Api.Errors;
 using DriveOS.Application.Abstractions.Pagination;
 using DriveOS.Application.Abstractions.Sorting;
+using DriveOS.Modules.Organizations.Application.Organizations.CreateOrganization;
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizationById;
 using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.GetOrganizationActivationReadiness;
 using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Models;
@@ -26,6 +27,17 @@ public static class OrganizationEndpoints
         RouteGroupBuilder group =
             endpoints.MapGroup("/api/organizations")
                 .WithTags("Organizations");
+
+        group.MapPost(
+                "/",
+                CreateOrganizationAsync)
+            .WithName("CreateOrganization")
+            .WithSummary("Créer une organisation")
+            .Accepts<CreateOrganizationRequest>("application/json")
+            .Produces<CreateOrganizationResponse>(StatusCodes.Status201Created)
+            .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
+            .RequireAuthorization(DriveOsPermissionCodes.Organizations.Create);
 
         group.MapGet(
                 "/{organizationId:guid}",
@@ -118,6 +130,32 @@ public static class OrganizationEndpoints
                 DriveOsPermissionCodes.Organizations.Close);
 
         return endpoints;
+    }
+
+
+    private static async Task<IResult> CreateOrganizationAsync(
+        CreateOrganizationRequest request,
+        IMediator mediator,
+        IObjectMapper mapper,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        CreateOrganizationCommand command =
+            mapper.Map<CreateOrganizationRequest, CreateOrganizationCommand>(request);
+
+        Result<OrganizationId> result =
+            await mediator.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.ToHttpResult(httpContext);
+        }
+
+        Guid organizationId = result.Value.Value;
+
+        return Results.Created(
+            $"/api/organizations/{organizationId:D}",
+            new CreateOrganizationResponse(organizationId));
     }
 
     private static async Task<IResult>

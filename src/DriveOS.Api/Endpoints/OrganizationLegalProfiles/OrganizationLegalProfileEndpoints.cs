@@ -81,9 +81,33 @@ public static class OrganizationLegalProfileEndpoints
         Result<OrganizationLegalProfileResponse> result =
             await mediator.Send(new GetOrganizationLegalProfileQuery(organization), cancellationToken);
 
-        return result.IsSuccess
-            ? Results.Ok(mapper.Map<OrganizationLegalProfileResponse, OrganizationLegalProfileResponseContract>(result.Value))
-            : result.Error.ToHttpResult(context);
+        if (result.IsFailure)
+            return result.Error.ToHttpResult(context);
+
+        OrganizationLegalProfileResponse source = result.Value;
+
+        var response = new OrganizationLegalProfileResponseContract(
+            source.Id.Value,
+            source.OrganizationId.Value,
+            source.LegalForm.ToString(),
+            source.RegistrationNumber,
+            source.TaxNumber,
+            source.TradeName,
+            source.IncorporationDate,
+            source.AddressLine1,
+            source.AddressLine2,
+            source.PostalCode,
+            source.City,
+            source.Region,
+            source.CountryCode,
+            source.Status.ToString(),
+            source.Revision,
+            source.CreatedAtUtc,
+            source.CreatedByUserId?.Value,
+            source.LastModifiedAtUtc,
+            source.LastModifiedByUserId?.Value);
+
+        return Results.Ok(response);
     }
 
     private static async Task<IResult> CreateAsync(

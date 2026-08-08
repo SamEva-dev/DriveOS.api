@@ -3,6 +3,7 @@ using System;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(OrganizationsDbContext))]
-    partial class OrganizationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260806112703_FixeBug")]
+    partial class FixeBug
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

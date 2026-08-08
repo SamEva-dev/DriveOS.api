@@ -1,6 +1,7 @@
 using DomainRelay.Validation;
 using DriveOS.Api;
 using DriveOS.Api.Endpoints.AccessManagement;
+using DriveOS.Api.Endpoints.BranchAssignments;
 using DriveOS.Api.Endpoints.BranchConfigurationOverrides;
 using DriveOS.Api.Endpoints.Branches;
 using DriveOS.Api.Endpoints.OrganizationConfigurations;
@@ -17,7 +18,6 @@ using Serilog;
 using Serilog.Events;
 using DriveOS.Api.Endpoints.OrganizationRepresentatives;
 using DriveOS.Api.Endpoints.OrganizationLegalProfiles;
-using DriveOS.Api.Endpoints.OrganizationClosures;
 using DriveOS.Api.Configuration;
 
 Log.Logger = new LoggerConfiguration()
@@ -95,10 +95,10 @@ try
     ?? throw new InvalidOperationException(
         "The CORS allowed origins configuration is missing.");
 
-        builder.Services.ConfigureHttpJsonOptions(options =>
-            {
-                options.ConfigureDriveOsEnums();
-            });
+    builder.Services.ConfigureHttpJsonOptions(options =>
+    {
+        options.ConfigureDriveOsEnums();
+    });
 
     builder.Services.AddCors(
         options =>
@@ -215,6 +215,7 @@ try
     app.MapOrganizationSettingsEndpoints();
     app.MapOrganizationSubscriptionEndpoints();
     app.MapBranchEndpoints();
+    app.MapBranchUserAssignmentEndpoints();
     app.MapProvisioningEndpoints();
     app.MapAccessManagementEndpoints();
     app.MapBranchConfigurationOverrideEndpoints();
@@ -222,7 +223,6 @@ try
     app.MapOrganizationSequenceEndpoints();
     app.MapOrganizationRepresentativeEndpoints();
     app.MapOrganizationLegalProfileEndpoints();
-    app.MapOrganizationClosureEndpoints();
 
     app.MapGet(
         "/health",

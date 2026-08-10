@@ -1,6 +1,6 @@
 using DomainRelay.Mapping.Abstractions.Configuration;
 using DomainRelay.Mapping.Abstractions.Profiles;
-using DriveOS.Api.Endpoints.BranchConfigurationOverrides;
+using DriveOS.Api.Endpoints.Organization.BranchConfigurationOverrides;
 using DriveOS.Modules.Organizations.Application.BranchConfigurationOverrides.Archive;
 using DriveOS.Modules.Organizations.Application.BranchConfigurationOverrides.CreateDraft;
 using DriveOS.Modules.Organizations.Application.BranchConfigurationOverrides.Models;

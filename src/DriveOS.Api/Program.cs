@@ -1,24 +1,27 @@
 using DomainRelay.Validation;
 using DriveOS.Api;
-using DriveOS.Api.Endpoints.AccessManagement;
-using DriveOS.Api.Endpoints.BranchAssignments;
-using DriveOS.Api.Endpoints.BranchConfigurationOverrides;
-using DriveOS.Api.Endpoints.Branches;
-using DriveOS.Api.Endpoints.OrganizationConfigurations;
-using DriveOS.Api.Endpoints.OrganizationSequences;
-using DriveOS.Api.Endpoints.Organizations;
-using DriveOS.Api.Endpoints.OrganizationSettings;
-using DriveOS.Api.Endpoints.OrganizationSubscriptions;
 using DriveOS.Api.Endpoints.Provisioning;
+using DriveOS.Api.Endpoints.Crm;
 using DriveOS.Api.Errors;
 using DriveOS.Api.Infrastructure.Logging;
 using DriveOS.Modules.Organizations.Application;
 using DriveOS.Modules.Organizations.Infrastructure;
+using DriveOS.Modules.CRM.Application;
+using DriveOS.Modules.CRM.Infrastructure;
 using Serilog;
 using Serilog.Events;
-using DriveOS.Api.Endpoints.OrganizationRepresentatives;
-using DriveOS.Api.Endpoints.OrganizationLegalProfiles;
 using DriveOS.Api.Configuration;
+using DriveOS.Api.Endpoints.Organization.Organizations;
+using DriveOS.Api.Endpoints.Organization.BranchAssignments;
+using DriveOS.Api.Endpoints.Organization.OrganizationSettings;
+using DriveOS.Api.Endpoints.Organization.Branches;
+using DriveOS.Api.Endpoints.Organization.OrganizationConfigurations;
+using DriveOS.Api.Endpoints.Organization.BranchConfigurationOverrides;
+using DriveOS.Api.Endpoints.Organization.OrganizationSequences;
+using DriveOS.Api.Endpoints.Organization.AccessManagement;
+using DriveOS.Api.Endpoints.Organization.OrganizationSubscriptions;
+using DriveOS.Api.Endpoints.Organization.OrganizationLegalProfiles;
+using DriveOS.Api.Endpoints.Organization.OrganizationRepresentatives;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -80,6 +83,9 @@ try
         .AddApiServices(builder.Configuration)
     .AddOrganizationsApplication()
     .AddOrganizationsInfrastructure(
+        builder.Configuration)
+    .AddCrmApplication()
+    .AddCrmInfrastructure(
         builder.Configuration);
 
     builder.Services.AddDomainRelayValidation();
@@ -223,6 +229,7 @@ try
     app.MapOrganizationSequenceEndpoints();
     app.MapOrganizationRepresentativeEndpoints();
     app.MapOrganizationLegalProfileEndpoints();
+    app.MapLeadEndpoints();
 
     app.MapGet(
         "/health",

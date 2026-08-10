@@ -1,6 +1,6 @@
 ﻿using DomainRelay.Mapping.Abstractions.Configuration;
 using DomainRelay.Mapping.Abstractions.Profiles;
-using DriveOS.Api.Endpoints.OrganizationSubscriptions;
+using DriveOS.Api.Endpoints.Organization.OrganizationSubscriptions;
 using DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.CancelOrganizationSubscription;
 using DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.ChangeOrganizationSubscriptionPlan;
 using DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.ChangeStatus;

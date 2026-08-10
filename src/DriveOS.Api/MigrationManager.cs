@@ -1,4 +1,5 @@
 ﻿using DriveOS.Modules.Organizations.Infrastructure.Persistence;
+using DriveOS.Modules.CRM.Infrastructure.Persistence;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,8 +19,13 @@ namespace DriveOS.Api
                 orgDb.Database.Migrate();
                 Log.Information("✅ Organizations database migrated successfully.");
 
+                var crmDb = scope.ServiceProvider.GetRequiredService<CrmDbContext>();
+                Log.Information("Applying CRM database migrations...");
+                crmDb.Database.Migrate();
+                Log.Information("✅ CRM database migrated successfully.");
+
                 // Apply AuditDbContext migrations
-              
+
             }
             catch (Exception ex)
             {

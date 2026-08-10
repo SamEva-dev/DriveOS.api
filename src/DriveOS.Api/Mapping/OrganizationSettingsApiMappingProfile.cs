@@ -1,6 +1,6 @@
 ﻿using DomainRelay.Mapping.Abstractions.Configuration;
 using DomainRelay.Mapping.Abstractions.Profiles;
-using DriveOS.Api.Endpoints.OrganizationSettings;
+using DriveOS.Api.Endpoints.Organization.OrganizationSettings;
 using DriveOS.Modules.Organizations.Application.OrganizationSettings.CreateOrganizationSettings;
 using DriveOS.Modules.Organizations.Application.OrganizationSettings.Models;
 using DriveOS.Modules.Organizations.Application.OrganizationSettings.UpdateAddress;

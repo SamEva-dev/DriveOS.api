@@ -1,12 +1,12 @@
 ﻿using DomainRelay.Mapping.Abstractions.Configuration;
 using DomainRelay.Mapping.Abstractions.Profiles;
-using DriveOS.Api.Endpoints.Organizations;
 using DriveOS.Modules.Organizations.Application
     .Organizations.GetOrganizationById;
 using DriveOS.Modules.Organizations.Application
     .Organizations.GetOrganizations;
 using DriveOS.Modules.Organizations.Application
     .Organizations.CreateOrganization;
+using DriveOS.Api.Endpoints.Organization.Organizations;
 
 namespace DriveOS.Api.Mapping;
 

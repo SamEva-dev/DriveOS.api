@@ -1,6 +1,6 @@
 ﻿using DomainRelay.Mapping.Abstractions.Configuration;
 using DomainRelay.Mapping.Abstractions.Profiles;
-using DriveOS.Api.Endpoints.Branches;
+using DriveOS.Api.Endpoints.Organization.Branches;
 using DriveOS.Modules.Organizations.Application.Branches.Models;
 
 namespace DriveOS.Api.Mapping;

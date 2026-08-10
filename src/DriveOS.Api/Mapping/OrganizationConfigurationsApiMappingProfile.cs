@@ -1,6 +1,6 @@
 ﻿using DomainRelay.Mapping.Abstractions.Configuration;
 using DomainRelay.Mapping.Abstractions.Profiles;
-using DriveOS.Api.Endpoints.OrganizationConfigurations;
+using DriveOS.Api.Endpoints.Organization.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Application.OrganizationConfigurations.Archive;
 using DriveOS.Modules.Organizations.Application.OrganizationConfigurations.CreateDraft;
 using DriveOS.Modules.Organizations.Application.OrganizationConfigurations.Models;

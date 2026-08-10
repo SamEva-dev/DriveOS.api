@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using DriveOS.Api.Endpoints.OrganizationSettings;
+using DriveOS.Api.Endpoints.Organization.OrganizationSettings;
 using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
 
 namespace DriveOS.ArchitectureTests;

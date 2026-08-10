@@ -1,6 +1,6 @@
 using DomainRelay.Mapping.Abstractions.Configuration;
 using DomainRelay.Mapping.Abstractions.Profiles;
-using DriveOS.Api.Endpoints.OrganizationLegalProfiles;
+using DriveOS.Api.Endpoints.Organization.OrganizationLegalProfiles;
 using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Activate;
 using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Archive;
 using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Create;

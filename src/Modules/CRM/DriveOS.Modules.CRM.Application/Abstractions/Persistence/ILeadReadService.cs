@@ -2,6 +2,7 @@
 using DriveOS.Application.Abstractions.Sorting;
 using DriveOS.Modules.CRM.Application.Leads.GetLead;
 using DriveOS.Modules.CRM.Application.Leads.GetLeads;
+using DriveOS.Modules.CRM.Application.Leads.ExportLeads;
 using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.SharedKernel.Identifiers;
 
@@ -27,4 +28,9 @@ public interface ILeadReadService
         LeadSortField sortBy,
         SortDirection sortDirection,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<LeadExportRow>> GetForExportAsync(
+        OrganizationId organizationId, string? search, BranchId? branchId,
+        LeadStatus? status, LeadSourceType? sourceType, UserId? assignedAdvisorId,
+        bool unassignedOnly, int maximumRows, CancellationToken cancellationToken = default);
 }

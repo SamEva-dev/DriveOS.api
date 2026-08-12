@@ -14,4 +14,10 @@ public sealed record LeadListItem(
     LeadSourceType SourceType,
     Guid? AssignedAdvisorId,
     LeadStatus Status,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    DateTimeOffset? LastModifiedAtUtc,
+    DateTimeOffset? LastActivityAtUtc,
+    string? NextActionTitle,
+    DateTimeOffset? NextActionDueAtUtc,
+    bool IsNextActionOverdue,
+    bool HasPotentialDuplicate);

@@ -10,6 +10,8 @@ using DriveOS.Modules.CRM.Infrastructure.Persistence.Repositories;
 using DriveOS.Modules.CRM.Infrastructure.Persistence.Interceptors;
 using DriveOS.Modules.CRM.Infrastructure.Persistence.Queries;
 using DriveOS.Modules.CRM.Application.Dashboard.GetDashboard;
+using DriveOS.Modules.CRM.Application.Leads.SavedViews;
+using DriveOS.Modules.CRM.Application.Leads.BulkActions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +33,8 @@ public static class DependencyInjection
                 "The DriveOS database connection string is missing.");
 
         services.AddScoped<CrmAuditableEntityInterceptor>();
+        services.AddScoped<ISavedLeadViewService, SavedLeadViewService>();
+        services.AddScoped<ILeadBulkActionService, LeadBulkActionService>();
 
         services.AddDbContext<CrmDbContext>((serviceProvider, options) =>
         {
@@ -55,6 +59,7 @@ public static class DependencyInjection
 
         services.AddScoped<ILeadRepository, LeadRepository>();
         services.AddScoped<ILeadConversionRepository, LeadConversionRepository>();
+      //  services.AddScoped<IAdmissionRepository, AdmissionRepository>();
         services.AddScoped<ILeadReadService, LeadReadService>();
         services.AddScoped<ICrmTaskRepository, CrmTaskRepository>();
         services.AddScoped<ICrmActivityRepository, CrmActivityRepository>();

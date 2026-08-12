@@ -143,6 +143,15 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         return Result.Success();
     }
 
+    public Result AssignAdvisor(UserId? advisorId)
+    {
+        if (advisorId.HasValue && advisorId.Value.IsEmpty)
+            return Result.Failure(LeadErrors.EmptyAssignedAdvisorId);
+        AssignedAdvisorId = advisorId;
+        RaiseDomainEvent(new LeadInformationUpdatedDomainEvent(Id, OrganizationId, BranchId));
+        return Result.Success();
+    }
+
     public Result ChangeStatus(LeadStatus targetStatus, string? reason = null)
     {
         if (!Enum.IsDefined(targetStatus))

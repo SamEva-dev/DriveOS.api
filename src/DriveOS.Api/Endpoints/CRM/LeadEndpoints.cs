@@ -8,10 +8,13 @@ using DriveOS.Modules.CRM.Application.Leads.CreateLead;
 using DriveOS.Modules.CRM.Application.Leads.ChangeLeadStatus;
 using DriveOS.Modules.CRM.Application.Leads.GetLead;
 using DriveOS.Modules.CRM.Application.Leads.GetLeads;
+using DriveOS.Modules.CRM.Application.Leads.ExportLeads;
 using DriveOS.Modules.CRM.Application.Leads.UpdateLead;
 using DriveOS.Modules.CRM.Application.Leads.QualifyLead;
 using DriveOS.Modules.CRM.Application.Leads.ConvertLead;
 using DriveOS.Modules.CRM.Application.Leads.ManageLifecycle;
+using DriveOS.Modules.CRM.Application.Leads.SavedViews;
+using DriveOS.Modules.CRM.Application.Leads.BulkActions;
 using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.Security.Contracts;
 using DriveOS.SharedKernel.Identifiers;
@@ -50,6 +53,27 @@ public static class LeadEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
             .Produces<ApiErrorResponse>(StatusCodes.Status401Unauthorized)
             .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.Read);
+
+        group.MapGet("/export", ExportLeadsAsync)
+            .WithName("ExportLeads")
+            .WithSummary("Exporter les prospects filtrés au format CSV")
+            .Produces(StatusCodes.Status200OK, contentType: "text/csv")
+            .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces<ApiErrorResponse>(StatusCodes.Status401Unauthorized)
+            .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.Export);
+
+        group.MapGet("/saved-views", GetSavedViewsAsync)
+            .WithName("GetSavedLeadViews").WithSummary("Lister les vues Prospect accessibles")
+            .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.Read);
+        group.MapPut("/saved-views", SaveViewAsync)
+            .WithName("SaveLeadView").WithSummary("Créer ou modifier une vue Prospect")
+            .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.ManageSavedViews);
+        group.MapDelete("/saved-views/{viewId:guid}", DeleteViewAsync)
+            .WithName("DeleteLeadView").WithSummary("Supprimer une vue Prospect personnelle")
+            .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.ManageSavedViews);
+        group.MapPost("/bulk-actions", ExecuteBulkActionAsync)
+            .WithName("ExecuteLeadBulkAction").WithSummary("Exécuter une action groupée sur 200 prospects maximum")
+            .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.BulkManage);
 
         group.MapPut("/{leadId:guid}", UpdateLeadAsync)
             .WithName("UpdateLead")
@@ -103,6 +127,52 @@ public static class LeadEndpoints
             .RequireAuthorization(DriveOsPermissionCodes.CrmConversions.ConvertToStudent);
 
         return endpoints;
+    }
+
+    private static async Task<IResult> GetSavedViewsAsync(ISavedLeadViewService service,
+        ICurrentTenant tenant, ICurrentUser user, HttpContext context, CancellationToken ct)
+    {
+        if (!tenant.HasTenant || tenant.OrganizationId is null)
+            return LeadErrors.CurrentTenantRequired.ToHttpResult(context);
+        if (!user.IsAuthenticated || user.UserId is null)
+            return LeadErrors.CurrentUserRequired.ToHttpResult(context);
+        return Results.Ok(await service.ListAsync(tenant.OrganizationId.Value, user.UserId.Value,
+            new HashSet<Guid>(), ct));
+    }
+
+    private static async Task<IResult> SaveViewAsync(SaveLeadViewInput request,
+        ISavedLeadViewService service, ICurrentTenant tenant, ICurrentUser user,
+        HttpContext context, CancellationToken ct)
+    {
+        if (!tenant.HasTenant || tenant.OrganizationId is null)
+            return LeadErrors.CurrentTenantRequired.ToHttpResult(context);
+        if (!user.IsAuthenticated || user.UserId is null)
+            return LeadErrors.CurrentUserRequired.ToHttpResult(context);
+        bool canShare = user.HasPermission(DriveOsPermissionCodes.CrmLeads.ShareSavedViews);
+        SavedLeadViewDto? result = await service.SaveAsync(tenant.OrganizationId.Value,
+            user.UserId.Value, request, canShare, ct);
+        return result is null ? Results.BadRequest(new { key = "Crm.Leads.SavedViews.Invalid" }) : Results.Ok(result);
+    }
+
+    private static async Task<IResult> DeleteViewAsync(Guid viewId, ISavedLeadViewService service,
+        ICurrentTenant tenant, ICurrentUser user, HttpContext context, CancellationToken ct)
+    {
+        if (!tenant.HasTenant || tenant.OrganizationId is null)
+            return LeadErrors.CurrentTenantRequired.ToHttpResult(context);
+        if (!user.IsAuthenticated || user.UserId is null)
+            return LeadErrors.CurrentUserRequired.ToHttpResult(context);
+        return await service.DeleteAsync(tenant.OrganizationId.Value, user.UserId.Value, viewId, ct)
+            ? Results.NoContent() : Results.NotFound(new { key = "Crm.Leads.SavedViews.NotFound" });
+    }
+
+    private static async Task<IResult> ExecuteBulkActionAsync(LeadBulkActionInput request,
+        ILeadBulkActionService service, ICurrentTenant tenant, HttpContext context, CancellationToken ct)
+    {
+        if (!tenant.HasTenant || tenant.OrganizationId is null)
+            return LeadErrors.CurrentTenantRequired.ToHttpResult(context);
+        if (request.LeadIds.Count is < 1 or > 200)
+            return Results.BadRequest(new { key = "Crm.Leads.Bulk.InvalidCount" });
+        return Results.Ok(await service.ExecuteAsync(tenant.OrganizationId.Value, request, ct));
     }
 
     private static async Task<IResult> CloseLeadAsync(Guid leadId, CloseLeadRequest request,
@@ -367,6 +437,26 @@ public static class LeadEndpoints
             page.TotalPages,
             page.HasPreviousPage,
             page.HasNextPage));
+    }
+
+    private static async Task<IResult> ExportLeadsAsync(
+        [AsParameters] GetLeadsRequest request, IMediator mediator,
+        ICurrentTenant currentTenant, HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        if (!currentTenant.HasTenant || currentTenant.OrganizationId is null)
+            return LeadErrors.CurrentTenantRequired.ToHttpResult(httpContext);
+
+        var query = new ExportLeadsQuery(currentTenant.OrganizationId.Value, request.Search,
+            request.BranchId.HasValue ? new BranchId(request.BranchId.Value) : null,
+            ParseOptionalEnum<LeadStatus>(request.Status),
+            ParseOptionalEnum<LeadSourceType>(request.SourceType),
+            request.AssignedAdvisorId.HasValue ? new UserId(request.AssignedAdvisorId.Value) : null,
+            request.UnassignedOnly);
+        Result<LeadExportFile> result = await mediator.Send(query, cancellationToken);
+        return result.IsFailure
+            ? result.Error.ToHttpResult(httpContext)
+            : Results.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);
     }
 
     private static TEnum? ParseOptionalEnum<TEnum>(string? value)

@@ -4,6 +4,8 @@ namespace DriveOS.Modules.CRM.Domain.Leads;
 
 public static class LeadErrors
 {
+    public static readonly Error EmptyAssignedAdvisorId = Error.Validation(
+        "Crm.Leads.AssignedAdvisorId.Empty", "errors.crm.leads.assignedAdvisorId.empty");
     public static readonly Error EmptyId = Error.Validation(
         "Crm.Leads.Id.Empty",
         "errors.crm.leads.id.empty");

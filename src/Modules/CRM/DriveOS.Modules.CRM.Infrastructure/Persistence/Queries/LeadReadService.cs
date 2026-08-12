@@ -3,7 +3,9 @@ using DriveOS.Application.Abstractions.Sorting;
 using DriveOS.Modules.CRM.Application.Abstractions.Persistence;
 using DriveOS.Modules.CRM.Application.Leads.GetLead;
 using DriveOS.Modules.CRM.Application.Leads.GetLeads;
+using DriveOS.Modules.CRM.Application.Leads.ExportLeads;
 using DriveOS.Modules.CRM.Domain.Leads;
+using DriveOS.Modules.CRM.Domain.Tasks;
 using DriveOS.SharedKernel.Identifiers;
 using Microsoft.EntityFrameworkCore;
 
@@ -148,14 +150,97 @@ internal sealed class LeadReadService(CrmDbContext dbContext)
                     ? lead.AssignedAdvisorId.Value.Value
                     : null,
                 lead.Status,
-                lead.CreatedAtUtc))
+                lead.CreatedAtUtc,
+                lead.LastModifiedAtUtc,
+                null,
+                null,
+                null,
+                false,
+                dbContext.Leads.Any(other =>
+                    other.OrganizationId == organizationId &&
+                    other.Id != lead.Id &&
+                    ((lead.Identity.Email != null && other.Identity.Email == lead.Identity.Email) ||
+                     (lead.Identity.Phone != null && other.Identity.Phone == lead.Identity.Phone)))))
             .ToListAsync(cancellationToken);
+
+        if (items.Count > 0)
+        {
+            LeadId[] leadIds = items.Select(item => new LeadId(item.Id)).ToArray();
+
+            var nextActions = await dbContext.Tasks
+                .AsNoTracking()
+                .Where(task => task.OrganizationId == organizationId &&
+                    leadIds.Contains(task.LeadId) && task.Status == CrmTaskStatus.Pending)
+                .OrderBy(task => task.DueAtUtc)
+                .Select(task => new { task.LeadId, task.Title, task.DueAtUtc })
+                .ToListAsync(cancellationToken);
+
+            var lastActivities = await dbContext.Activities
+                .AsNoTracking()
+                .Where(activity => activity.OrganizationId == organizationId &&
+                    leadIds.Contains(activity.LeadId))
+                .GroupBy(activity => activity.LeadId)
+                .Select(group => new { LeadId = group.Key, OccurredAtUtc = group.Max(x => x.OccurredAtUtc) })
+                .ToDictionaryAsync(x => x.LeadId, x => x.OccurredAtUtc, cancellationToken);
+
+            Dictionary<LeadId, (string Title, DateTimeOffset DueAtUtc)> nextActionByLead = nextActions
+                .GroupBy(action => action.LeadId)
+                .ToDictionary(group => group.Key, group => (group.First().Title, group.First().DueAtUtc));
+            DateTimeOffset nowUtc = DateTimeOffset.UtcNow;
+
+            items = items.Select(item =>
+            {
+                var leadId = new LeadId(item.Id);
+                bool hasNextAction = nextActionByLead.TryGetValue(leadId, out var nextAction);
+                return item with
+                {
+                    LastActivityAtUtc = lastActivities.GetValueOrDefault(leadId),
+                    NextActionTitle = hasNextAction ? nextAction.Title : null,
+                    NextActionDueAtUtc = hasNextAction ? nextAction.DueAtUtc : null,
+                    IsNextActionOverdue = hasNextAction && nextAction.DueAtUtc < nowUtc
+                };
+            }).ToList();
+        }
 
         return new PagedResult<LeadListItem>(
             items,
             pageNumber,
             pageSize,
             totalCount);
+    }
+
+    public async Task<IReadOnlyList<LeadExportRow>> GetForExportAsync(
+        OrganizationId organizationId, string? search, BranchId? branchId,
+        LeadStatus? status, LeadSourceType? sourceType, UserId? assignedAdvisorId,
+        bool unassignedOnly, int maximumRows, CancellationToken cancellationToken = default)
+    {
+        IQueryable<Lead> query = dbContext.Leads.AsNoTracking()
+            .Where(lead => lead.OrganizationId == organizationId);
+
+        string normalizedSearch = search?.Trim() ?? string.Empty;
+        if (normalizedSearch.Length > 0)
+        {
+            string pattern = $"%{normalizedSearch}%";
+            query = query.Where(lead => EF.Functions.ILike(lead.Identity.FirstName, pattern) ||
+                EF.Functions.ILike(lead.Identity.LastName, pattern) ||
+                (lead.Identity.Email != null && EF.Functions.ILike(lead.Identity.Email, pattern)) ||
+                (lead.Identity.Phone != null && EF.Functions.ILike(lead.Identity.Phone, pattern)));
+        }
+        if (branchId.HasValue) query = query.Where(lead => lead.BranchId == branchId);
+        if (status.HasValue) query = query.Where(lead => lead.Status == status.Value);
+        if (sourceType.HasValue) query = query.Where(lead => lead.Source.Type == sourceType.Value);
+        if (unassignedOnly) query = query.Where(lead => lead.AssignedAdvisorId == null);
+        else if (assignedAdvisorId.HasValue) query = query.Where(lead => lead.AssignedAdvisorId == assignedAdvisorId);
+
+        return await query.OrderByDescending(lead => lead.CreatedAtUtc).ThenByDescending(lead => lead.Id)
+            .Take(maximumRows)
+            .Select(lead => new LeadExportRow(lead.Id.Value, lead.Identity.FirstName,
+                lead.Identity.LastName, lead.Identity.Email, lead.Identity.Phone,
+                lead.RequestedTraining.LicenseCategory, lead.RequestedTraining.Transmission,
+                lead.Source.Type, lead.BranchId.HasValue ? lead.BranchId.Value.Value : null,
+                lead.AssignedAdvisorId.HasValue ? lead.AssignedAdvisorId.Value.Value : null,
+                lead.Status, lead.CreatedAtUtc, lead.LastModifiedAtUtc))
+            .ToListAsync(cancellationToken);
     }
 
     private static IQueryable<Lead> ApplySorting(

@@ -32,6 +32,7 @@ using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Domain.OrganizationSequences;
 using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
+using DriveOS.Modules.Organizations.Domain.Networks;
 using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using DriveOS.Modules.Organizations.Infrastructure.Authentication;
 using DriveOS.Modules.Organizations.Infrastructure.BranchConfigurationOverrides;
@@ -152,6 +153,8 @@ public static class DependencyInjection
 
 
         services.AddScoped<IBranchRepository, BranchRepository>();
+        services.AddScoped<INetworkOrganizationMembershipRepository,
+            NetworkOrganizationMembershipRepository>();
         services.AddScoped<IBranchReadService, BranchReadService>();
 
         services.AddScoped<IUnitOfWork>(

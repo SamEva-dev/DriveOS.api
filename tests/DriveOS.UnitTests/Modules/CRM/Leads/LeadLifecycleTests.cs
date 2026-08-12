@@ -1,5 +1,6 @@
 using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.SharedKernel.Identifiers;
+using DriveOS.SharedKernel.Results;
 using FluentAssertions;
 
 namespace DriveOS.UnitTests.Modules.CRM.Leads;
@@ -12,11 +13,36 @@ public sealed class LeadLifecycleTests
         Lead lead = CreateLead();
 
         lead.ChangeStatus(LeadStatus.Contacted).IsSuccess.Should().BeTrue();
-        lead.ChangeStatus(LeadStatus.Qualified).IsSuccess.Should().BeTrue();
+        lead.Qualify(CreateQualification()).IsSuccess.Should().BeTrue();
         lead.ChangeStatus(LeadStatus.OfferSent).IsSuccess.Should().BeTrue();
         lead.ChangeStatus(LeadStatus.Negotiation).IsSuccess.Should().BeTrue();
         lead.ChangeStatus(LeadStatus.Won).IsSuccess.Should().BeTrue();
         lead.Status.Should().Be(LeadStatus.Won);
+    }
+
+    [Fact]
+    public void Qualify_ShouldRequireContactedLeadAndStoreBusinessData()
+    {
+        Lead lead = CreateLead();
+        lead.ChangeStatus(LeadStatus.Contacted);
+
+        Result result = lead.Qualify(CreateQualification());
+
+        result.IsSuccess.Should().BeTrue();
+        lead.Status.Should().Be(LeadStatus.Qualified);
+        lead.Qualification!.Financing.Should().Be(FinancingOption.CPF);
+    }
+
+    [Fact]
+    public void ChangeStatus_ShouldNotBypassQualification()
+    {
+        Lead lead = CreateLead();
+        lead.ChangeStatus(LeadStatus.Contacted);
+
+        Result result = lead.ChangeStatus(LeadStatus.Qualified);
+
+        result.IsFailure.Should().BeTrue();
+        lead.Status.Should().Be(LeadStatus.Contacted);
     }
 
     [Fact]
@@ -60,4 +86,9 @@ public sealed class LeadLifecycleTests
             LeadIdentity.Create("Jane", "Doe", "jane@example.com", null).Value,
             RequestedTraining.Create("B", TransmissionPreference.Manual, null).Value,
             LeadSource.Create(LeadSourceType.Website).Value).Value;
+
+    private static LeadQualification CreateQualification() =>
+        LeadQualification.Create("Obtenir le permis pour travailler", "B",
+            "Soirs et samedi", new DateOnly(2026, 12, 1), FinancingOption.CPF,
+            "Dossier CPF à vérifier").Value;
 }

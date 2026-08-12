@@ -23,6 +23,579 @@ namespace DriveOS.Modules.CRM.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Activities.CrmActivity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("details");
+
+                    b.Property<string>("Direction")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("direction");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_at_utc");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by_user_id");
+
+                    b.Property<Guid>("LeadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lead_id");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at_utc");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("subject");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "OccurredAtUtc")
+                        .HasDatabaseName("ix_activities_organization_occurred");
+
+                    b.HasIndex("OrganizationId", "LeadId", "OccurredAtUtc")
+                        .HasDatabaseName("ix_activities_organization_lead_occurred");
+
+                    b.ToTable("activities", "crm");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Assessments.AssessmentAppointment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset?>("ClosedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at_utc");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("DeliveryMode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("delivery_mode");
+
+                    b.Property<DateTimeOffset>("EndsAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ends_at_utc");
+
+                    b.Property<Guid?>("EvaluatorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("evaluator_user_id");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_at_utc");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by_user_id");
+
+                    b.Property<Guid>("LeadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lead_id");
+
+                    b.Property<string>("LocationDetails")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("location_details");
+
+                    b.Property<string>("LocationKind")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("location_kind");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("notes");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<decimal?>("PriceAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("price_amount");
+
+                    b.Property<string>("PriceCurrency")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("price_currency");
+
+                    b.Property<Guid?>("RoomId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("room_id");
+
+                    b.Property<Guid?>("SimulatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("simulator_id");
+
+                    b.Property<DateTimeOffset>("StartsAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("starts_at_utc");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("assessment_type");
+
+                    b.Property<Guid?>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "LeadId")
+                        .HasDatabaseName("ix_assessment_appointments_org_lead");
+
+                    b.HasIndex("OrganizationId", "EvaluatorUserId", "StartsAtUtc")
+                        .HasDatabaseName("ix_assessment_appointments_org_evaluator_start");
+
+                    b.HasIndex("OrganizationId", "RoomId", "StartsAtUtc")
+                        .HasDatabaseName("ix_assessment_appointments_org_room_start");
+
+                    b.HasIndex("OrganizationId", "SimulatorId", "StartsAtUtc")
+                        .HasDatabaseName("ix_assessment_appointments_org_simulator_start");
+
+                    b.HasIndex("OrganizationId", "Status", "StartsAtUtc")
+                        .HasDatabaseName("ix_assessment_appointments_org_status_start");
+
+                    b.HasIndex("OrganizationId", "VehicleId", "StartsAtUtc")
+                        .HasDatabaseName("ix_assessment_appointments_org_vehicle_start");
+
+                    b.ToTable("assessment_appointments", "crm");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Assessments.AssessmentSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AiSuggestionJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("ai_suggestion");
+
+                    b.Property<string>("AnswersJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("answers");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("appointment_id");
+
+                    b.Property<string>("CorrectionReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("correction_reason");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<Guid>("EvaluatorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("evaluator_user_id");
+
+                    b.Property<string>("FactualObservations")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("factual_observations");
+
+                    b.Property<string>("InternalNotes")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("internal_notes");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_at_utc");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by_user_id");
+
+                    b.Property<DateTimeOffset?>("LastSavedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_saved_at_utc");
+
+                    b.Property<Guid>("LeadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lead_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("PedagogicalInterpretation")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("pedagogical_interpretation");
+
+                    b.Property<string>("ProspectComment")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("prospect_comment");
+
+                    b.Property<string>("QuestionnaireCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("questionnaire_code");
+
+                    b.Property<string>("QuestionnaireSnapshotJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("questionnaire_snapshot");
+
+                    b.Property<int>("QuestionnaireVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("questionnaire_version");
+
+                    b.Property<string>("Recommendation")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("recommendation");
+
+                    b.Property<int?>("ResultConfidence")
+                        .HasColumnType("integer")
+                        .HasColumnName("result_confidence");
+
+                    b.Property<string>("ResultJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("result");
+
+                    b.Property<DateTimeOffset?>("ResultSharedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("result_shared_at_utc");
+
+                    b.Property<Guid?>("ResultSharedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("result_shared_by_user_id");
+
+                    b.Property<int>("ResultStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("result_status");
+
+                    b.Property<DateTimeOffset?>("ResultValidatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("result_validated_at_utc");
+
+                    b.Property<Guid?>("ResultValidatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("result_validated_by_user_id");
+
+                    b.Property<int>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer")
+                        .HasColumnName("revision");
+
+                    b.Property<DateTimeOffset>("StartedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at_utc");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("SubmittedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("submitted_at_utc");
+
+                    b.Property<Guid?>("SubmittedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("submitted_by_user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
+
+                    b.HasIndex("OrganizationId", "AppointmentId")
+                        .IsUnique();
+
+                    b.HasIndex("OrganizationId", "LeadId");
+
+                    b.HasIndex("OrganizationId", "ResultStatus");
+
+                    b.HasIndex("OrganizationId", "EvaluatorUserId", "Status");
+
+                    b.ToTable("assessment_sessions", "crm");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Assessments.AssessmentSessionRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AiSuggestionJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("ai_suggestion");
+
+                    b.Property<string>("AnswersJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("answers");
+
+                    b.Property<string>("CorrectionReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("correction_reason");
+
+                    b.Property<string>("FactualObservations")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("factual_observations");
+
+                    b.Property<string>("InternalNotes")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("internal_notes");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("PedagogicalInterpretation")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("pedagogical_interpretation");
+
+                    b.Property<string>("ProspectComment")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("prospect_comment");
+
+                    b.Property<string>("Recommendation")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("recommendation");
+
+                    b.Property<int?>("ResultConfidence")
+                        .HasColumnType("integer")
+                        .HasColumnName("result_confidence");
+
+                    b.Property<string>("ResultJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("result");
+
+                    b.Property<int>("ResultStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("result_status");
+
+                    b.Property<int>("Revision")
+                        .HasColumnType("integer")
+                        .HasColumnName("revision");
+
+                    b.Property<DateTimeOffset>("SavedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("saved_at_utc");
+
+                    b.Property<Guid>("SavedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("saved_by_user_id");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId");
+
+                    b.HasIndex("OrganizationId", "SessionId", "Revision")
+                        .IsUnique();
+
+                    b.ToTable("assessment_session_revisions", "crm");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Conversions.LeadConversion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AcceptedOfferId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("accepted_offer_id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at_utc");
+
+                    b.Property<bool>("ConsentsVerified")
+                        .HasColumnType("boolean")
+                        .HasColumnName("consents_verified");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<bool>("DuplicateCheckCompleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("duplicate_check_completed");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("GuardianSummary")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("guardian_summary");
+
+                    b.Property<bool>("IdentityVerified")
+                        .HasColumnType("boolean")
+                        .HasColumnName("identity_verified");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_at_utc");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by_user_id");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("last_name");
+
+                    b.Property<Guid>("LeadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lead_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("PayerSummary")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("payer_summary");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("RequiredDocumentCodes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("required_document_codes");
+
+                    b.Property<Guid>("ResponsibleUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("responsible_user_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid?>("StudentEnrollmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_enrollment_id");
+
+                    b.Property<Guid?>("StudentPersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_person_id");
+
+                    b.Property<string>("TrainingCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("training_code");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "LeadId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_lead_conversions_organization_lead");
+
+                    b.ToTable("lead_conversions", "crm");
+                });
+
             modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Leads.Lead", b =>
                 {
                     b.Property<Guid>("Id")
@@ -33,9 +606,37 @@ namespace DriveOS.Modules.CRM.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("assigned_advisor_id");
 
+                    b.Property<bool>("AutomaticFollowUpsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("automatic_follow_ups_enabled");
+
                     b.Property<Guid?>("BranchId")
                         .HasColumnType("uuid")
                         .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset?>("ClosedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at_utc");
+
+                    b.Property<string>("ClosureComment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("closure_comment");
+
+                    b.Property<string>("ClosureReason")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("closure_reason");
+
+                    b.Property<DateTimeOffset?>("ConvertedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("converted_at_utc");
+
+                    b.Property<Guid?>("ConvertedPersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("converted_person_id");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -44,6 +645,19 @@ namespace DriveOS.Modules.CRM.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("DormancyCampaignCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("dormancy_campaign_code");
+
+                    b.Property<Guid?>("DormancyResponsibleUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("dormancy_responsible_user_id");
+
+                    b.Property<Guid?>("DraftEnrollmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("draft_enrollment_id");
 
                     b.Property<DateTimeOffset?>("LastModifiedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -56,6 +670,28 @@ namespace DriveOS.Modules.CRM.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")
                         .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset?>("ReferralConsentCollectedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("referral_consent_collected_at_utc");
+
+                    b.Property<string>("ReferredPartnerName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("referred_partner_name");
+
+                    b.Property<DateTimeOffset?>("ReopenedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reopened_at_utc");
+
+                    b.Property<DateTimeOffset?>("ResumeAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resume_at_utc");
+
+                    b.Property<string>("SharedDataDescription")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("shared_data_description");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -71,10 +707,446 @@ namespace DriveOS.Modules.CRM.Infrastructure.Persistence.Migrations
                     b.HasIndex("OrganizationId", "BranchId")
                         .HasDatabaseName("ix_leads_organization_branch");
 
+                    b.HasIndex("OrganizationId", "ResumeAtUtc")
+                        .HasDatabaseName("ix_leads_organization_resume_at_utc");
+
                     b.HasIndex("OrganizationId", "Status")
                         .HasDatabaseName("ix_leads_organization_status");
 
                     b.ToTable("leads", "crm");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Offers.CommercialOffer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<int>("AssessmentRevision")
+                        .HasColumnType("integer")
+                        .HasColumnName("assessment_revision");
+
+                    b.Property<Guid>("AssessmentSessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assessment_session_id");
+
+                    b.Property<string>("AttachmentSnapshotJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("attachment_snapshot_json");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<decimal>("CatalogAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("catalog_amount");
+
+                    b.Property<string>("Conditions")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("conditions");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<DateTimeOffset?>("DecidedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decided_at_utc");
+
+                    b.Property<int>("DeliveryAttemptCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("delivery_attempt_count");
+
+                    b.Property<string>("DeliveryChannel")
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("delivery_channel");
+
+                    b.Property<string>("DeliveryLanguage")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("delivery_language");
+
+                    b.Property<string>("DeliveryMessage")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("delivery_message");
+
+                    b.Property<string>("DeliveryStatus")
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("delivery_status");
+
+                    b.Property<string>("DeliverySubject")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("delivery_subject");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("discount_amount");
+
+                    b.Property<string>("DocumentReference")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("document_reference");
+
+                    b.Property<decimal>("EstimatedFundingAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("estimated_funding_amount");
+
+                    b.Property<string>("FinancingNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("financing_notes");
+
+                    b.Property<string>("InternalNotes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("internal_notes");
+
+                    b.Property<DateTimeOffset?>("LastContactAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_contact_at_utc");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_at_utc");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by_user_id");
+
+                    b.Property<DateTimeOffset?>("LastViewedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_viewed_at_utc");
+
+                    b.Property<Guid>("LeadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lead_id");
+
+                    b.Property<DateTimeOffset?>("NextFollowUpAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_follow_up_at_utc");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<decimal>("ProspectRemainingAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("prospect_remaining_amount");
+
+                    b.Property<string>("RecipientSnapshotJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("recipient_snapshot_json");
+
+                    b.Property<DateTimeOffset?>("SecureLinkExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("secure_link_expires_at_utc");
+
+                    b.Property<DateTimeOffset?>("SecureLinkRevokedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("secure_link_revoked_at_utc");
+
+                    b.Property<string>("SecureLinkTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("secure_link_token_hash");
+
+                    b.Property<DateTimeOffset?>("SentAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at_utc");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("tax_amount");
+
+                    b.Property<string>("TrainingCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("training_code");
+
+                    b.Property<DateTimeOffset>("ValidUntilUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("valid_until_utc");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("view_count");
+
+                    b.Property<DateTimeOffset?>("ViewedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("viewed_at_utc");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SecureLinkTokenHash")
+                        .IsUnique()
+                        .HasFilter("secure_link_token_hash IS NOT NULL");
+
+                    b.HasIndex("OrganizationId", "AssessmentSessionId");
+
+                    b.HasIndex("OrganizationId", "LeadId", "Version")
+                        .IsUnique();
+
+                    b.ToTable("commercial_offers", "crm");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Offers.CommercialOfferLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("discount_amount");
+
+                    b.Property<bool>("Mandatory")
+                        .HasColumnType("boolean")
+                        .HasColumnName("mandatory");
+
+                    b.Property<string>("ManualOverrideReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("manual_override_reason");
+
+                    b.Property<decimal>("NetAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("net_amount");
+
+                    b.Property<Guid>("OfferId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("offer_id");
+
+                    b.Property<string>("PriceSource")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("price_source");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("quantity");
+
+                    b.Property<Guid?>("ServiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_id");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("tax_amount");
+
+                    b.Property<decimal>("TaxRate")
+                        .HasPrecision(7, 4)
+                        .HasColumnType("numeric(7,4)")
+                        .HasColumnName("tax_rate");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total_amount");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("line_type");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("unit");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("unit_price");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OfferId", "Type");
+
+                    b.ToTable("commercial_offer_lines", "crm");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Offers.OfferInteraction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actor_user_id");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at_utc");
+
+                    b.Property<Guid>("OfferId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("offer_id");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("summary");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("interaction_type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OfferId", "OccurredAtUtc");
+
+                    b.ToTable("commercial_offer_interactions", "crm");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Tasks.CrmTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AssignedToUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assigned_to_user_id");
+
+                    b.Property<DateTimeOffset?>("ClosedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at_utc");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<DateTimeOffset>("DueAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("due_at_utc");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_at_utc");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by_user_id");
+
+                    b.Property<Guid>("LeadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lead_id");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("notes");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "LeadId", "Status")
+                        .HasDatabaseName("ix_tasks_organization_lead_status");
+
+                    b.HasIndex("OrganizationId", "Status", "DueAtUtc")
+                        .HasDatabaseName("ix_tasks_organization_status_due");
+
+                    b.ToTable("tasks", "crm");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Assessments.AssessmentSession", b =>
+                {
+                    b.HasOne("DriveOS.Modules.CRM.Domain.Assessments.AssessmentAppointment", null)
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Assessments.AssessmentSessionRevision", b =>
+                {
+                    b.HasOne("DriveOS.Modules.CRM.Domain.Assessments.AssessmentSession", null)
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Leads.Lead", b =>
@@ -105,6 +1177,52 @@ namespace DriveOS.Modules.CRM.Infrastructure.Persistence.Migrations
                                 .HasMaxLength(40)
                                 .HasColumnType("character varying(40)")
                                 .HasColumnName("phone");
+
+                            b1.HasKey("LeadId");
+
+                            b1.ToTable("leads", "crm");
+
+                            b1.WithOwner()
+                                .HasForeignKey("LeadId");
+                        });
+
+                    b.OwnsOne("DriveOS.Modules.CRM.Domain.Leads.LeadQualification", "Qualification", b1 =>
+                        {
+                            b1.Property<Guid>("LeadId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Availability")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("qualification_availability");
+
+                            b1.Property<string>("Financing")
+                                .IsRequired()
+                                .HasMaxLength(30)
+                                .HasColumnType("character varying(30)")
+                                .HasColumnName("qualification_financing");
+
+                            b1.Property<string>("LicenseCategory")
+                                .IsRequired()
+                                .HasMaxLength(30)
+                                .HasColumnType("character varying(30)")
+                                .HasColumnName("qualification_license_category");
+
+                            b1.Property<string>("Need")
+                                .IsRequired()
+                                .HasMaxLength(1000)
+                                .HasColumnType("character varying(1000)")
+                                .HasColumnName("qualification_need");
+
+                            b1.Property<string>("Notes")
+                                .HasMaxLength(2000)
+                                .HasColumnType("character varying(2000)")
+                                .HasColumnName("qualification_notes");
+
+                            b1.Property<DateOnly?>("TargetDate")
+                                .HasColumnType("date")
+                                .HasColumnName("qualification_target_date");
 
                             b1.HasKey("LeadId");
 
@@ -171,11 +1289,38 @@ namespace DriveOS.Modules.CRM.Infrastructure.Persistence.Migrations
                     b.Navigation("Identity")
                         .IsRequired();
 
+                    b.Navigation("Qualification");
+
                     b.Navigation("RequestedTraining")
                         .IsRequired();
 
                     b.Navigation("Source")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Offers.CommercialOfferLine", b =>
+                {
+                    b.HasOne("DriveOS.Modules.CRM.Domain.Offers.CommercialOffer", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Offers.OfferInteraction", b =>
+                {
+                    b.HasOne("DriveOS.Modules.CRM.Domain.Offers.CommercialOffer", null)
+                        .WithMany("Interactions")
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.CRM.Domain.Offers.CommercialOffer", b =>
+                {
+                    b.Navigation("Interactions");
+
+                    b.Navigation("Lines");
                 });
 #pragma warning restore 612, 618
         }

@@ -39,6 +39,27 @@ internal sealed class LeadReadService(CrmDbContext dbContext)
                     ? lead.AssignedAdvisorId.Value.Value
                     : null,
                 lead.Status,
+                lead.Qualification == null ? null : new LeadQualificationResponse(
+                    lead.Qualification.Need,
+                    lead.Qualification.LicenseCategory,
+                    lead.Qualification.Availability,
+                    lead.Qualification.TargetDate,
+                    lead.Qualification.Financing,
+                    lead.Qualification.Notes),
+                lead.ConvertedPersonId.HasValue ? lead.ConvertedPersonId.Value.Value : null,
+                lead.DraftEnrollmentId.HasValue ? lead.DraftEnrollmentId.Value.Value : null,
+                lead.ConvertedAtUtc,
+                lead.ClosureReason,
+                lead.ClosureComment,
+                lead.ClosedAtUtc,
+                lead.ResumeAtUtc,
+                lead.DormancyResponsibleUserId.HasValue ? lead.DormancyResponsibleUserId.Value.Value : null,
+                lead.DormancyCampaignCode,
+                lead.ReferredPartnerName,
+                lead.SharedDataDescription,
+                lead.ReferralConsentCollectedAtUtc,
+                lead.ReopenedAtUtc,
+                lead.AutomaticFollowUpsEnabled,
                 lead.CreatedAtUtc,
                 lead.CreatedByUserId.HasValue
                     ? lead.CreatedByUserId.Value.Value

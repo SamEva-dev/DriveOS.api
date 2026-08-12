@@ -415,6 +415,42 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                     b.ToTable("branch_status_history", "organizations");
                 });
 
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Networks.NetworkOrganizationMembership", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("EndedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ended_at_utc");
+
+                    b.Property<DateTimeOffset>("JoinedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("joined_at_utc");
+
+                    b.Property<Guid>("MemberOrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_organization_id");
+
+                    b.Property<Guid>("NetworkOrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("network_organization_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberOrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_network_memberships_active_member")
+                        .HasFilter("ended_at_utc IS NULL");
+
+                    b.HasIndex("NetworkOrganizationId", "MemberOrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_network_memberships_network_member");
+
+                    b.ToTable("network_organization_memberships", "organization");
+                });
+
             modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.OrganizationClosures.OrganizationClosure", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1168,6 +1204,21 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                         .WithMany("StatusHistory")
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Networks.NetworkOrganizationMembership", b =>
+                {
+                    b.HasOne("DriveOS.Modules.Organizations.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("MemberOrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DriveOS.Modules.Organizations.Domain.Organizations.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("NetworkOrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

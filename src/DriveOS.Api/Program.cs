@@ -12,16 +12,17 @@ using Serilog;
 using Serilog.Events;
 using DriveOS.Api.Configuration;
 using DriveOS.Api.Endpoints.Organization.Organizations;
-using DriveOS.Api.Endpoints.Organization.BranchAssignments;
 using DriveOS.Api.Endpoints.Organization.OrganizationSettings;
 using DriveOS.Api.Endpoints.Organization.Branches;
-using DriveOS.Api.Endpoints.Organization.OrganizationConfigurations;
-using DriveOS.Api.Endpoints.Organization.BranchConfigurationOverrides;
-using DriveOS.Api.Endpoints.Organization.OrganizationSequences;
-using DriveOS.Api.Endpoints.Organization.AccessManagement;
 using DriveOS.Api.Endpoints.Organization.OrganizationSubscriptions;
-using DriveOS.Api.Endpoints.Organization.OrganizationLegalProfiles;
+using DriveOS.Api.Endpoints.Organization.BranchAssignments;
+using DriveOS.Api.Endpoints.Organization.AccessManagement;
+using DriveOS.Api.Endpoints.Organization.BranchConfigurationOverrides;
+using DriveOS.Api.Endpoints.Organization.OrganizationConfigurations;
+using DriveOS.Api.Endpoints.Organization.OrganizationSequences;
 using DriveOS.Api.Endpoints.Organization.OrganizationRepresentatives;
+using DriveOS.Api.Endpoints.Organization.OrganizationLegalProfiles;
+using DriveOS.Api.Endpoints.Organization.Networks;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -35,6 +36,7 @@ try
         "Starting {Application}",
         LoggingConstants.ApplicationName);
     var builder = WebApplication.CreateBuilder(args);
+    builder.Services.AddSingleton(TimeProvider.System);
 
     builder.Services.AddSerilog(
         (services, configuration) =>
@@ -230,6 +232,12 @@ try
     app.MapOrganizationRepresentativeEndpoints();
     app.MapOrganizationLegalProfileEndpoints();
     app.MapLeadEndpoints();
+    app.MapCrmTaskEndpoints();
+    app.MapCrmActivityEndpoints();
+    app.MapCrmDashboardEndpoints();
+    app.MapNetworkMembershipEndpoints();
+    app.MapAssessmentAppointmentEndpoints();
+    app.MapCommercialOfferEndpoints();
 
     app.MapGet(
         "/health",

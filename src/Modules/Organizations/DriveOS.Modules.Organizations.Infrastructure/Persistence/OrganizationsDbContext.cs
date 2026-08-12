@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 using DriveOS.Modules.Organizations.Domain.OrganizationClosures;
+using DriveOS.Modules.Organizations.Domain.Networks;
 
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence;
 
@@ -58,14 +59,17 @@ public sealed class OrganizationsDbContext :
     public DbSet<OrganizationSequence> OrganizationSequences =>
         Set<OrganizationSequence>();
 
-        public DbSet<OrganizationRepresentative> OrganizationRepresentatives =>
-    Set<OrganizationRepresentative>();
+    public DbSet<OrganizationRepresentative> OrganizationRepresentatives =>
+Set<OrganizationRepresentative>();
 
     public DbSet<OrganizationLegalProfile> OrganizationLegalProfiles =>
     Set<OrganizationLegalProfile>();
 
-public DbSet<OrganizationClosure> OrganizationClosures =>
-        Set<OrganizationClosure>();
+    public DbSet<OrganizationClosure> OrganizationClosures =>
+            Set<OrganizationClosure>();
+
+    public DbSet<NetworkOrganizationMembership> NetworkOrganizationMemberships =>
+        Set<NetworkOrganizationMembership>();
     public bool HasActiveTransaction =>
         _currentTransaction is not null;
 

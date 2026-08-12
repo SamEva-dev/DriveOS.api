@@ -95,4 +95,49 @@ public static class LeadErrors
     public static readonly Error StatusReasonTooLong = Error.Validation(
         "Crm.Leads.StatusReason.TooLong",
         "errors.crm.leads.statusReason.tooLong");
+
+    public static readonly Error QualificationNotAllowed = Error.Conflict(
+        "Crm.Leads.Qualification.NotAllowed", "errors.crm.leads.qualification.notAllowed");
+    public static readonly Error QualificationNeedInvalid = Error.Validation(
+        "Crm.Leads.Qualification.Need.Invalid", "errors.crm.leads.qualification.need.invalid");
+    public static readonly Error QualificationCategoryInvalid = Error.Validation(
+        "Crm.Leads.Qualification.Category.Invalid", "errors.crm.leads.qualification.category.invalid");
+    public static readonly Error QualificationAvailabilityInvalid = Error.Validation(
+        "Crm.Leads.Qualification.Availability.Invalid", "errors.crm.leads.qualification.availability.invalid");
+    public static readonly Error QualificationFinancingInvalid = Error.Validation(
+        "Crm.Leads.Qualification.Financing.Invalid", "errors.crm.leads.qualification.financing.invalid");
+    public static readonly Error QualificationNotesTooLong = Error.Validation(
+        "Crm.Leads.Qualification.Notes.TooLong", "errors.crm.leads.qualification.notes.tooLong");
+    public static readonly Error ConversionRequiresWonStatus = Error.Conflict(
+        "Crm.Conversions.LeadMustBeWon", "errors.crm.conversions.leadMustBeWon");
+    public static readonly Error ConversionRequiresQualification = Error.Conflict(
+        "Crm.Conversions.QualificationRequired", "errors.crm.conversions.qualificationRequired");
+    public static readonly Error InvalidConversionTarget = Error.Validation(
+        "Crm.Conversions.Target.Invalid", "errors.crm.conversions.target.invalid");
+    public static readonly Error AlreadyConverted = Error.Conflict(
+        "Crm.Conversions.AlreadyConverted", "errors.crm.conversions.alreadyConverted");
+    public static readonly Error ConversionAcceptedOfferRequired = Error.Conflict(
+        "Crm.Conversions.AcceptedOffer.Required", "errors.crm.conversions.acceptedOffer.required");
+    public static readonly Error ConversionPreconditionsIncomplete = Error.Validation(
+        "Crm.Conversions.Preconditions.Incomplete", "errors.crm.conversions.preconditions.incomplete");
+    public static readonly Error InvalidClosureDecision = Error.Validation(
+        "Crm.Leads.Closure.Decision.Invalid", "errors.crm.leads.closure.decision.invalid");
+    public static readonly Error InvalidClosureReason = Error.Validation(
+        "Crm.Leads.Closure.Reason.Invalid", "errors.crm.leads.closure.reason.invalid");
+    public static readonly Error ClosureCommentTooLong = Error.Validation(
+        "Crm.Leads.Closure.Comment.TooLong", "errors.crm.leads.closure.comment.tooLong");
+    public static readonly Error DormancyResponsibleRequired = Error.Validation(
+        "Crm.Leads.Dormancy.Responsible.Required", "errors.crm.leads.dormancy.responsible.required");
+    public static readonly Error ResumeDateMustBeFuture = Error.Validation(
+        "Crm.Leads.Dormancy.ResumeDate.Future", "errors.crm.leads.dormancy.resumeDate.future");
+    public static readonly Error CampaignCodeTooLong = Error.Validation(
+        "Crm.Leads.Dormancy.CampaignCode.TooLong", "errors.crm.leads.dormancy.campaignCode.tooLong");
+    public static readonly Error PartnerNameInvalid = Error.Validation(
+        "Crm.Leads.Referral.Partner.Invalid", "errors.crm.leads.referral.partner.invalid");
+    public static readonly Error SharedDataDescriptionInvalid = Error.Validation(
+        "Crm.Leads.Referral.SharedData.Invalid", "errors.crm.leads.referral.sharedData.invalid");
+    public static readonly Error ReferralConsentRequired = Error.Validation(
+        "Crm.Leads.Referral.Consent.Required", "errors.crm.leads.referral.consent.required");
+    public static readonly Error ReopenNotAllowed = Error.Conflict(
+        "Crm.Leads.Reopen.NotAllowed", "errors.crm.leads.reopen.notAllowed");
 }

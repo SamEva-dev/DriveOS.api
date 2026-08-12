@@ -1,9 +1,15 @@
 using DriveOS.Modules.CRM.Application.Abstractions.Persistence;
+using DriveOS.Modules.CRM.Domain.Activities;
 using DriveOS.Modules.CRM.Domain.Leads;
+using DriveOS.Modules.CRM.Domain.Conversions;
+using DriveOS.Modules.CRM.Domain.Tasks;
+using DriveOS.Modules.CRM.Domain.Assessments;
+using DriveOS.Modules.CRM.Domain.Offers;
 using DriveOS.Modules.CRM.Infrastructure.Persistence;
 using DriveOS.Modules.CRM.Infrastructure.Persistence.Repositories;
 using DriveOS.Modules.CRM.Infrastructure.Persistence.Interceptors;
 using DriveOS.Modules.CRM.Infrastructure.Persistence.Queries;
+using DriveOS.Modules.CRM.Application.Dashboard.GetDashboard;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,7 +54,14 @@ public static class DependencyInjection
                 serviceProvider.GetRequiredService<CrmDbContext>());
 
         services.AddScoped<ILeadRepository, LeadRepository>();
+        services.AddScoped<ILeadConversionRepository, LeadConversionRepository>();
         services.AddScoped<ILeadReadService, LeadReadService>();
+        services.AddScoped<ICrmTaskRepository, CrmTaskRepository>();
+        services.AddScoped<ICrmActivityRepository, CrmActivityRepository>();
+        services.AddScoped<IAssessmentAppointmentRepository, AssessmentAppointmentRepository>();
+        services.AddScoped<IAssessmentSessionRepository, AssessmentSessionRepository>();
+        services.AddScoped<ICommercialOfferRepository, CommercialOfferRepository>();
+        services.AddScoped<ICrmDashboardReadService, CrmDashboardReadService>();
 
         return services;
     }

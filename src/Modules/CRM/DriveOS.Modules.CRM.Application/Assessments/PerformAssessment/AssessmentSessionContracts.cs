@@ -1,0 +1,10 @@
+namespace DriveOS.Modules.CRM.Application.Assessments.PerformAssessment;
+
+public sealed record AssessmentSessionResponse(Guid SessionId, Guid AppointmentId, Guid LeadId, Guid EvaluatorUserId,
+    string QuestionnaireCode, int QuestionnaireVersion, string QuestionnaireSnapshotJson, string AnswersJson,
+    string? FactualObservations, string? PedagogicalInterpretation, string? Recommendation,
+    string? InternalNotes, string? ProspectComment, string Status, int Revision,
+    DateTimeOffset StartedAtUtc, DateTimeOffset? LastSavedAtUtc, DateTimeOffset? SubmittedAtUtc, Guid? SubmittedByUserId,
+    string? ResultJson, string? AiSuggestionJson, string? ResultConfidence, string ResultStatus,
+    string? CorrectionReason, DateTimeOffset? ResultValidatedAtUtc, Guid? ResultValidatedByUserId,
+    DateTimeOffset? ResultSharedAtUtc, Guid? ResultSharedByUserId);

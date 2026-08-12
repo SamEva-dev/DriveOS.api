@@ -9,6 +9,9 @@ using DriveOS.Modules.CRM.Application.Leads.ChangeLeadStatus;
 using DriveOS.Modules.CRM.Application.Leads.GetLead;
 using DriveOS.Modules.CRM.Application.Leads.GetLeads;
 using DriveOS.Modules.CRM.Application.Leads.UpdateLead;
+using DriveOS.Modules.CRM.Application.Leads.QualifyLead;
+using DriveOS.Modules.CRM.Application.Leads.ConvertLead;
+using DriveOS.Modules.CRM.Application.Leads.ManageLifecycle;
 using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.Security.Contracts;
 using DriveOS.SharedKernel.Identifiers;
@@ -59,7 +62,6 @@ public static class LeadEndpoints
             .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.Update);
 
         MapLifecycleEndpoint(group, "contact", LeadStatus.Contacted, "Marquer le prospect comme contacté");
-        MapLifecycleEndpoint(group, "qualify", LeadStatus.Qualified, "Qualifier le prospect");
         MapLifecycleEndpoint(group, "schedule-assessment", LeadStatus.AssessmentScheduled, "Planifier l'évaluation");
         MapLifecycleEndpoint(group, "send-offer", LeadStatus.OfferSent, "Marquer l'offre comme envoyée");
         MapLifecycleEndpoint(group, "start-negotiation", LeadStatus.Negotiation, "Démarrer la négociation");
@@ -68,7 +70,124 @@ public static class LeadEndpoints
         MapLifecycleEndpoint(group, "put-on-hold", LeadStatus.Dormant, "Mettre le prospect en sommeil");
         MapLifecycleEndpoint(group, "reactivate", LeadStatus.New, "Réactiver le prospect");
 
+        group.MapPost("/{leadId:guid}/status/close", CloseLeadAsync)
+            .WithName("CloseLeadStructured").WithSummary("Clôturer un prospect avec un motif structuré")
+            .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.MarkLost);
+        group.MapPost("/{leadId:guid}/status/dormant", SetDormantAsync)
+            .WithName("SetLeadDormant").WithSummary("Mettre un prospect en sommeil avec rappel")
+            .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.SetDormant);
+        group.MapPost("/{leadId:guid}/status/refer", ReferToPartnerAsync)
+            .WithName("ReferLeadToPartner").WithSummary("Orienter un prospect vers un partenaire avec consentement")
+            .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.ReferToPartner);
+        group.MapPost("/{leadId:guid}/status/reopen", ReopenLeadAsync)
+            .WithName("ReopenLead").WithSummary("Réouvrir un prospect clôturé")
+            .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.Reopen);
+
+        group.MapPut("/{leadId:guid}/qualification", QualifyLeadAsync)
+            .WithName("QualifyLead").WithSummary("Qualifier le besoin d'un prospect")
+            .Accepts<QualifyLeadRequest>("application/json")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
+            .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
+            .RequireAuthorization(DriveOsPermissionCodes.CrmLeads.Qualify);
+
+        group.MapPost("/{leadId:guid}/convert", ConvertLeadAsync)
+            .WithName("ConvertLeadToStudent")
+            .WithSummary("Demander la conversion idempotente d'un prospect en élève")
+            .Accepts<ConvertLeadRequest>("application/json")
+            .Produces<ConvertLeadResponse>(StatusCodes.Status200OK)
+            .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
+            .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
+            .RequireAuthorization(DriveOsPermissionCodes.CrmConversions.ConvertToStudent);
+
         return endpoints;
+    }
+
+    private static async Task<IResult> CloseLeadAsync(Guid leadId, CloseLeadRequest request,
+        IMediator mediator, ICurrentTenant tenant, HttpContext context, CancellationToken ct) =>
+        await SendLifecycle(leadId, tenant, context,
+            id => new CloseLeadCommand(tenant.OrganizationId!.Value, id, request.Decision, request.Reason, request.Comment),
+            mediator, ct);
+    private static async Task<IResult> SetDormantAsync(Guid leadId, SetDormantRequest request,
+        IMediator mediator, ICurrentTenant tenant, HttpContext context, CancellationToken ct) =>
+        await SendLifecycle(leadId, tenant, context,
+            id => new SetLeadDormantCommand(tenant.OrganizationId!.Value, id, request.Reason,
+                request.ResumeAtUtc, new UserId(request.ResponsibleUserId), request.CampaignCode, request.Comment),
+            mediator, ct);
+    private static async Task<IResult> ReferToPartnerAsync(Guid leadId, ReferToPartnerRequest request,
+        IMediator mediator, ICurrentTenant tenant, HttpContext context, CancellationToken ct) =>
+        await SendLifecycle(leadId, tenant, context,
+            id => new ReferLeadToPartnerCommand(tenant.OrganizationId!.Value, id, request.PartnerName,
+                request.SharedDataDescription, request.ConsentCollectedAtUtc, request.Comment), mediator, ct);
+    private static async Task<IResult> ReopenLeadAsync(Guid leadId, ReopenLeadRequest request,
+        IMediator mediator, ICurrentTenant tenant, HttpContext context, CancellationToken ct) =>
+        await SendLifecycle(leadId, tenant, context,
+            id => new ReopenLeadCommand(tenant.OrganizationId!.Value, id, request.Comment), mediator, ct);
+
+    private static async Task<IResult> SendLifecycle<TCommand>(Guid leadId, ICurrentTenant tenant,
+        HttpContext context, Func<LeadId, TCommand> commandFactory, IMediator mediator, CancellationToken ct)
+        where TCommand : DriveOS.Application.Abstractions.Messaging.ICommand
+    {
+        if (!tenant.HasTenant || tenant.OrganizationId is null)
+            return LeadErrors.CurrentTenantRequired.ToHttpResult(context);
+        if (leadId == Guid.Empty) return LeadErrors.EmptyId.ToHttpResult(context);
+        Result result = await mediator.Send(commandFactory(new LeadId(leadId)), ct);
+        return result.IsFailure ? result.Error.ToHttpResult(context) : Results.NoContent();
+    }
+
+    public sealed record CloseLeadRequest(LeadStatus Decision, LeadClosureReason Reason, string? Comment);
+    public sealed record SetDormantRequest(LeadClosureReason Reason, DateTimeOffset ResumeAtUtc,
+        Guid ResponsibleUserId, string? CampaignCode, string? Comment);
+    public sealed record ReferToPartnerRequest(string PartnerName, string SharedDataDescription,
+        DateTimeOffset ConsentCollectedAtUtc, string? Comment);
+    public sealed record ReopenLeadRequest(string? Comment);
+
+    private static async Task<IResult> ConvertLeadAsync(
+        Guid leadId,
+        ConvertLeadRequest request,
+        IMediator mediator,
+        ICurrentTenant currentTenant,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        if (!currentTenant.HasTenant || currentTenant.OrganizationId is null)
+            return LeadErrors.CurrentTenantRequired.ToHttpResult(httpContext);
+        if (leadId == Guid.Empty)
+            return LeadErrors.EmptyId.ToHttpResult(httpContext);
+
+        Result<ConvertLeadResponse> result = await mediator.Send(
+            new ConvertLeadCommand(currentTenant.OrganizationId.Value, new LeadId(leadId),
+                new CommercialOfferId(request.AcceptedOfferId), new BranchId(request.BranchId),
+                new UserId(request.ResponsibleUserId), request.TrainingCode,
+                request.IdentityVerified, request.ConsentsVerified, request.DuplicateCheckCompleted,
+                request.GuardianSummary, request.PayerSummary, request.RequiredDocumentCodes ?? []),
+            cancellationToken);
+
+        return result.IsFailure
+            ? result.Error.ToHttpResult(httpContext)
+            : Results.Ok(result.Value);
+    }
+
+    public sealed record ConvertLeadRequest(Guid AcceptedOfferId, Guid BranchId,
+        Guid ResponsibleUserId, string TrainingCode, bool IdentityVerified,
+        bool ConsentsVerified, bool DuplicateCheckCompleted, string? GuardianSummary,
+        string? PayerSummary, IReadOnlyCollection<string>? RequiredDocumentCodes);
+
+    private static async Task<IResult> QualifyLeadAsync(Guid leadId, QualifyLeadRequest request,
+        IMediator mediator, ICurrentTenant currentTenant, HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        if (!currentTenant.HasTenant || currentTenant.OrganizationId is null)
+            return LeadErrors.CurrentTenantRequired.ToHttpResult(httpContext);
+        if (leadId == Guid.Empty) return LeadErrors.EmptyId.ToHttpResult(httpContext);
+
+        var command = new QualifyLeadCommand(currentTenant.OrganizationId.Value,
+            new LeadId(leadId), request.Need, request.LicenseCategory,
+            request.Availability, request.TargetDate, request.Financing, request.Notes);
+        Result result = await mediator.Send(command, cancellationToken);
+        return result.IsFailure ? result.Error.ToHttpResult(httpContext) : Results.NoContent();
     }
 
     private static void MapLifecycleEndpoint(
@@ -355,6 +474,9 @@ public sealed record UpdateLeadRequest(
     string? SourceDetail);
 
 public sealed record ChangeLeadStatusRequest(string? Reason);
+
+public sealed record QualifyLeadRequest(string Need, string LicenseCategory,
+    string Availability, DateOnly? TargetDate, FinancingOption Financing, string? Notes);
 
 public sealed record GetLeadsRequest(
     int PageNumber = 1,

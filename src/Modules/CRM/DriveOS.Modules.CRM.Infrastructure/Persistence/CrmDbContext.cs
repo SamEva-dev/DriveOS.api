@@ -1,5 +1,10 @@
 using DriveOS.Modules.CRM.Application.Abstractions.Persistence;
+using DriveOS.Modules.CRM.Domain.Activities;
 using DriveOS.Modules.CRM.Domain.Leads;
+using DriveOS.Modules.CRM.Domain.Conversions;
+using DriveOS.Modules.CRM.Domain.Tasks;
+using DriveOS.Modules.CRM.Domain.Assessments;
+using DriveOS.Modules.CRM.Domain.Offers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -15,6 +20,15 @@ public sealed class CrmDbContext : DbContext, ICrmUnitOfWork
     }
 
     public DbSet<Lead> Leads => Set<Lead>();
+    public DbSet<LeadConversion> LeadConversions => Set<LeadConversion>();
+    public DbSet<CrmTask> Tasks => Set<CrmTask>();
+    public DbSet<CrmActivity> Activities => Set<CrmActivity>();
+    public DbSet<AssessmentAppointment> AssessmentAppointments => Set<AssessmentAppointment>();
+    public DbSet<AssessmentSession> AssessmentSessions => Set<AssessmentSession>();
+    public DbSet<AssessmentSessionRevision> AssessmentSessionRevisions => Set<AssessmentSessionRevision>();
+    public DbSet<CommercialOffer> CommercialOffers => Set<CommercialOffer>();
+    public DbSet<CommercialOfferLine> CommercialOfferLines => Set<CommercialOfferLine>();
+    public DbSet<OfferInteraction> OfferInteractions => Set<OfferInteraction>();
 
     public bool HasActiveTransaction =>
         _currentTransaction is not null;

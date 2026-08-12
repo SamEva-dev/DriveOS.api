@@ -10,5 +10,12 @@ public enum LeadStatus
     Negotiation = 6,
     Won = 7,
     Lost = 8,
-    Dormant = 9
+    Dormant = 9,
+    NotEligible = 10,
+    OutOfScope = 11,
+    Duplicate = 12,
+    TransferredToPartner = 13,
+    NoResponse = 14,
+    CancelledByLead = 15,
+    ConvertedElsewhere = 16
 }

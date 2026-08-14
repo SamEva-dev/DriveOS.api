@@ -12,7 +12,7 @@ internal sealed class CrmActivityRepository(CrmDbContext context) : ICrmActivity
     public async Task<IReadOnlyList<CrmActivity>> GetByLeadAsync(
         OrganizationId organizationId, LeadId leadId, CancellationToken ct) =>
         await context.Activities.AsNoTracking()
-            .Where(x => x.OrganizationId == organizationId && x.LeadId == leadId)
+            .Where(x => x.OrganizationId == organizationId && x.LeadId == leadId && x.InvalidatedAtUtc == null)
             .OrderByDescending(x => x.OccurredAtUtc)
             .ThenByDescending(x => x.CreatedAtUtc)
             .ToListAsync(ct);
@@ -20,9 +20,15 @@ internal sealed class CrmActivityRepository(CrmDbContext context) : ICrmActivity
     public async Task<IReadOnlyList<CrmActivity>> GetRecentAsync(
         OrganizationId organizationId, int limit, CancellationToken ct) =>
         await context.Activities.AsNoTracking()
-            .Where(x => x.OrganizationId == organizationId)
+            .Where(x => x.OrganizationId == organizationId && x.InvalidatedAtUtc == null)
             .OrderByDescending(x => x.OccurredAtUtc)
             .ThenByDescending(x => x.CreatedAtUtc)
             .Take(limit)
             .ToListAsync(ct);
+
+    public Task<CrmActivity?> GetByIdempotencyKeyAsync(OrganizationId organizationId,
+        string idempotencyKey, CancellationToken ct) =>
+        context.Activities.AsNoTracking().FirstOrDefaultAsync(x =>
+            x.OrganizationId == organizationId &&
+            x.Metadata.IdempotencyKey == idempotencyKey, ct);
 }

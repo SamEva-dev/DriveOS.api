@@ -11,7 +11,10 @@ internal sealed class LeadBulkActionService(CrmDbContext db) : ILeadBulkActionSe
         CancellationToken ct)
     {
         Guid[] ids = input.LeadIds.Where(x => x != Guid.Empty).Distinct().Take(200).ToArray();
-        Lead[] leads = await db.Leads.Where(x => x.OrganizationId == org && ids.Contains(x.Id.Value)).ToArrayAsync(ct);
+        LeadId[] leadIds = ids.Select(id => new LeadId(id)).ToArray();
+        Lead[] leads = await db.Leads
+            .Where(x => x.OrganizationId == org && leadIds.Contains(x.Id))
+            .ToArrayAsync(ct);
         var byId = leads.ToDictionary(x => x.Id.Value);
         var items = new List<LeadBulkActionItem>(ids.Length);
         foreach (Guid id in ids)

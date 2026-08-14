@@ -50,16 +50,19 @@ internal sealed class CrmDashboardReadService(CrmDbContext context)
         }).ToListAsync(ct);
 
         LeadId[] scopedLeadIds = leadRows.Select(x => new LeadId(x.Id)).ToArray();
-        var activities = await context.Activities.AsNoTracking()
-            .Where(x => scopedOrganizationIds.Contains(x.OrganizationId) && scopedLeadIds.Contains(x.LeadId))
-            .OrderByDescending(x => x.OccurredAtUtc)
-            .Select(x => new {
-                Id = x.Id.Value,
-                LeadId = x.LeadId.Value,
-                x.Type,
-                x.Direction,
-                x.Subject,
-                x.OccurredAtUtc
+        var activities = await (
+            from activity in context.Activities.AsNoTracking()
+            join lead in leads on activity.LeadId equals (LeadId?)lead.Id
+            where activity.LeadId.HasValue
+            orderby activity.OccurredAtUtc descending
+            select new
+            {
+                Id = activity.Id,
+                LeadId = lead.Id.Value,
+                activity.Type,
+                activity.Direction,
+                activity.Subject,
+                activity.OccurredAtUtc
             })
             .ToListAsync(ct);
         var tasks = await context.Tasks.AsNoTracking()
@@ -232,7 +235,7 @@ internal sealed class CrmDashboardReadService(CrmDbContext context)
             priorities,
             Enum.GetValues<LeadStatus>().Select(status => new CrmDashboardPipelineStage(
                 status.ToString(), leadRows.Count(x => x.Status == status))).ToArray(),
-            activities.Take(10).Select(x => new CrmDashboardActivity(x.Id, x.LeadId,
+            activities.Take(10).Select(x => new CrmDashboardActivity(x.Id.Value, x.LeadId,
                 names[x.LeadId].FirstName, names[x.LeadId].LastName, x.Type.ToString(),
                 x.Direction.ToString(), x.Subject, x.OccurredAtUtc)).ToArray(),
             tasks.Take(10).Select(x => new CrmDashboardTask(x.Id, x.LeadId,

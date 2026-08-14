@@ -30,7 +30,11 @@ internal sealed class LeadConversionConfiguration : IEntityTypeConfiguration<Lea
         b.Property(x => x.RequiredDocumentCodes).HasColumnName("required_document_codes").HasMaxLength(2000);
         b.Property(x => x.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(30);
         b.Property(x => x.StudentPersonId).HasColumnName("student_person_id").HasConversion(x => x.HasValue ? x.Value.Value : (Guid?)null, x => x.HasValue ? new PersonId(x.Value) : null);
-        b.Property(x => x.StudentEnrollmentId).HasColumnName("student_enrollment_id");
+        b.Property(x => x.StudentEnrollmentId)
+            .HasColumnName("student_enrollment_id")
+            .HasConversion(
+                x => x.HasValue ? x.Value.Value : (Guid?)null,
+                x => x.HasValue ? new DraftEnrollmentId(x.Value) : null);
         b.Property(x => x.CompletedAtUtc).HasColumnName("completed_at_utc");
         b.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc");
         b.Property(x => x.CreatedByUserId).HasColumnName("created_by_user_id").HasConversion(x => x.HasValue ? x.Value.Value : (Guid?)null, x => x.HasValue ? new UserId(x.Value) : null);

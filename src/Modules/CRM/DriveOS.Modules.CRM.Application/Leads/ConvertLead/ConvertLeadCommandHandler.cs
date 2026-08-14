@@ -36,6 +36,8 @@ public sealed class ConvertLeadCommandHandler(
         if (!command.IdentityVerified || !command.ConsentsVerified || !command.DuplicateCheckCompleted)
             return Result.Failure<ConvertLeadResponse>(LeadErrors.ConversionPreconditionsIncomplete);
 
+        // CRM owns the conversion request, not the student aggregates. Person and
+        // enrollment are created by Student Administration after this request.
         LeadConversion conversion = LeadConversion.Request(command.OrganizationId, lead,
             command.AcceptedOfferId, command.BranchId, command.ResponsibleUserId,
             command.TrainingCode, command.IdentityVerified, command.ConsentsVerified,
@@ -48,7 +50,7 @@ public sealed class ConvertLeadCommandHandler(
 
     private static ConvertLeadResponse ToResponse(LeadConversion value, bool existing) =>
         new(value.Id.Value, value.Status.ToString(), existing, value.AcceptedOfferId.Value,
-            value.StudentPersonId?.Value, value.StudentEnrollmentId,
+            value.StudentPersonId?.Value, value.StudentEnrollmentId?.Value,
             [new("identity", value.IdentityVerified), new("duplicates", value.DuplicateCheckCompleted),
              new("consents", value.ConsentsVerified), new("studentProfile", value.StudentPersonId.HasValue),
              new("enrollment", value.StudentEnrollmentId.HasValue), new("contract", false),

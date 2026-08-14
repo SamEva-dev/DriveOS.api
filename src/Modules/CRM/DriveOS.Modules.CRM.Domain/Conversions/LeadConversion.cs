@@ -12,6 +12,7 @@ public sealed class LeadConversion : AggregateRoot<LeadConversionId>, IAuditable
 
     private LeadConversion(LeadConversionId id, OrganizationId organizationId, Lead lead,
         CommercialOfferId acceptedOfferId, BranchId branchId, UserId responsibleUserId,
+        PersonId? personId, DraftEnrollmentId? draftEnrollmentId,
         string trainingCode, bool identityVerified, bool consentsVerified,
         bool duplicateCheckCompleted, string? guardianSummary, string? payerSummary,
         string? requiredDocumentCodes)
@@ -23,6 +24,8 @@ public sealed class LeadConversion : AggregateRoot<LeadConversionId>, IAuditable
         BranchId = branchId;
         ResponsibleUserId = responsibleUserId;
         TrainingCode = trainingCode;
+        StudentPersonId = personId;
+        StudentEnrollmentId = draftEnrollmentId;
         FirstName = lead.Identity.FirstName;
         LastName = lead.Identity.LastName;
         Email = lead.Identity.Email;
@@ -54,7 +57,7 @@ public sealed class LeadConversion : AggregateRoot<LeadConversionId>, IAuditable
     public string? RequiredDocumentCodes { get; private set; }
     public LeadConversionStatus Status { get; private set; }
     public PersonId? StudentPersonId { get; private set; }
-    public Guid? StudentEnrollmentId { get; private set; }
+    public DraftEnrollmentId? StudentEnrollmentId { get; private set; }
     public DateTimeOffset? CompletedAtUtc { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public UserId? CreatedByUserId { get; private set; }
@@ -63,12 +66,13 @@ public sealed class LeadConversion : AggregateRoot<LeadConversionId>, IAuditable
 
     public static LeadConversion Request(OrganizationId organizationId, Lead lead,
         CommercialOfferId acceptedOfferId, BranchId branchId, UserId responsibleUserId,
+        PersonId? personId, DraftEnrollmentId? draftEnrollmentId,
         string trainingCode, bool identityVerified, bool consentsVerified,
         bool duplicateCheckCompleted, string? guardianSummary, string? payerSummary,
         string? requiredDocumentCodes)
     {
         var conversion = new LeadConversion(LeadConversionId.New(), organizationId, lead,
-            acceptedOfferId, branchId, responsibleUserId, trainingCode.Trim(), identityVerified,
+            acceptedOfferId, branchId, responsibleUserId,personId, draftEnrollmentId, trainingCode.Trim(), identityVerified,
             consentsVerified, duplicateCheckCompleted, guardianSummary, payerSummary,
             requiredDocumentCodes);
         conversion.RaiseDomainEvent(new LeadConversionRequestedDomainEvent(
@@ -77,10 +81,19 @@ public sealed class LeadConversion : AggregateRoot<LeadConversionId>, IAuditable
         return conversion;
     }
 
-    public void Complete(PersonId personId, Guid enrollmentId, DateTimeOffset completedAtUtc)
+    public static LeadConversion Request(OrganizationId organizationId, Lead lead,
+        CommercialOfferId acceptedOfferId, BranchId branchId, UserId responsibleUserId,
+        string trainingCode, bool identityVerified, bool consentsVerified,
+        bool duplicateCheckCompleted, string? guardianSummary, string? payerSummary,
+        string? requiredDocumentCodes) =>
+        Request(organizationId, lead, acceptedOfferId, branchId, responsibleUserId,
+            null, null, trainingCode, identityVerified, consentsVerified,
+            duplicateCheckCompleted, guardianSummary, payerSummary, requiredDocumentCodes);
+
+    public void Complete(PersonId personId, DraftEnrollmentId draftEnrollmentId, DateTimeOffset completedAtUtc)
     {
         StudentPersonId = personId;
-        StudentEnrollmentId = enrollmentId;
+        StudentEnrollmentId = draftEnrollmentId;
         CompletedAtUtc = completedAtUtc.ToUniversalTime();
         Status = LeadConversionStatus.Completed;
     }

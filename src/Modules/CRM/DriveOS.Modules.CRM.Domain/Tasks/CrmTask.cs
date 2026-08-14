@@ -36,34 +36,27 @@ public sealed class CrmTask : AggregateRoot<CrmTaskId>, IAuditableEntity
     public static Result<CrmTask> Create(CrmTaskId id, OrganizationId organizationId, LeadId leadId,
         CrmTaskType type, string title, string? notes, DateTimeOffset dueAtUtc, UserId? assignedToUserId)
     {
-        if (id.IsEmpty) return Result.Failure<CrmTask>(CrmTaskErrors.InvalidIdentifier);
+        if (id.IsEmpty) return Result.Failure<CrmTask>(CrmTaskErrors.IdInvalid);
         string normalizedTitle = title?.Trim() ?? string.Empty;
         string? normalizedNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
         if (normalizedTitle.Length == 0) return Result.Failure<CrmTask>(CrmTaskErrors.TitleRequired);
         if (normalizedTitle.Length > 200) return Result.Failure<CrmTask>(CrmTaskErrors.TitleTooLong);
         if (normalizedNotes?.Length > 2000) return Result.Failure<CrmTask>(CrmTaskErrors.NotesTooLong);
         if (dueAtUtc == default) return Result.Failure<CrmTask>(CrmTaskErrors.DueDateRequired);
-        var task = new CrmTask(id, organizationId, leadId, type, normalizedTitle,
-            normalizedNotes, dueAtUtc.ToUniversalTime(), assignedToUserId);
-        task.RaiseDomainEvent(new Events.CrmTaskCreatedDomainEvent(
-            task.Id, task.OrganizationId, task.LeadId, task.DueAtUtc));
-        return Result.Success(task);
+        return Result.Success(new CrmTask(id, organizationId, leadId, type, normalizedTitle,
+            normalizedNotes, dueAtUtc.ToUniversalTime(), assignedToUserId));
     }
 
     public Result Complete(DateTimeOffset now)
     {
         if (Status != CrmTaskStatus.Pending) return Result.Failure(CrmTaskErrors.AlreadyClosed);
-        Status = CrmTaskStatus.Completed; ClosedAtUtc = now.ToUniversalTime();
-        RaiseDomainEvent(new Events.CrmTaskClosedDomainEvent(Id, OrganizationId, Status, ClosedAtUtc.Value));
-        return Result.Success();
+        Status = CrmTaskStatus.Completed; ClosedAtUtc = now; return Result.Success();
     }
 
     public Result Cancel(DateTimeOffset now)
     {
         if (Status != CrmTaskStatus.Pending) return Result.Failure(CrmTaskErrors.AlreadyClosed);
-        Status = CrmTaskStatus.Cancelled; ClosedAtUtc = now.ToUniversalTime();
-        RaiseDomainEvent(new Events.CrmTaskClosedDomainEvent(Id, OrganizationId, Status, ClosedAtUtc.Value));
-        return Result.Success();
+        Status = CrmTaskStatus.Cancelled; ClosedAtUtc = now; return Result.Success();
     }
 
     public void SetCreatedAudit(DateTimeOffset createdAtUtc, UserId? createdByUserId)

@@ -11,7 +11,8 @@ internal sealed class CrmTaskConfiguration : IEntityTypeConfiguration<CrmTask>
     public void Configure(EntityTypeBuilder<CrmTask> b)
     {
         b.ToTable("tasks"); b.HasKey(x => x.Id);
-        b.Property(x => x.Id).HasColumnName("id").HasConversion(x => x.Value, x => new CrmTaskId(x)).ValueGeneratedNever();
+        b.Property(x => x.Id).HasColumnName("id")
+            .HasConversion(x => x.Value, x => new CrmTaskId(x)).ValueGeneratedNever();
         b.Property(x => x.OrganizationId).HasColumnName("organization_id").HasConversion(x => x.Value, x => new OrganizationId(x));
         b.Property(x => x.LeadId).HasColumnName("lead_id").HasConversion(x => x.Value, x => new LeadId(x));
         b.Property(x => x.Type).HasColumnName("type").HasConversion<string>().HasMaxLength(30);

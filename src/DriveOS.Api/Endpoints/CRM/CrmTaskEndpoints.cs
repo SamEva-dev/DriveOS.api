@@ -59,7 +59,7 @@ public static class CrmTaskEndpoints
         ICurrentTenant tenant, HttpContext context, CancellationToken ct)
     {
         if (!tenant.HasTenant || tenant.OrganizationId is null) return LeadErrors.CurrentTenantRequired.ToHttpResult(context);
-        Result result = await mediator.Send(new CloseCrmTaskCommand(tenant.OrganizationId.Value, taskId, cancel), ct);
+        Result result = await mediator.Send(new CloseCrmTaskCommand(tenant.OrganizationId.Value, new CrmTaskId(taskId), cancel), ct);
         return result.IsFailure ? result.Error.ToHttpResult(context) : Results.NoContent();
     }
 }

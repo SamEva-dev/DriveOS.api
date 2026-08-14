@@ -2,7 +2,6 @@ using DriveOS.Modules.CRM.Application.Abstractions.Persistence;
 using DriveOS.Modules.CRM.Domain.Activities;
 using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.Modules.CRM.Domain.Conversions;
-//using DriveOS.Modules.CRM.Domain.Admissions;
 using DriveOS.Modules.CRM.Domain.Tasks;
 using DriveOS.Modules.CRM.Domain.Assessments;
 using DriveOS.Modules.CRM.Domain.Offers;
@@ -22,8 +21,6 @@ public sealed class CrmDbContext : DbContext, ICrmUnitOfWork
 
     public DbSet<Lead> Leads => Set<Lead>();
     public DbSet<LeadConversion> LeadConversions => Set<LeadConversion>();
-    //public DbSet<CandidatePerson> Persons => Set<CandidatePerson>();
-    //public DbSet<DraftEnrollment> Enrollments => Set<DraftEnrollment>();
     public DbSet<CrmTask> Tasks => Set<CrmTask>();
     public DbSet<CrmActivity> Activities => Set<CrmActivity>();
     public DbSet<AssessmentAppointment> AssessmentAppointments => Set<AssessmentAppointment>();

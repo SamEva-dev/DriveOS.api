@@ -3,4 +3,4 @@ using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Modules.CRM.Application.Tasks.CloseTask;
 
-public sealed record CloseCrmTaskCommand(OrganizationId OrganizationId, Guid TaskId, bool Cancel) : ICommand;
+public sealed record CloseCrmTaskCommand(OrganizationId OrganizationId, CrmTaskId TaskId, bool Cancel) : ICommand;

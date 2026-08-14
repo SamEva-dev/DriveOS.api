@@ -10,7 +10,7 @@ public sealed class CloseCrmTaskCommandHandler(ICrmTaskRepository repository, IC
 {
     public async Task<Result> Handle(CloseCrmTaskCommand command, CancellationToken ct)
     {
-        CrmTask? task = await repository.GetByIdForUpdateAsync(command.OrganizationId, new CrmTaskId(command.TaskId), ct);
+        CrmTask? task = await repository.GetByIdForUpdateAsync(command.OrganizationId, new CrmTaskId(command.TaskId.Value), ct);
         if (task is null) return Result.Failure(CrmTaskErrors.NotFound);
         Result result = command.Cancel ? task.Cancel(DateTimeOffset.UtcNow) : task.Complete(DateTimeOffset.UtcNow);
         if (result.IsFailure) return result;

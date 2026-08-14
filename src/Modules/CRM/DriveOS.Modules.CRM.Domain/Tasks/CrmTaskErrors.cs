@@ -4,7 +4,7 @@ namespace DriveOS.Modules.CRM.Domain.Tasks;
 
 public static class CrmTaskErrors
 {
-    public static readonly Error InvalidIdentifier = Error.Validation("Crm.Tasks.Identifier.Invalid", "errors.crm.tasks.identifier.invalid");
+    public static readonly Error IdInvalid = Error.Validation("Crm.Tasks.Id.Invalid", "errors.crm.tasks.id.invalid");
     public static readonly Error NotFound = Error.NotFound("Crm.Tasks.NotFound", "errors.crm.tasks.notFound");
     public static readonly Error TitleRequired = Error.Validation("Crm.Tasks.Title.Required", "errors.crm.tasks.title.required");
     public static readonly Error TitleTooLong = Error.Validation("Crm.Tasks.Title.TooLong", "errors.crm.tasks.title.tooLong");

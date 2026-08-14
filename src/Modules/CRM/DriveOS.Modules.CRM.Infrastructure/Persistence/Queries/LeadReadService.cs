@@ -175,12 +175,14 @@ internal sealed class LeadReadService(CrmDbContext dbContext)
                 .Select(task => new { task.LeadId, task.Title, task.DueAtUtc })
                 .ToListAsync(cancellationToken);
 
-            var lastActivities = await dbContext.Activities
-                .AsNoTracking()
-                .Where(activity => activity.OrganizationId == organizationId &&
-                    leadIds.Contains(activity.LeadId))
-                .GroupBy(activity => activity.LeadId)
-                .Select(group => new { LeadId = group.Key, OccurredAtUtc = group.Max(x => x.OccurredAtUtc) })
+            IQueryable<Lead> pageLeads = dbContext.Leads.AsNoTracking()
+                .Where(lead => lead.OrganizationId == organizationId && leadIds.Contains(lead.Id));
+            var lastActivities = await (
+                from activity in dbContext.Activities.AsNoTracking()
+                join lead in pageLeads on activity.LeadId equals (LeadId?)lead.Id
+                where activity.OrganizationId == organizationId && activity.LeadId.HasValue
+                group activity by lead.Id into activityGroup
+                select new { LeadId = activityGroup.Key, OccurredAtUtc = activityGroup.Max(x => x.OccurredAtUtc) })
                 .ToDictionaryAsync(x => x.LeadId, x => x.OccurredAtUtc, cancellationToken);
 
             Dictionary<LeadId, (string Title, DateTimeOffset DueAtUtc)> nextActionByLead = nextActions

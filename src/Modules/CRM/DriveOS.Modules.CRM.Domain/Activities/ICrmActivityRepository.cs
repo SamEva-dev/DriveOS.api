@@ -10,4 +10,6 @@ public interface ICrmActivityRepository
         LeadId leadId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<CrmActivity>> GetRecentAsync(OrganizationId organizationId,
         int limit, CancellationToken cancellationToken = default);
+    Task<CrmActivity?> GetByIdempotencyKeyAsync(OrganizationId organizationId,
+        string idempotencyKey, CancellationToken cancellationToken = default);
 }

@@ -17,5 +17,5 @@ public enum LeadStatus
     TransferredToPartner = 13,
     NoResponse = 14,
     CancelledByLead = 15,
-    ConvertedElsewhere = 16
+    ConvertedElsewhere = 16,
 }

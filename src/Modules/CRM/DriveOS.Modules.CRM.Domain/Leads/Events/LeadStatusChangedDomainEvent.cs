@@ -8,4 +8,5 @@ public sealed record LeadStatusChangedDomainEvent(
     OrganizationId OrganizationId,
     LeadStatus PreviousStatus,
     LeadStatus NewStatus,
-    string? Reason) : DomainEvent;
+    string? Reason
+) : DomainEvent;

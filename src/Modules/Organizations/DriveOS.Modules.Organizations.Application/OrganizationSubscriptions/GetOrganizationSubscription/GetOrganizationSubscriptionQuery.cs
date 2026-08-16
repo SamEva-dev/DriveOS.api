@@ -3,4 +3,6 @@ using DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.Models
 using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.GetOrganizationSubscription;
-public sealed record GetOrganizationSubscriptionQuery(OrganizationId OrganizationId) : IQuery<OrganizationSubscriptionResponse>;
+
+public sealed record GetOrganizationSubscriptionQuery(OrganizationId OrganizationId)
+    : IQuery<OrganizationSubscriptionResponse>;

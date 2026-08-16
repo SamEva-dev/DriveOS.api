@@ -8,4 +8,5 @@ public sealed record ChangeLeadStatusCommand(
     OrganizationId OrganizationId,
     LeadId LeadId,
     LeadStatus TargetStatus,
-    string? Reason) : ICommand;
+    string? Reason
+) : ICommand;

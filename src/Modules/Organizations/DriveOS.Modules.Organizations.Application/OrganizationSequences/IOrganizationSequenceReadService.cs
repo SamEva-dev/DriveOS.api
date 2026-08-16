@@ -9,10 +9,12 @@ public interface IOrganizationSequenceReadService
     Task<OrganizationSequenceResponse?> GetByIdAsync(
         OrganizationId organizationId,
         OrganizationSequenceId sequenceId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<IReadOnlyList<OrganizationSequenceListItem>> GetListAsync(
         OrganizationId organizationId,
         BranchId? branchId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

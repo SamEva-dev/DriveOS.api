@@ -1,7 +1,8 @@
-﻿using DriveOS.Modules.Organizations.Infrastructure.Persistence;
-using DriveOS.Modules.CRM.Infrastructure.Persistence;
-using Serilog;
+﻿using DriveOS.Modules.CRM.Infrastructure.Persistence;
+using DriveOS.Modules.Organizations.Infrastructure.Persistence;
+using DriveOS.Modules.Students.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace DriveOS.Api
 {
@@ -24,8 +25,12 @@ namespace DriveOS.Api
                 crmDb.Database.Migrate();
                 Log.Information("✅ CRM database migrated successfully.");
 
-                // Apply AuditDbContext migrations
+                var studentsDb = scope.ServiceProvider.GetRequiredService<StudentsDbContext>();
+                Log.Information("Applying Students database migrations...");
+                studentsDb.Database.Migrate();
+                Log.Information("✅ Students database migrated successfully.");
 
+                // Apply AuditDbContext migrations
             }
             catch (Exception ex)
             {
@@ -36,5 +41,4 @@ namespace DriveOS.Api
             return host;
         }
     }
-
 }

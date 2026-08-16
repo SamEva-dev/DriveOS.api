@@ -16,8 +16,10 @@ public sealed class GetCrmActivitiesQueryHandlerTests
         var repository = new FakeRepository([Create("Public", false), Create("Interne", true)]);
         var handler = new GetLeadActivitiesQueryHandler(repository);
 
-        var result = await handler.Handle(new GetLeadActivitiesQuery(
-            OrganizationId, LeadId, CrmActivityReadScope.PublicOnly), CancellationToken.None);
+        var result = await handler.Handle(
+            new GetLeadActivitiesQuery(OrganizationId, LeadId, CrmActivityReadScope.PublicOnly),
+            CancellationToken.None
+        );
 
         Assert.True(result.IsSuccess);
         Assert.Single(result.Value);
@@ -30,26 +32,52 @@ public sealed class GetCrmActivitiesQueryHandlerTests
         var repository = new FakeRepository([Create("Public", false), Create("Interne", true)]);
         var handler = new GetRecentActivitiesQueryHandler(repository);
 
-        var result = await handler.Handle(new GetRecentActivitiesQuery(
-            OrganizationId, 200, CrmActivityReadScope.IncludeInternal), CancellationToken.None);
+        var result = await handler.Handle(
+            new GetRecentActivitiesQuery(OrganizationId, 200, CrmActivityReadScope.IncludeInternal),
+            CancellationToken.None
+        );
 
         Assert.True(result.IsSuccess);
         Assert.Equal(2, result.Value.Count);
     }
 
     private static CrmActivity Create(string subject, bool isInternal) =>
-        CrmActivity.Create(CrmActivityId.New(), OrganizationId, LeadId, CrmActivityType.Note,
-            CrmActivityDirection.None, subject, null, DateTimeOffset.UtcNow, null,
-            CrmActivityMetadata.Manual(isInternal: isInternal)).Value;
+        CrmActivity
+            .Create(
+                CrmActivityId.New(),
+                OrganizationId,
+                LeadId,
+                CrmActivityType.Note,
+                CrmActivityDirection.None,
+                subject,
+                null,
+                DateTimeOffset.UtcNow,
+                null,
+                CrmActivityMetadata.Manual(isInternal: isInternal)
+            )
+            .Value;
 
-    private sealed class FakeRepository(IReadOnlyList<CrmActivity> activities) : ICrmActivityRepository
+    private sealed class FakeRepository(IReadOnlyList<CrmActivity> activities)
+        : ICrmActivityRepository
     {
         public void Add(CrmActivity activity) => throw new NotSupportedException();
-        public Task<IReadOnlyList<CrmActivity>> GetByLeadAsync(OrganizationId organizationId,
-            LeadId leadId, CancellationToken cancellationToken = default) => Task.FromResult(activities);
-        public Task<IReadOnlyList<CrmActivity>> GetRecentAsync(OrganizationId organizationId,
-            int limit, CancellationToken cancellationToken = default) => Task.FromResult(activities);
-        public Task<CrmActivity?> GetByIdempotencyKeyAsync(OrganizationId organizationId,
-            string idempotencyKey, CancellationToken cancellationToken = default) => Task.FromResult<CrmActivity?>(null);
+
+        public Task<IReadOnlyList<CrmActivity>> GetByLeadAsync(
+            OrganizationId organizationId,
+            LeadId leadId,
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult(activities);
+
+        public Task<IReadOnlyList<CrmActivity>> GetRecentAsync(
+            OrganizationId organizationId,
+            int limit,
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult(activities);
+
+        public Task<CrmActivity?> GetByIdempotencyKeyAsync(
+            OrganizationId organizationId,
+            string idempotencyKey,
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult<CrmActivity?>(null);
     }
 }

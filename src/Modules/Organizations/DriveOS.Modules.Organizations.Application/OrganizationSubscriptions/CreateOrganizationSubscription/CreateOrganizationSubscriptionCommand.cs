@@ -14,4 +14,5 @@ public sealed record CreateOrganizationSubscriptionCommand(
     DateTimeOffset? TrialStartsAtUtc,
     DateTimeOffset? TrialEndsAtUtc,
     string? ExternalProvider,
-    string? ExternalSubscriptionId) : ICommand<OrganizationSubscriptionId>;
+    string? ExternalSubscriptionId
+) : ICommand<OrganizationSubscriptionId>;

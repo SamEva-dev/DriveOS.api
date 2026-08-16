@@ -19,12 +19,13 @@ public sealed class ChangeOrganizationStatusCommandHandler(
     IOrganizationActivationReadinessAuditSink readinessAuditSink,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
-    IClock clock)
-    : ICommandHandler<ChangeOrganizationStatusCommand>
+    IClock clock
+) : ICommandHandler<ChangeOrganizationStatusCommand>
 {
     public async Task<Result> Handle(
         ChangeOrganizationStatusCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
         {
@@ -36,7 +37,8 @@ public sealed class ChangeOrganizationStatusCommandHandler(
         Organization? organization = await organizationRepository.GetByIdAsync(
             organizationId,
             asNoTracking: false,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (organization is null)
         {
@@ -47,30 +49,36 @@ public sealed class ChangeOrganizationStatusCommandHandler(
         {
             // Never use the display cache for an authorization/business decision.
             OrganizationActivationReadinessReport report =
-                await activationReadinessService.EvaluateAsync(
-                    organizationId,
-                    cancellationToken);
+                await activationReadinessService.EvaluateAsync(organizationId, cancellationToken);
 
             await readinessAuditSink.WriteAsync(
                 new OrganizationActivationReadinessAuditEntry(
                     organizationId,
                     currentUser.UserId.Value.Value,
-                    report.IsReady ? "OrganizationActivationReadinessPassed" : "OrganizationActivationReadinessBlocked",
+                    report.IsReady
+                        ? "OrganizationActivationReadinessPassed"
+                        : "OrganizationActivationReadinessBlocked",
                     report.IsReady,
                     report.BlockingRequirements.Select(x => x.Code).ToArray(),
-                    clock.UtcNow),
-                cancellationToken);
+                    clock.UtcNow
+                ),
+                cancellationToken
+            );
 
             if (!report.IsReady)
             {
                 return Result.Failure(
-                    OrganizationActivationReadinessErrors.RequirementsNotMet(report.BlockingRequirements));
+                    OrganizationActivationReadinessErrors.RequirementsNotMet(
+                        report.BlockingRequirements
+                    )
+                );
             }
         }
 
         OrganizationStatus currentStatus = organization.Status;
-        OrganizationStatusChangeReason reason =
-            OrganizationStatusChangeReason.Create(command.Reason);
+        OrganizationStatusChangeReason reason = OrganizationStatusChangeReason.Create(
+            command.Reason
+        );
 
         Result transitionResult = ApplyTransition(
             organization,
@@ -78,7 +86,8 @@ public sealed class ChangeOrganizationStatusCommandHandler(
             reason,
             currentUser.UserId.Value.Value,
             clock.UtcNow,
-            currentStatus);
+            currentStatus
+        );
 
         if (transitionResult.IsFailure)
         {
@@ -97,7 +106,8 @@ public sealed class ChangeOrganizationStatusCommandHandler(
         OrganizationStatusChangeReason reason,
         Guid changedByUserId,
         DateTimeOffset changedAtUtc,
-        OrganizationStatus currentStatus)
+        OrganizationStatus currentStatus
+    )
     {
         try
         {
@@ -120,7 +130,8 @@ public sealed class ChangeOrganizationStatusCommandHandler(
                     break;
                 default:
                     return Result.Failure(
-                        OrganizationErrors.InvalidStatusTransition(currentStatus, targetStatus));
+                        OrganizationErrors.InvalidStatusTransition(currentStatus, targetStatus)
+                    );
             }
 
             return Result.Success();
@@ -128,7 +139,8 @@ public sealed class ChangeOrganizationStatusCommandHandler(
         catch (InvalidOperationException)
         {
             return Result.Failure(
-                OrganizationErrors.InvalidStatusTransition(currentStatus, targetStatus));
+                OrganizationErrors.InvalidStatusTransition(currentStatus, targetStatus)
+            );
         }
     }
 }

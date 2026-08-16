@@ -31,5 +31,5 @@ public sealed record CreateOrganizationSettingsCommand(
     int DefaultCancellationDelayHours,
     bool AllowStudentSelfBooking,
     bool RequireBranchForOperations,
-    BranchId? DefaultBranchId)
-    : ICommand<OrganizationSettingsId>;
+    BranchId? DefaultBranchId
+) : ICommand<OrganizationSettingsId>;

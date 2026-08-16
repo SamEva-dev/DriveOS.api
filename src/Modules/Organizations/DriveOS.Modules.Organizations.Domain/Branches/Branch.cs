@@ -1,5 +1,4 @@
-﻿using DriveOS.Modules.Organizations.Domain
-    .Branches.Events;
+﻿using DriveOS.Modules.Organizations.Domain.Branches.Events;
 using DriveOS.SharedKernel.Auditing;
 using DriveOS.SharedKernel.Domain;
 using DriveOS.SharedKernel.Identifiers;
@@ -7,19 +6,12 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Domain.Branches;
 
-public sealed class Branch :
-    AggregateRoot<BranchId>,
-    IAuditableEntity
+public sealed class Branch : AggregateRoot<BranchId>, IAuditableEntity
 {
-    private readonly List<BranchStatusHistoryEntry>
-        _statusHistory = [];
-    private readonly List<BranchManagerAssignment>
-    _managerAssignments = [];
+    private readonly List<BranchStatusHistoryEntry> _statusHistory = [];
+    private readonly List<BranchManagerAssignment> _managerAssignments = [];
 
-
-    private Branch()
-    {
-    }
+    private Branch() { }
 
     private Branch(
         BranchId id,
@@ -29,7 +21,8 @@ public sealed class Branch :
         BranchType type,
         BranchAddress address,
         string timeZoneId,
-        bool isPrimary)
+        bool isPrimary
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -43,92 +36,37 @@ public sealed class Branch :
         Status = BranchStatus.Draft;
     }
 
-    public OrganizationId OrganizationId
-    {
-        get;
-        private set;
-    }
+    public OrganizationId OrganizationId { get; private set; }
 
-    public BranchName Name
-    {
-        get;
-        private set;
-    } = null!;
+    public BranchName Name { get; private set; } = null!;
 
-    public string NormalizedName
-    {
-        get;
-        private set;
-    } = string.Empty;
+    public string NormalizedName { get; private set; } = string.Empty;
 
-    public BranchCode Code
-    {
-        get;
-        private set;
-    } = null!;
+    public BranchCode Code { get; private set; } = null!;
 
-    public BranchType Type
-    {
-        get;
-        private set;
-    }
+    public BranchType Type { get; private set; }
 
-    public BranchAddress Address
-    {
-        get;
-        private set;
-    } = null!;
+    public BranchAddress Address { get; private set; } = null!;
 
-    public string TimeZoneId
-    {
-        get;
-        private set;
-    } = string.Empty;
+    public string TimeZoneId { get; private set; } = string.Empty;
 
-    public bool IsPrimary
-    {
-        get;
-        private set;
-    }
+    public bool IsPrimary { get; private set; }
 
-    public BranchStatus Status
-    {
-        get;
-        private set;
-    }
+    public BranchStatus Status { get; private set; }
 
-    public IReadOnlyCollection<BranchStatusHistoryEntry>
-        StatusHistory =>
-            _statusHistory.AsReadOnly();
+    public IReadOnlyCollection<BranchStatusHistoryEntry> StatusHistory =>
+        _statusHistory.AsReadOnly();
 
-    public IReadOnlyCollection<BranchManagerAssignment>
-    ManagerAssignments =>
+    public IReadOnlyCollection<BranchManagerAssignment> ManagerAssignments =>
         _managerAssignments.AsReadOnly();
 
+    public DateTimeOffset CreatedAtUtc { get; private set; }
 
-    public DateTimeOffset CreatedAtUtc
-    {
-        get;
-        private set;
-    }
+    public UserId? CreatedByUserId { get; private set; }
 
-    public UserId? CreatedByUserId
-    {
-        get;
-        private set;
-    }
+    public DateTimeOffset? LastModifiedAtUtc { get; private set; }
 
-    public DateTimeOffset? LastModifiedAtUtc
-    {
-        get;
-        private set;
-    }
-
-    public UserId? LastModifiedByUserId
-    {
-        get;
-        private set;
-    }
+    public UserId? LastModifiedByUserId { get; private set; }
 
     public static Result<Branch> Create(
         BranchId id,
@@ -138,46 +76,35 @@ public sealed class Branch :
         BranchType type,
         BranchAddress address,
         string? timeZoneId,
-        bool isPrimary)
+        bool isPrimary
+    )
     {
         if (id.IsEmpty)
         {
-            return Result.Failure<Branch>(
-                BranchErrors.EmptyId);
+            return Result.Failure<Branch>(BranchErrors.EmptyId);
         }
 
         if (organizationId.IsEmpty)
         {
-            return Result.Failure<Branch>(
-                BranchErrors.EmptyOrganizationId);
+            return Result.Failure<Branch>(BranchErrors.EmptyOrganizationId);
         }
 
-        ArgumentNullException.ThrowIfNull(
-            name);
+        ArgumentNullException.ThrowIfNull(name);
 
-        ArgumentNullException.ThrowIfNull(
-            code);
+        ArgumentNullException.ThrowIfNull(code);
 
-        ArgumentNullException.ThrowIfNull(
-            address);
+        ArgumentNullException.ThrowIfNull(address);
 
         if (!Enum.IsDefined(type))
         {
-            return Result.Failure<Branch>(
-                BranchErrors.InvalidBranchType);
+            return Result.Failure<Branch>(BranchErrors.InvalidBranchType);
         }
 
-        string normalizedTimeZoneId =
-            timeZoneId?.Trim() ??
-            string.Empty;
+        string normalizedTimeZoneId = timeZoneId?.Trim() ?? string.Empty;
 
-        if (
-            string.IsNullOrWhiteSpace(
-                normalizedTimeZoneId) ||
-            normalizedTimeZoneId.Length > 100)
+        if (string.IsNullOrWhiteSpace(normalizedTimeZoneId) || normalizedTimeZoneId.Length > 100)
         {
-            return Result.Failure<Branch>(
-                BranchErrors.InvalidTimeZone);
+            return Result.Failure<Branch>(BranchErrors.InvalidTimeZone);
         }
 
         var branch = new Branch(
@@ -188,7 +115,8 @@ public sealed class Branch :
             type,
             address,
             normalizedTimeZoneId,
-            isPrimary);
+            isPrimary
+        );
 
         branch.RaiseDomainEvent(
             new BranchCreatedDomainEvent(
@@ -197,7 +125,9 @@ public sealed class Branch :
                 branch.Name.Value,
                 branch.Code.Value,
                 branch.Type,
-                branch.IsPrimary));
+                branch.IsPrimary
+            )
+        );
 
         return Result.Success(branch);
     }
@@ -206,59 +136,43 @@ public sealed class Branch :
         BranchName name,
         BranchType type,
         BranchAddress address,
-        string? timeZoneId)
+        string? timeZoneId
+    )
     {
         if (Status == BranchStatus.Closed)
         {
-            return Result.Failure(
-                BranchErrors
-                    .ClosedBranchCannotBeModified);
+            return Result.Failure(BranchErrors.ClosedBranchCannotBeModified);
         }
 
-        ArgumentNullException.ThrowIfNull(
-            name);
+        ArgumentNullException.ThrowIfNull(name);
 
-        ArgumentNullException.ThrowIfNull(
-            address);
+        ArgumentNullException.ThrowIfNull(address);
 
         if (!Enum.IsDefined(type))
         {
-            return Result.Failure(
-                BranchErrors.InvalidBranchType);
+            return Result.Failure(BranchErrors.InvalidBranchType);
         }
 
-        string normalizedTimeZoneId =
-            timeZoneId?.Trim() ??
-            string.Empty;
+        string normalizedTimeZoneId = timeZoneId?.Trim() ?? string.Empty;
 
-        if (
-            string.IsNullOrWhiteSpace(
-                normalizedTimeZoneId) ||
-            normalizedTimeZoneId.Length > 100)
+        if (string.IsNullOrWhiteSpace(normalizedTimeZoneId) || normalizedTimeZoneId.Length > 100)
         {
-            return Result.Failure(
-                BranchErrors.InvalidTimeZone);
+            return Result.Failure(BranchErrors.InvalidTimeZone);
         }
 
-        string previousName =
-            Name.Value;
+        string previousName = Name.Value;
 
-        BranchType previousType =
-            Type;
+        BranchType previousType = Type;
 
-        BranchAddress previousAddress =
-            Address;
+        BranchAddress previousAddress = Address;
 
-        string previousTimeZoneId =
-            TimeZoneId;
+        string previousTimeZoneId = TimeZoneId;
 
         Name = name;
-        NormalizedName =
-            name.NormalizedValue;
+        NormalizedName = name.NormalizedValue;
         Type = type;
         Address = address;
-        TimeZoneId =
-            normalizedTimeZoneId;
+        TimeZoneId = normalizedTimeZoneId;
 
         RaiseDomainEvent(
             new BranchUpdatedDomainEvent(
@@ -271,7 +185,9 @@ public sealed class Branch :
                 previousAddress,
                 Address,
                 previousTimeZoneId,
-                TimeZoneId));
+                TimeZoneId
+            )
+        );
 
         return Result.Success();
     }
@@ -280,9 +196,7 @@ public sealed class Branch :
     {
         if (Status == BranchStatus.Closed)
         {
-            return Result.Failure(
-                BranchErrors
-                    .ClosedBranchCannotBePrimary);
+            return Result.Failure(BranchErrors.ClosedBranchCannotBePrimary);
         }
 
         if (IsPrimary)
@@ -292,10 +206,7 @@ public sealed class Branch :
 
         IsPrimary = true;
 
-        RaiseDomainEvent(
-            new BranchSetAsPrimaryDomainEvent(
-                Id,
-                OrganizationId));
+        RaiseDomainEvent(new BranchSetAsPrimaryDomainEvent(Id, OrganizationId));
 
         return Result.Success();
     }
@@ -309,201 +220,147 @@ public sealed class Branch :
 
         IsPrimary = false;
 
-        RaiseDomainEvent(
-            new BranchPrimaryDesignationRemovedDomainEvent(
-                Id,
-                OrganizationId));
+        RaiseDomainEvent(new BranchPrimaryDesignationRemovedDomainEvent(Id, OrganizationId));
     }
 
     public void Activate(
-    BranchStatusChangeReason reason,
-    Guid changedByUserId,
-    DateTimeOffset changedAtUtc)
+        BranchStatusChangeReason reason,
+        Guid changedByUserId,
+        DateTimeOffset changedAtUtc
+    )
     {
-        EnsureStatus(
-            BranchStatus.Draft,
-            "Only a draft branch can be activated.");
+        EnsureStatus(BranchStatus.Draft, "Only a draft branch can be activated.");
 
         if (!HasActiveManagerAt(changedAtUtc))
         {
             throw new InvalidOperationException(
-                "An active branch manager is required before branch activation.");
+                "An active branch manager is required before branch activation."
+            );
         }
 
-        ChangeStatus(
-            BranchStatus.Active,
-            reason,
-            changedByUserId,
-            changedAtUtc);
+        ChangeStatus(BranchStatus.Active, reason, changedByUserId, changedAtUtc);
     }
 
     public void Restrict(
         BranchStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
-        EnsureStatus(
-            BranchStatus.Active,
-            "Only an active branch can be restricted.");
+        EnsureStatus(BranchStatus.Active, "Only an active branch can be restricted.");
 
-        ChangeStatus(
-            BranchStatus.Restricted,
-            reason,
-            changedByUserId,
-            changedAtUtc);
+        ChangeStatus(BranchStatus.Restricted, reason, changedByUserId, changedAtUtc);
     }
 
     public void Suspend(
         BranchStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
         EnsureStatusIn(
-            [
-                BranchStatus.Active,
-                BranchStatus.Restricted,
-            ],
-            "Only an active or restricted branch can be suspended.");
+            [BranchStatus.Active, BranchStatus.Restricted],
+            "Only an active or restricted branch can be suspended."
+        );
 
-        ChangeStatus(
-            BranchStatus.Suspended,
-            reason,
-            changedByUserId,
-            changedAtUtc);
+        ChangeStatus(BranchStatus.Suspended, reason, changedByUserId, changedAtUtc);
     }
 
     public void Reactivate(
         BranchStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
         EnsureStatusIn(
-            [
-                BranchStatus.Restricted,
-                BranchStatus.Suspended,
-            ],
-            "Only a restricted or suspended branch can be reactivated.");
+            [BranchStatus.Restricted, BranchStatus.Suspended],
+            "Only a restricted or suspended branch can be reactivated."
+        );
 
-        ChangeStatus(
-            BranchStatus.Active,
-            reason,
-            changedByUserId,
-            changedAtUtc);
+        ChangeStatus(BranchStatus.Active, reason, changedByUserId, changedAtUtc);
     }
 
     public void Close(
-    BranchStatusChangeReason reason,
-    Guid changedByUserId,
-    DateTimeOffset changedAtUtc)
+        BranchStatusChangeReason reason,
+        Guid changedByUserId,
+        DateTimeOffset changedAtUtc
+    )
     {
         EnsureStatusIn(
-            [
-                BranchStatus.Active,
-            BranchStatus.Restricted,
-            BranchStatus.Suspended,
-        ],
-            "The branch cannot be closed from its current status.");
+            [BranchStatus.Active, BranchStatus.Restricted, BranchStatus.Suspended],
+            "The branch cannot be closed from its current status."
+        );
 
-        var changedBy =
-            new UserId(changedByUserId);
+        var changedBy = new UserId(changedByUserId);
 
-        EndActiveManagerAssignment(
-            changedAtUtc,
-            changedBy,
-            changedAtUtc);
+        EndActiveManagerAssignment(changedAtUtc, changedBy, changedAtUtc);
 
         if (IsPrimary)
         {
             RemovePrimaryDesignation();
         }
 
-        ChangeStatus(
-            BranchStatus.Closed,
-            reason,
-            changedByUserId,
-            changedAtUtc);
+        ChangeStatus(BranchStatus.Closed, reason, changedByUserId, changedAtUtc);
     }
 
     public Result AssignPrimaryManager(
-    UserId managerUserId,
-    DateTimeOffset effectiveFromUtc,
-    UserId assignedByUserId,
-    DateTimeOffset assignedAtUtc)
+        UserId managerUserId,
+        DateTimeOffset effectiveFromUtc,
+        UserId assignedByUserId,
+        DateTimeOffset assignedAtUtc
+    )
     {
         if (Status == BranchStatus.Closed)
         {
-            return Result.Failure(
-                BranchErrors
-                    .ClosedBranchCannotReceiveManager);
+            return Result.Failure(BranchErrors.ClosedBranchCannotReceiveManager);
         }
 
         if (managerUserId.IsEmpty)
         {
-            return Result.Failure(
-                BranchErrors.EmptyManagerUserId);
+            return Result.Failure(BranchErrors.EmptyManagerUserId);
         }
 
         if (assignedByUserId.IsEmpty)
         {
-            return Result.Failure(
-                BranchErrors.EmptyAssignedByUserId);
+            return Result.Failure(BranchErrors.EmptyAssignedByUserId);
         }
 
-        if (
-            effectiveFromUtc ==
-            default)
+        if (effectiveFromUtc == default)
         {
-            return Result.Failure(
-                BranchErrors
-                    .ManagerEffectiveDateInvalid);
+            return Result.Failure(BranchErrors.ManagerEffectiveDateInvalid);
         }
 
         if (effectiveFromUtc < assignedAtUtc)
         {
-            return Result.Failure(
-                BranchErrors
-                    .ManagerEffectiveDateCannotBePast);
+            return Result.Failure(BranchErrors.ManagerEffectiveDateCannotBePast);
         }
 
         if (effectiveFromUtc > assignedAtUtc)
         {
-            return Result.Failure(
-                BranchErrors
-                    .ManagerEffectiveDateCannotBeFuture);
+            return Result.Failure(BranchErrors.ManagerEffectiveDateCannotBeFuture);
         }
 
-        BranchManagerAssignment?
-            currentAssignment =
-                GetActiveManagerAssignmentAt(
-                    effectiveFromUtc);
+        BranchManagerAssignment? currentAssignment = GetActiveManagerAssignmentAt(effectiveFromUtc);
 
-        if (
-            currentAssignment is not null &&
-            currentAssignment.ManagerUserId ==
-            managerUserId)
+        if (currentAssignment is not null && currentAssignment.ManagerUserId == managerUserId)
         {
             return Result.Success();
         }
 
         if (currentAssignment is not null)
         {
-            EndActiveManagerAssignment(
-                effectiveFromUtc,
-                assignedByUserId,
-                assignedAtUtc);
+            EndActiveManagerAssignment(effectiveFromUtc, assignedByUserId, assignedAtUtc);
         }
 
-        BranchManagerAssignment
-            newAssignment =
-                BranchManagerAssignment.Create(
-                    Id,
-                    managerUserId,
-                    effectiveFromUtc,
-                    assignedByUserId,
-                    assignedAtUtc);
+        BranchManagerAssignment newAssignment = BranchManagerAssignment.Create(
+            Id,
+            managerUserId,
+            effectiveFromUtc,
+            assignedByUserId,
+            assignedAtUtc
+        );
 
-        _managerAssignments.Add(
-            newAssignment);
+        _managerAssignments.Add(newAssignment);
 
         RaiseDomainEvent(
             new BranchManagerAssignedDomainEvent(
@@ -513,76 +370,59 @@ public sealed class Branch :
                 managerUserId,
                 effectiveFromUtc,
                 assignedByUserId,
-                assignedAtUtc));
+                assignedAtUtc
+            )
+        );
 
         return Result.Success();
     }
 
-    public BranchManagerAssignment?
-        GetActiveManagerAssignmentAt(
-            DateTimeOffset dateTimeUtc)
+    public BranchManagerAssignment? GetActiveManagerAssignmentAt(DateTimeOffset dateTimeUtc)
     {
         return _managerAssignments
-            .Where(assignment =>
-                assignment.IsActiveAt(
-                    dateTimeUtc))
-            .OrderByDescending(assignment =>
-                assignment.EffectiveFromUtc)
+            .Where(assignment => assignment.IsActiveAt(dateTimeUtc))
+            .OrderByDescending(assignment => assignment.EffectiveFromUtc)
             .FirstOrDefault();
     }
 
-    public bool HasActiveManagerAt(
-        DateTimeOffset dateTimeUtc)
+    public bool HasActiveManagerAt(DateTimeOffset dateTimeUtc)
     {
-        return GetActiveManagerAssignmentAt(
-            dateTimeUtc) is not null;
+        return GetActiveManagerAssignmentAt(dateTimeUtc) is not null;
     }
 
-    public void SetCreatedAudit(
-        DateTimeOffset createdAtUtc,
-        UserId? createdByUserId)
+    public void SetCreatedAudit(DateTimeOffset createdAtUtc, UserId? createdByUserId)
     {
         if (CreatedAtUtc != default)
         {
             return;
         }
 
-        CreatedAtUtc =
-            createdAtUtc;
+        CreatedAtUtc = createdAtUtc;
 
-        CreatedByUserId =
-            createdByUserId;
+        CreatedByUserId = createdByUserId;
     }
 
-    public void SetModifiedAudit(
-        DateTimeOffset modifiedAtUtc,
-        UserId? modifiedByUserId)
+    public void SetModifiedAudit(DateTimeOffset modifiedAtUtc, UserId? modifiedByUserId)
     {
-        LastModifiedAtUtc =
-            modifiedAtUtc;
+        LastModifiedAtUtc = modifiedAtUtc;
 
-        LastModifiedByUserId =
-            modifiedByUserId;
+        LastModifiedByUserId = modifiedByUserId;
     }
+
     private void EndActiveManagerAssignment(
-    DateTimeOffset effectiveToUtc,
-    UserId endedByUserId,
-    DateTimeOffset endedAtUtc)
+        DateTimeOffset effectiveToUtc,
+        UserId endedByUserId,
+        DateTimeOffset endedAtUtc
+    )
     {
-        BranchManagerAssignment?
-            currentAssignment =
-                GetActiveManagerAssignmentAt(
-                    effectiveToUtc);
+        BranchManagerAssignment? currentAssignment = GetActiveManagerAssignmentAt(effectiveToUtc);
 
         if (currentAssignment is null)
         {
             return;
         }
 
-        currentAssignment.End(
-            effectiveToUtc,
-            endedByUserId,
-            endedAtUtc);
+        currentAssignment.End(effectiveToUtc, endedByUserId, endedAtUtc);
 
         RaiseDomainEvent(
             new BranchManagerAssignmentEndedDomainEvent(
@@ -592,20 +432,21 @@ public sealed class Branch :
                 currentAssignment.ManagerUserId,
                 effectiveToUtc,
                 endedByUserId,
-                endedAtUtc));
+                endedAtUtc
+            )
+        );
     }
 
     private void ChangeStatus(
         BranchStatus newStatus,
         BranchStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
-        ArgumentNullException.ThrowIfNull(
-            reason);
+        ArgumentNullException.ThrowIfNull(reason);
 
-        BranchStatus previousStatus =
-            Status;
+        BranchStatus previousStatus = Status;
 
         Status = newStatus;
 
@@ -616,7 +457,9 @@ public sealed class Branch :
                 newStatus,
                 reason,
                 changedByUserId,
-                changedAtUtc));
+                changedAtUtc
+            )
+        );
 
         RaiseDomainEvent(
             new BranchStatusChangedDomainEvent(
@@ -626,31 +469,27 @@ public sealed class Branch :
                 newStatus,
                 reason.Value,
                 changedByUserId,
-                changedAtUtc));
+                changedAtUtc
+            )
+        );
     }
 
-    private void EnsureStatus(
-        BranchStatus expectedStatus,
-        string errorMessage)
+    private void EnsureStatus(BranchStatus expectedStatus, string errorMessage)
     {
         if (Status != expectedStatus)
         {
-            throw new InvalidOperationException(
-                errorMessage);
+            throw new InvalidOperationException(errorMessage);
         }
     }
 
     private void EnsureStatusIn(
-        IReadOnlyCollection<BranchStatus>
-            allowedStatuses,
-        string errorMessage)
+        IReadOnlyCollection<BranchStatus> allowedStatuses,
+        string errorMessage
+    )
     {
-        if (
-            !allowedStatuses.Contains(
-                Status))
+        if (!allowedStatuses.Contains(Status))
         {
-            throw new InvalidOperationException(
-                errorMessage);
+            throw new InvalidOperationException(errorMessage);
         }
     }
 }

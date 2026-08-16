@@ -17,4 +17,5 @@ public sealed record GetLeadsQuery(
     UserId? AssignedAdvisorId,
     bool UnassignedOnly,
     LeadSortField SortBy,
-    SortDirection SortDirection) : IQuery<PagedResult<LeadListItem>>;
+    SortDirection SortDirection
+) : IQuery<PagedResult<LeadListItem>>;

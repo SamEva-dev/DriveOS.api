@@ -18,7 +18,8 @@ public sealed class OrganizationSequenceReservationContractTests
             organizationId,
             branchId,
             "INVOICE",
-            CancellationToken.None);
+            CancellationToken.None
+        );
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().Be("INV-2026-000001");
@@ -27,8 +28,7 @@ public sealed class OrganizationSequenceReservationContractTests
         generator.Code.Should().Be("INVOICE");
     }
 
-    private sealed class RecordingGenerator(string value)
-        : IOrganizationSequenceNumberGenerator
+    private sealed class RecordingGenerator(string value) : IOrganizationSequenceNumberGenerator
     {
         public OrganizationId OrganizationId { get; private set; }
         public BranchId? BranchId { get; private set; }
@@ -38,7 +38,8 @@ public sealed class OrganizationSequenceReservationContractTests
             OrganizationId organizationId,
             BranchId? branchId,
             string code,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default
+        )
         {
             OrganizationId = organizationId;
             BranchId = branchId;

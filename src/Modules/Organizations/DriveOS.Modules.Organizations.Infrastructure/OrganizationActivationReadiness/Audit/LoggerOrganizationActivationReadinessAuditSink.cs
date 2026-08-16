@@ -4,12 +4,13 @@ using Microsoft.Extensions.Logging;
 namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationReadiness.Audit;
 
 internal sealed class LoggerOrganizationActivationReadinessAuditSink(
-    ILogger<LoggerOrganizationActivationReadinessAuditSink> logger)
-    : IOrganizationActivationReadinessAuditSink
+    ILogger<LoggerOrganizationActivationReadinessAuditSink> logger
+) : IOrganizationActivationReadinessAuditSink
 {
     public Task WriteAsync(
         OrganizationActivationReadinessAuditEntry entry,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         logger.LogInformation(
             "Organization activation readiness evaluated. OrganizationId={OrganizationId} ActorUserId={ActorUserId} Action={Action} IsReady={IsReady} BlockingRequirements={BlockingRequirements} OccurredAtUtc={OccurredAtUtc}",
@@ -18,7 +19,8 @@ internal sealed class LoggerOrganizationActivationReadinessAuditSink(
             entry.Action,
             entry.IsReady,
             entry.BlockingRequirementCodes,
-            entry.OccurredAtUtc);
+            entry.OccurredAtUtc
+        );
 
         return Task.CompletedTask;
     }

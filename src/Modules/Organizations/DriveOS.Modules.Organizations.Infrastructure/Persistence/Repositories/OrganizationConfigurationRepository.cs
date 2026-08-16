@@ -10,26 +10,33 @@ internal sealed class OrganizationConfigurationRepository(OrganizationsDbContext
     public Task<OrganizationConfiguration?> GetForUpdateAsync(
         OrganizationConfigurationId configurationId,
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default
+    ) =>
         dbContext.OrganizationConfigurations.SingleOrDefaultAsync(
-            configuration => configuration.Id == configurationId &&
-                             configuration.OrganizationId == organizationId,
-            cancellationToken);
+            configuration =>
+                configuration.Id == configurationId
+                && configuration.OrganizationId == organizationId,
+            cancellationToken
+        );
 
     public Task<bool> VersionExistsAsync(
         OrganizationId organizationId,
         int versionNumber,
-        CancellationToken cancellationToken = default) =>
-        dbContext.OrganizationConfigurations
-            .AsNoTracking()
-            .AnyAsync(configuration =>
-                configuration.OrganizationId == organizationId &&
-                configuration.VersionNumber == versionNumber,
-                cancellationToken);
+        CancellationToken cancellationToken = default
+    ) =>
+        dbContext
+            .OrganizationConfigurations.AsNoTracking()
+            .AnyAsync(
+                configuration =>
+                    configuration.OrganizationId == organizationId
+                    && configuration.VersionNumber == versionNumber,
+                cancellationToken
+            );
 
     public async Task AddAsync(
         OrganizationConfiguration configuration,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentNullException.ThrowIfNull(configuration);
         await dbContext.OrganizationConfigurations.AddAsync(configuration, cancellationToken);

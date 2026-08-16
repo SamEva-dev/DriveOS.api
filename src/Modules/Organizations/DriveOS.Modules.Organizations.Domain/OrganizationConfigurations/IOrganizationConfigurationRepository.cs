@@ -7,14 +7,17 @@ public interface IOrganizationConfigurationRepository
     Task<OrganizationConfiguration?> GetForUpdateAsync(
         OrganizationConfigurationId configurationId,
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<bool> VersionExistsAsync(
         OrganizationId organizationId,
         int versionNumber,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task AddAsync(
         OrganizationConfiguration configuration,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

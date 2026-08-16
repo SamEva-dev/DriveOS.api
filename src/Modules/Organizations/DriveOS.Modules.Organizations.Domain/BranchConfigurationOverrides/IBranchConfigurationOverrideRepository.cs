@@ -8,15 +8,15 @@ public interface IBranchConfigurationOverrideRepository
         BranchConfigurationOverrideId overrideId,
         OrganizationId organizationId,
         BranchId branchId,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken
+    );
 
     Task<bool> VersionExistsAsync(
         OrganizationId organizationId,
         BranchId branchId,
         int versionNumber,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken
+    );
 
-    Task AddAsync(
-        BranchConfigurationOverride branchOverride,
-        CancellationToken cancellationToken);
+    Task AddAsync(BranchConfigurationOverride branchOverride, CancellationToken cancellationToken);
 }

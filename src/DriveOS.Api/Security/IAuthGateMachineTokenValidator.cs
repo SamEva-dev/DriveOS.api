@@ -8,5 +8,6 @@ public interface IAuthGateMachineTokenValidator
         string token,
         CancellationToken cancellationToken = default,
         string? requiredClientId = null,
-        string? requiredScope = null);
+        string? requiredScope = null
+    );
 }

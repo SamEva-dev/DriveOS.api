@@ -1,17 +1,17 @@
 using DriveOS.Application.Abstractions.Messaging;
-using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.Modules.CRM.Domain.Assessments;
+using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Modules.CRM.Application.Assessments.GetAssessments;
 
-public sealed record GetLeadAssessmentsQuery(
-    OrganizationId OrganizationId,
-    LeadId LeadId) : IQuery<IReadOnlyList<AssessmentAppointmentResponse>>;
+public sealed record GetLeadAssessmentsQuery(OrganizationId OrganizationId, LeadId LeadId)
+    : IQuery<IReadOnlyList<AssessmentAppointmentResponse>>;
 
 public sealed record GetAssessmentQuery(
     OrganizationId OrganizationId,
-    AssessmentAppointmentId AppointmentId) : IQuery<AssessmentAppointmentResponse>;
+    AssessmentAppointmentId AppointmentId
+) : IQuery<AssessmentAppointmentResponse>;
 
 public sealed record AssessmentAppointmentResponse(
     Guid Id,
@@ -32,4 +32,5 @@ public sealed record AssessmentAppointmentResponse(
     string? Notes,
     string Status,
     DateTimeOffset? ClosedAtUtc,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc
+);

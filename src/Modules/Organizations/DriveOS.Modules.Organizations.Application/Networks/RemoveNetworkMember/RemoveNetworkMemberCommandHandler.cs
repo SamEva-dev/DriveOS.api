@@ -11,18 +11,29 @@ internal sealed class RemoveNetworkMemberCommandHandler(
     IOrganizationRepository organizations,
     INetworkOrganizationMembershipRepository memberships,
     IUnitOfWork unitOfWork,
-    IClock clock) : ICommandHandler<RemoveNetworkMemberCommand>
+    IClock clock
+) : ICommandHandler<RemoveNetworkMemberCommand>
 {
-    public async Task<Result> Handle(RemoveNetworkMemberCommand command,
-        CancellationToken cancellationToken)
+    public async Task<Result> Handle(
+        RemoveNetworkMemberCommand command,
+        CancellationToken cancellationToken
+    )
     {
         Organization? network = await organizations.GetByIdAsync(
-            command.NetworkOrganizationId, true, cancellationToken);
+            command.NetworkOrganizationId,
+            true,
+            cancellationToken
+        );
         if (network?.Type != OrganizationType.DrivingSchoolNetwork)
-            return Result.Failure(NetworkOrganizationMembershipErrors.CurrentOrganizationMustBeNetwork);
+            return Result.Failure(
+                NetworkOrganizationMembershipErrors.CurrentOrganizationMustBeNetwork
+            );
 
         NetworkOrganizationMembership? membership = await memberships.GetActiveAsync(
-            command.NetworkOrganizationId, command.MemberOrganizationId, cancellationToken);
+            command.NetworkOrganizationId,
+            command.MemberOrganizationId,
+            cancellationToken
+        );
         if (membership is null)
             return Result.Failure(NetworkOrganizationMembershipErrors.ActiveMembershipNotFound);
 

@@ -3,11 +3,14 @@ using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Compli
 namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles.Compliance;
 
 public sealed class OrganizationLegalProfileCountryRulesProvider(
-    IEnumerable<IOrganizationLegalProfileCountryRules> rules)
-    : IOrganizationLegalProfileCountryRulesProvider
+    IEnumerable<IOrganizationLegalProfileCountryRules> rules
+) : IOrganizationLegalProfileCountryRulesProvider
 {
     private readonly IReadOnlyDictionary<string, IOrganizationLegalProfileCountryRules> _rules =
-        rules.ToDictionary(x => x.CountryCode.Trim().ToUpperInvariant(), StringComparer.OrdinalIgnoreCase);
+        rules.ToDictionary(
+            x => x.CountryCode.Trim().ToUpperInvariant(),
+            StringComparer.OrdinalIgnoreCase
+        );
 
     public IOrganizationLegalProfileCountryRules GetRules(string countryCode)
     {
@@ -19,6 +22,8 @@ public sealed class OrganizationLegalProfileCountryRulesProvider(
         if (_rules.TryGetValue("*", out IOrganizationLegalProfileCountryRules? genericRules))
             return genericRules;
 
-        throw new InvalidOperationException("Generic organization legal-profile rules are not registered.");
+        throw new InvalidOperationException(
+            "Generic organization legal-profile rules are not registered."
+        );
     }
 }

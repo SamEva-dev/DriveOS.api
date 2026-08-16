@@ -7,4 +7,5 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.Suspen
 public sealed record SuspendOrganizationSequenceCommand(
     OrganizationId OrganizationId,
     OrganizationSequenceId SequenceId,
-    int ExpectedRevision) : ICommand;
+    int ExpectedRevision
+) : ICommand;

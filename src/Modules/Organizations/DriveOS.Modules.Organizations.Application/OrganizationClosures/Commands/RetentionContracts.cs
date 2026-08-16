@@ -10,11 +10,25 @@ public interface IOrganizationArchiveService
 
 public interface IOrganizationAnonymizationService
 {
-    Task<bool> HasIrreversibleAnonymizationStartedAsync(OrganizationId organizationId, CancellationToken cancellationToken);
-    Task AnonymizeAsync(OrganizationId organizationId, DateTimeOffset dueAtUtc, CancellationToken cancellationToken);
+    Task<bool> HasIrreversibleAnonymizationStartedAsync(
+        OrganizationId organizationId,
+        CancellationToken cancellationToken
+    );
+    Task AnonymizeAsync(
+        OrganizationId organizationId,
+        DateTimeOffset dueAtUtc,
+        CancellationToken cancellationToken
+    );
 }
 
 public interface IOrganizationClosureAuditSink
 {
-    Task WriteAsync(string action, OrganizationId organizationId, OrganizationClosureId closureId, UserId actorUserId, IReadOnlyDictionary<string, object?> data, CancellationToken cancellationToken);
+    Task WriteAsync(
+        string action,
+        OrganizationId organizationId,
+        OrganizationClosureId closureId,
+        UserId actorUserId,
+        IReadOnlyDictionary<string, object?> data,
+        CancellationToken cancellationToken
+    );
 }

@@ -1,5 +1,4 @@
-﻿namespace DriveOS.Modules.Organizations.Application
-    .Branches.Managers;
+﻿namespace DriveOS.Modules.Organizations.Application.Branches.Managers;
 
 public sealed record BranchManagerAssignmentItem(
     Guid Id,
@@ -11,4 +10,5 @@ public sealed record BranchManagerAssignmentItem(
     Guid AssignedByUserId,
     DateTimeOffset AssignedAtUtc,
     Guid? EndedByUserId,
-    DateTimeOffset? EndedAtUtc);
+    DateTimeOffset? EndedAtUtc
+);

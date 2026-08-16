@@ -25,6 +25,7 @@ using DriveOS.Modules.Organizations.Application.OrganizationSubscriptions;
 using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.BranchConfigurationOverrides;
 using DriveOS.Modules.Organizations.Domain.Branches;
+using DriveOS.Modules.Organizations.Domain.Networks;
 using DriveOS.Modules.Organizations.Domain.OrganizationClosures;
 using DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
@@ -32,7 +33,6 @@ using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Domain.OrganizationSequences;
 using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
-using DriveOS.Modules.Organizations.Domain.Networks;
 using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using DriveOS.Modules.Organizations.Infrastructure.Authentication;
 using DriveOS.Modules.Organizations.Infrastructure.BranchConfigurationOverrides;
@@ -63,7 +63,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddOrganizationsInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration
+    )
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -71,7 +72,8 @@ public static class DependencyInjection
         string connectionString =
             configuration.GetConnectionString("DriveOS")
             ?? throw new InvalidOperationException(
-                "The DriveOS database connection string is missing.");
+                "The DriveOS database connection string is missing."
+            );
 
         services.AddSingleton<IClock, SystemClock>();
 
@@ -83,8 +85,7 @@ public static class DependencyInjection
             (serviceProvider, options) =>
             {
                 var auditInterceptor =
-                    serviceProvider.GetRequiredService<
-                        AuditableEntityInterceptor>();
+                    serviceProvider.GetRequiredService<AuditableEntityInterceptor>();
 
                 options.UseNpgsql(
                     connectionString,
@@ -92,181 +93,234 @@ public static class DependencyInjection
                     {
                         npgsqlOptions.MigrationsHistoryTable(
                             "__ef_migrations_history",
-                            OrganizationsSchema.Name);
-                    });
+                            OrganizationsSchema.Name
+                        );
+                    }
+                );
 
                 options.AddInterceptors(auditInterceptor);
-            });
+            }
+        );
 
-        services.AddScoped<
-            IOrganizationRepository,
-            OrganizationRepository>();
+        services.AddScoped<IOrganizationRepository, OrganizationRepository>();
 
-        services.AddScoped<
-            IOrganizationReadService,
-            OrganizationReadService>();
+        services.AddScoped<IOrganizationReadService, OrganizationReadService>();
 
         services.AddScoped<
             IOrganizationSubscriptionRepository,
-            OrganizationSubscriptionRepository>();
+            OrganizationSubscriptionRepository
+        >();
 
         services.AddScoped<
             IOrganizationSubscriptionReadService,
-            OrganizationSubscriptionReadService>();
+            OrganizationSubscriptionReadService
+        >();
         services.AddScoped<IOrganizationSettingsRepository, OrganizationSettingsRepository>();
 
         services.AddScoped<
-                IOrganizationConfigurationRepository,
-                OrganizationConfigurationRepository>();
+            IOrganizationConfigurationRepository,
+            OrganizationConfigurationRepository
+        >();
 
-        services.AddScoped<
-            IOrganizationSequenceRepository,
-            OrganizationSequenceRepository>();
+        services.AddScoped<IOrganizationSequenceRepository, OrganizationSequenceRepository>();
 
-        services.AddScoped<
-            IOrganizationSequenceReadService,
-            OrganizationSequenceReadService>();
+        services.AddScoped<IOrganizationSequenceReadService, OrganizationSequenceReadService>();
 
         services.Configure<OrganizationSequenceReservationOptions>(options =>
             configuration
                 .GetSection(OrganizationSequenceReservationOptions.SectionName)
-                .Bind(options));
+                .Bind(options)
+        );
 
         services.AddScoped<
             IOrganizationSequenceNumberGenerator,
-            OrganizationSequenceNumberGenerator>();
+            OrganizationSequenceNumberGenerator
+        >();
         services.AddScoped<
             IBranchConfigurationOverrideRepository,
-            BranchConfigurationOverrideRepository>();
+            BranchConfigurationOverrideRepository
+        >();
 
         services.AddScoped<
-    IOrganizationRepresentativeRepository,
-    OrganizationRepresentativeRepository>();
+            IOrganizationRepresentativeRepository,
+            OrganizationRepresentativeRepository
+        >();
 
-    services.AddScoped<
-    IOrganizationLegalProfileRepository,
-    OrganizationLegalProfileRepository>();
-    
         services.AddScoped<
-            IOrganizationClosureRepository,
-            OrganizationClosureRepository>();
+            IOrganizationLegalProfileRepository,
+            OrganizationLegalProfileRepository
+        >();
 
+        services.AddScoped<IOrganizationClosureRepository, OrganizationClosureRepository>();
 
         services.AddScoped<IBranchRepository, BranchRepository>();
-        services.AddScoped<INetworkOrganizationMembershipRepository,
-            NetworkOrganizationMembershipRepository>();
+        services.AddScoped<
+            INetworkOrganizationMembershipRepository,
+            NetworkOrganizationMembershipRepository
+        >();
         services.AddScoped<IBranchReadService, BranchReadService>();
 
-        services.AddScoped<IUnitOfWork>(
-            serviceProvider =>
-                serviceProvider.GetRequiredService<
-                    OrganizationsDbContext>());
+        services.AddScoped<IUnitOfWork>(serviceProvider =>
+            serviceProvider.GetRequiredService<OrganizationsDbContext>()
+        );
 
         services.AddScoped<IBranchManagerReadService, BranchManagerReadService>();
         services.AddScoped<IBranchUserAssignmentRepository, BranchUserAssignmentRepository>();
         services.AddScoped<IBranchUserAssignmentReadService, BranchUserAssignmentReadService>();
         services.AddScoped<IOrganizationSettingsReadService, OrganizationSettingsReadService>();
-        services.AddScoped<IOrganizationConfigurationReadService, OrganizationConfigurationReadService>();
+        services.AddScoped<
+            IOrganizationConfigurationReadService,
+            OrganizationConfigurationReadService
+        >();
 
         services.AddSingleton<OrganizationConfigurationMemoryCache>();
 
-        services.AddSingleton<IOrganizationConfigurationCacheInvalidator>(
-            serviceProvider =>
-                serviceProvider.GetRequiredService<
-                    OrganizationConfigurationMemoryCache>());
+        services.AddSingleton<IOrganizationConfigurationCacheInvalidator>(serviceProvider =>
+            serviceProvider.GetRequiredService<OrganizationConfigurationMemoryCache>()
+        );
 
         services.AddScoped<
             IEffectiveOrganizationConfigurationResolver,
-            EffectiveOrganizationConfigurationResolver>();
+            EffectiveOrganizationConfigurationResolver
+        >();
 
         services.AddScoped<
             IBranchConfigurationOverrideReadService,
-            BranchConfigurationOverrideReadService>();
+            BranchConfigurationOverrideReadService
+        >();
 
         services.Configure<BranchConfigurationOverridePolicyOptions>(options =>
             configuration
                 .GetSection(BranchConfigurationOverridePolicyOptions.SectionName)
-                .Bind(options));
+                .Bind(options)
+        );
 
         services.AddSingleton<IJsonConfigurationMerger, JsonConfigurationMerger>();
         services.AddSingleton<IBranchConfigurationMergePolicy, BranchConfigurationMergePolicy>();
-        services.AddScoped<IOrganizationRepresentativeReadService, OrganizationRepresentativeReadService>();
+        services.AddScoped<
+            IOrganizationRepresentativeReadService,
+            OrganizationRepresentativeReadService
+        >();
 
         services.Configure<AuthGateRepresentativeAccessOptions>(options =>
-            configuration
-                .GetSection(AuthGateRepresentativeAccessOptions.SectionName)
-                .Bind(options));
+            configuration.GetSection(AuthGateRepresentativeAccessOptions.SectionName).Bind(options)
+        );
 
         services.Configure<OrganizationRepresentativeExpirationOptions>(options =>
             configuration
                 .GetSection(OrganizationRepresentativeExpirationOptions.SectionName)
-                .Bind(options));
+                .Bind(options)
+        );
 
-        bool representativeAuthGateEnabled =
-            configuration.GetValue<bool>("AuthGate:OrganizationRepresentatives:Enabled");
+        bool representativeAuthGateEnabled = configuration.GetValue<bool>(
+            "AuthGate:OrganizationRepresentatives:Enabled"
+        );
         string? authGateBaseUrl = configuration["AuthGate:BaseUrl"];
 
-        if (representativeAuthGateEnabled && Uri.TryCreate(authGateBaseUrl, UriKind.Absolute, out Uri? authGateUri))
+        if (
+            representativeAuthGateEnabled
+            && Uri.TryCreate(authGateBaseUrl, UriKind.Absolute, out Uri? authGateUri)
+        )
         {
-            services.AddHttpClient<IOrganizationRepresentativeAccessSynchronizer,
-                AuthGateOrganizationRepresentativeAccessSynchronizer>(client =>
-                {
-                    client.BaseAddress = authGateUri;
-                });
+            services.AddHttpClient<
+                IOrganizationRepresentativeAccessSynchronizer,
+                AuthGateOrganizationRepresentativeAccessSynchronizer
+            >(client =>
+            {
+                client.BaseAddress = authGateUri;
+            });
         }
         else
         {
-            services.AddScoped<IOrganizationRepresentativeAccessSynchronizer,
-                NoOpOrganizationRepresentativeAccessSynchronizer>();
+            services.AddScoped<
+                IOrganizationRepresentativeAccessSynchronizer,
+                NoOpOrganizationRepresentativeAccessSynchronizer
+            >();
         }
 
         services.AddScoped<OrganizationRepresentativeAccessSynchronizationService>();
-        services.AddScoped<IOrganizationRepresentativeExpirationProcessor,
-            OrganizationRepresentativeExpirationProcessor>();
+        services.AddScoped<
+            IOrganizationRepresentativeExpirationProcessor,
+            OrganizationRepresentativeExpirationProcessor
+        >();
         services.AddHostedService<OrganizationRepresentativeExpirationWorker>();
 
-        services.AddScoped<IOrganizationLegalProfileReadService, OrganizationLegalProfileReadService>();
-        services.AddScoped<IOrganizationLegalProfileCountryRules, GenericOrganizationLegalProfileCountryRules>();
-        services.AddScoped<IOrganizationLegalProfileCountryRules, FranceOrganizationLegalProfileCountryRules>();
-        services.AddScoped<IOrganizationLegalProfileCountryRulesProvider, OrganizationLegalProfileCountryRulesProvider>();
-        services.AddScoped<IOrganizationLegalProfileComplianceService, OrganizationLegalProfileComplianceService>();
+        services.AddScoped<
+            IOrganizationLegalProfileReadService,
+            OrganizationLegalProfileReadService
+        >();
+        services.AddScoped<
+            IOrganizationLegalProfileCountryRules,
+            GenericOrganizationLegalProfileCountryRules
+        >();
+        services.AddScoped<
+            IOrganizationLegalProfileCountryRules,
+            FranceOrganizationLegalProfileCountryRules
+        >();
+        services.AddScoped<
+            IOrganizationLegalProfileCountryRulesProvider,
+            OrganizationLegalProfileCountryRulesProvider
+        >();
+        services.AddScoped<
+            IOrganizationLegalProfileComplianceService,
+            OrganizationLegalProfileComplianceService
+        >();
 
         services.AddScoped<
             IOrganizationActivationReadinessDataSource,
-            OrganizationActivationReadinessDataSource>();
+            OrganizationActivationReadinessDataSource
+        >();
 
-            services.AddScoped<IOrganizationActivationReadinessService, OrganizationActivationReadinessService>();
-            services.AddScoped<IOrganizationActivationReadinessRule, LegalProfileActivationRule>();
-            services.AddScoped<IOrganizationActivationReadinessRule, OwnerActivationRule>();
-            services.AddScoped<IOrganizationActivationReadinessRule, SubscriptionActivationRule>();
-            services.AddScoped<IOrganizationActivationReadinessRule, OperationalSettingsActivationRule>();
-            services.AddScoped<IOrganizationActivationReadinessRule, PrimaryBranchActivationRule>();
+        services.AddScoped<
+            IOrganizationActivationReadinessService,
+            OrganizationActivationReadinessService
+        >();
+        services.AddScoped<IOrganizationActivationReadinessRule, LegalProfileActivationRule>();
+        services.AddScoped<IOrganizationActivationReadinessRule, OwnerActivationRule>();
+        services.AddScoped<IOrganizationActivationReadinessRule, SubscriptionActivationRule>();
+        services.AddScoped<
+            IOrganizationActivationReadinessRule,
+            OperationalSettingsActivationRule
+        >();
+        services.AddScoped<IOrganizationActivationReadinessRule, PrimaryBranchActivationRule>();
 
         services.AddMemoryCache();
 
-services.Configure<OrganizationActivationReadinessCacheOptions>(options =>
-    configuration
-        .GetSection(OrganizationActivationReadinessCacheOptions.SectionName)
-        .Bind(options));
+        services.Configure<OrganizationActivationReadinessCacheOptions>(options =>
+            configuration
+                .GetSection(OrganizationActivationReadinessCacheOptions.SectionName)
+                .Bind(options)
+        );
 
-services.AddSingleton<IOrganizationActivationReadinessReportCache,
-    OrganizationActivationReadinessMemoryCache>();
+        services.AddSingleton<
+            IOrganizationActivationReadinessReportCache,
+            OrganizationActivationReadinessMemoryCache
+        >();
 
-services.AddScoped<IOrganizationActivationReadinessAuditSink,
-    LoggerOrganizationActivationReadinessAuditSink>();
+        services.AddScoped<
+            IOrganizationActivationReadinessAuditSink,
+            LoggerOrganizationActivationReadinessAuditSink
+        >();
 
-    services.AddScoped<
-    IOrganizationActivationReadinessCacheInvalidator,
-    OrganizationActivationReadinessCacheInvalidator>();
+        services.AddScoped<
+            IOrganizationActivationReadinessCacheInvalidator,
+            OrganizationActivationReadinessCacheInvalidator
+        >();
 
- services.AddScoped<IOrganizationClosureReadinessService, OrganizationClosureReadinessService>();
-services.AddScoped<IOrganizationClosureReadinessSnapshotSource, OrganizationClosureReadinessSnapshotSource>();
-services.AddScoped<IOrganizationClosureOrchestrator, OrganizationClosureOrchestrator>();
-services.AddScoped<IOrganizationArchiveService, OrganizationArchiveService>();
-services.AddScoped<IOrganizationAnonymizationService, OrganizationAnonymizationService>();
-services.AddScoped<IOrganizationClosureAuditSink, OrganizationClosureAuditSink>();
-services.AddScoped<IOrganizationClosureScheduler, OrganizationClosureScheduler>();
-services.AddHostedService<OrganizationClosureWorker>();
+        services.AddScoped<
+            IOrganizationClosureReadinessService,
+            OrganizationClosureReadinessService
+        >();
+        services.AddScoped<
+            IOrganizationClosureReadinessSnapshotSource,
+            OrganizationClosureReadinessSnapshotSource
+        >();
+        services.AddScoped<IOrganizationClosureOrchestrator, OrganizationClosureOrchestrator>();
+        services.AddScoped<IOrganizationArchiveService, OrganizationArchiveService>();
+        services.AddScoped<IOrganizationAnonymizationService, OrganizationAnonymizationService>();
+        services.AddScoped<IOrganizationClosureAuditSink, OrganizationClosureAuditSink>();
+        services.AddScoped<IOrganizationClosureScheduler, OrganizationClosureScheduler>();
+        services.AddHostedService<OrganizationClosureWorker>();
 
         return services;
     }

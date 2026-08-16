@@ -5,5 +5,5 @@ public enum OrganizationRepresentativeStatus
     Draft = 1,
     Active = 2,
     Suspended = 3,
-    Ended = 4
+    Ended = 4,
 }

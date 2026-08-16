@@ -16,9 +16,7 @@ public sealed class CreateLeadCommandHandlerTests
         var handler = new CreateLeadCommandHandler(repository, unitOfWork);
         OrganizationId organizationId = OrganizationId.New();
 
-        var result = await handler.Handle(
-            CreateCommand(organizationId),
-            CancellationToken.None);
+        var result = await handler.Handle(CreateCommand(organizationId), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         repository.AddedLead.Should().NotBeNull();
@@ -34,10 +32,7 @@ public sealed class CreateLeadCommandHandlerTests
         var repository = new FakeLeadRepository();
         var unitOfWork = new FakeCrmUnitOfWork();
         var handler = new CreateLeadCommandHandler(repository, unitOfWork);
-        CreateLeadCommand command = CreateCommand(OrganizationId.New()) with
-        {
-            FirstName = " "
-        };
+        CreateLeadCommand command = CreateCommand(OrganizationId.New()) with { FirstName = " " };
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -60,7 +55,8 @@ public sealed class CreateLeadCommandHandlerTests
             "Nice Centre",
             LeadSourceType.Website,
             null,
-            UserId.New());
+            UserId.New()
+        );
 
     private sealed class FakeLeadRepository : ILeadRepository
     {
@@ -69,24 +65,22 @@ public sealed class CreateLeadCommandHandlerTests
         public Task<Lead?> GetByIdAsync(
             OrganizationId organizationId,
             LeadId id,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<Lead?>(null);
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult<Lead?>(null);
 
         public Task<Lead?> GetByIdForUpdateAsync(
             OrganizationId organizationId,
             LeadId id,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<Lead?>(null);
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult<Lead?>(null);
 
         public Task<bool> ExistsByEmailAsync(
             OrganizationId organizationId,
             string email,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult(false);
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult(false);
 
-        public Task AddAsync(
-            Lead lead,
-            CancellationToken cancellationToken = default)
+        public Task AddAsync(Lead lead, CancellationToken cancellationToken = default)
         {
             AddedLead = lead;
             return Task.CompletedTask;

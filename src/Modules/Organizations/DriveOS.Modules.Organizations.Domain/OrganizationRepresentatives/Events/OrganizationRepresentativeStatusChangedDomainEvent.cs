@@ -9,4 +9,5 @@ public sealed record OrganizationRepresentativeStatusChangedDomainEvent(
     OrganizationRepresentativeStatus PreviousStatus,
     OrganizationRepresentativeStatus NewStatus,
     UserId ChangedByUserId,
-    string Reason) : DomainEvent;
+    string Reason
+) : DomainEvent;

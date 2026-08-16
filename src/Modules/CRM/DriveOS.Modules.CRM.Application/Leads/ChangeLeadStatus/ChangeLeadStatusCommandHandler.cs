@@ -7,16 +7,19 @@ namespace DriveOS.Modules.CRM.Application.Leads.ChangeLeadStatus;
 
 public sealed class ChangeLeadStatusCommandHandler(
     ILeadRepository leadRepository,
-    ICrmUnitOfWork unitOfWork) : ICommandHandler<ChangeLeadStatusCommand>
+    ICrmUnitOfWork unitOfWork
+) : ICommandHandler<ChangeLeadStatusCommand>
 {
     public async Task<Result> Handle(
         ChangeLeadStatusCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         Lead? lead = await leadRepository.GetByIdForUpdateAsync(
             command.OrganizationId,
             command.LeadId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (lead is null)
         {

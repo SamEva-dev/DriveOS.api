@@ -6,9 +6,9 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 
-public sealed class OrganizationLegalProfile :
-    AggregateRoot<OrganizationLegalProfileId>,
-    IAuditableEntity
+public sealed class OrganizationLegalProfile
+    : AggregateRoot<OrganizationLegalProfileId>,
+        IAuditableEntity
 {
     private OrganizationLegalProfile() { }
 
@@ -20,7 +20,8 @@ public sealed class OrganizationLegalProfile :
         string? taxNumber,
         string? tradeName,
         DateOnly? incorporationDate,
-        RegisteredAddress registeredAddress)
+        RegisteredAddress registeredAddress
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -57,25 +58,37 @@ public sealed class OrganizationLegalProfile :
         string? tradeName,
         DateOnly? incorporationDate,
         RegisteredAddress registeredAddress,
-        string organizationCountryCode)
+        string organizationCountryCode
+    )
     {
         if (id.IsEmpty)
             return Result.Failure<OrganizationLegalProfile>(OrganizationLegalProfileErrors.EmptyId);
         if (organizationId.IsEmpty)
-            return Result.Failure<OrganizationLegalProfile>(OrganizationLegalProfileErrors.EmptyOrganizationId);
+            return Result.Failure<OrganizationLegalProfile>(
+                OrganizationLegalProfileErrors.EmptyOrganizationId
+            );
         if (!Enum.IsDefined(legalForm))
-            return Result.Failure<OrganizationLegalProfile>(OrganizationLegalProfileErrors.InvalidLegalForm);
+            return Result.Failure<OrganizationLegalProfile>(
+                OrganizationLegalProfileErrors.InvalidLegalForm
+            );
 
         string normalizedRegistrationNumber = NormalizeRequired(registrationNumber);
         if (normalizedRegistrationNumber.Length is < 2 or > 80)
-            return Result.Failure<OrganizationLegalProfile>(OrganizationLegalProfileErrors.RegistrationNumberRequired);
+            return Result.Failure<OrganizationLegalProfile>(
+                OrganizationLegalProfileErrors.RegistrationNumberRequired
+            );
 
-        if (!string.Equals(
+        if (
+            !string.Equals(
                 registeredAddress.CountryCode,
                 organizationCountryCode?.Trim().ToUpperInvariant(),
-                StringComparison.Ordinal))
+                StringComparison.Ordinal
+            )
+        )
         {
-            return Result.Failure<OrganizationLegalProfile>(OrganizationLegalProfileErrors.CountryMismatch);
+            return Result.Failure<OrganizationLegalProfile>(
+                OrganizationLegalProfileErrors.CountryMismatch
+            );
         }
 
         var profile = new OrganizationLegalProfile(
@@ -86,12 +99,16 @@ public sealed class OrganizationLegalProfile :
             NormalizeOptional(taxNumber, 80),
             NormalizeOptional(tradeName, 200),
             incorporationDate,
-            registeredAddress);
+            registeredAddress
+        );
 
-        profile.RaiseDomainEvent(new OrganizationLegalProfileCreatedDomainEvent(
-            profile.Id,
-            profile.OrganizationId,
-            profile.RegistrationNumber));
+        profile.RaiseDomainEvent(
+            new OrganizationLegalProfileCreatedDomainEvent(
+                profile.Id,
+                profile.OrganizationId,
+                profile.RegistrationNumber
+            )
+        );
 
         return Result.Success(profile);
     }
@@ -103,7 +120,8 @@ public sealed class OrganizationLegalProfile :
         string? tradeName,
         DateOnly? incorporationDate,
         RegisteredAddress registeredAddress,
-        string organizationCountryCode)
+        string organizationCountryCode
+    )
     {
         if (Status == OrganizationLegalProfileStatus.Archived)
             return Result.Failure(OrganizationLegalProfileErrors.ArchivedProfileCannotBeChanged);
@@ -113,7 +131,13 @@ public sealed class OrganizationLegalProfile :
         string normalizedRegistrationNumber = NormalizeRequired(registrationNumber);
         if (normalizedRegistrationNumber.Length is < 2 or > 80)
             return Result.Failure(OrganizationLegalProfileErrors.RegistrationNumberRequired);
-        if (!string.Equals(registeredAddress.CountryCode, organizationCountryCode.Trim().ToUpperInvariant(), StringComparison.Ordinal))
+        if (
+            !string.Equals(
+                registeredAddress.CountryCode,
+                organizationCountryCode.Trim().ToUpperInvariant(),
+                StringComparison.Ordinal
+            )
+        )
             return Result.Failure(OrganizationLegalProfileErrors.CountryMismatch);
 
         LegalForm = legalForm;
@@ -123,7 +147,9 @@ public sealed class OrganizationLegalProfile :
         IncorporationDate = incorporationDate;
         RegisteredAddress = registeredAddress;
         Revision++;
-        RaiseDomainEvent(new OrganizationLegalProfileUpdatedDomainEvent(Id, OrganizationId, Revision));
+        RaiseDomainEvent(
+            new OrganizationLegalProfileUpdatedDomainEvent(Id, OrganizationId, Revision)
+        );
         return Result.Success();
     }
 
@@ -137,7 +163,9 @@ public sealed class OrganizationLegalProfile :
 
         Status = OrganizationLegalProfileStatus.Active;
         Revision++;
-        RaiseDomainEvent(new OrganizationLegalProfileActivatedDomainEvent(Id, OrganizationId, Revision));
+        RaiseDomainEvent(
+            new OrganizationLegalProfileActivatedDomainEvent(Id, OrganizationId, Revision)
+        );
         return Result.Success();
     }
 
@@ -148,13 +176,16 @@ public sealed class OrganizationLegalProfile :
 
         Status = OrganizationLegalProfileStatus.Archived;
         Revision++;
-        RaiseDomainEvent(new OrganizationLegalProfileArchivedDomainEvent(Id, OrganizationId, Revision));
+        RaiseDomainEvent(
+            new OrganizationLegalProfileArchivedDomainEvent(Id, OrganizationId, Revision)
+        );
         return Result.Success();
     }
 
     public void SetCreatedAudit(DateTimeOffset createdAtUtc, UserId? createdByUserId)
     {
-        if (CreatedAtUtc != default) return;
+        if (CreatedAtUtc != default)
+            return;
         CreatedAtUtc = createdAtUtc;
         CreatedByUserId = createdByUserId;
     }
@@ -165,11 +196,13 @@ public sealed class OrganizationLegalProfile :
         LastModifiedByUserId = modifiedByUserId;
     }
 
-    private static string NormalizeRequired(string? value) => value?.Trim().ToUpperInvariant() ?? string.Empty;
+    private static string NormalizeRequired(string? value) =>
+        value?.Trim().ToUpperInvariant() ?? string.Empty;
 
     private static string? NormalizeOptional(string? value, int maxLength)
     {
-        if (string.IsNullOrWhiteSpace(value)) return null;
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
         string normalized = value.Trim();
         return normalized.Length <= maxLength ? normalized : normalized[..maxLength];
     }

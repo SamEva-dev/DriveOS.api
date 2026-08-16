@@ -9,7 +9,8 @@ public sealed record SequencePattern
 
     private static readonly Regex TokenRegex = new(
         "\\{[A-Z]+\\}",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        RegexOptions.Compiled | RegexOptions.CultureInvariant
+    );
 
     private static readonly HashSet<string> SupportedTokens =
     [
@@ -33,20 +34,19 @@ public sealed record SequencePattern
 
         if (string.IsNullOrWhiteSpace(normalized))
         {
-            return Result.Failure<SequencePattern>(
-                OrganizationSequenceErrors.EmptyPattern);
+            return Result.Failure<SequencePattern>(OrganizationSequenceErrors.EmptyPattern);
         }
 
         if (normalized.Length > MaximumLength)
         {
             return Result.Failure<SequencePattern>(
-                OrganizationSequenceErrors.PatternTooLong(MaximumLength));
+                OrganizationSequenceErrors.PatternTooLong(MaximumLength)
+            );
         }
 
         if (!normalized.Contains("{NUMBER}", StringComparison.Ordinal))
         {
-            return Result.Failure<SequencePattern>(
-                OrganizationSequenceErrors.NumberTokenRequired);
+            return Result.Failure<SequencePattern>(OrganizationSequenceErrors.NumberTokenRequired);
         }
 
         foreach (Match match in TokenRegex.Matches(normalized))
@@ -54,7 +54,8 @@ public sealed record SequencePattern
             if (!SupportedTokens.Contains(match.Value))
             {
                 return Result.Failure<SequencePattern>(
-                    OrganizationSequenceErrors.UnsupportedPatternToken);
+                    OrganizationSequenceErrors.UnsupportedPatternToken
+                );
             }
         }
 
@@ -64,28 +65,26 @@ public sealed record SequencePattern
             withoutSupportedTokens = withoutSupportedTokens.Replace(
                 token,
                 string.Empty,
-                StringComparison.Ordinal);
+                StringComparison.Ordinal
+            );
         }
 
-        if (withoutSupportedTokens.Contains('{') ||
-            withoutSupportedTokens.Contains('}'))
+        if (withoutSupportedTokens.Contains('{') || withoutSupportedTokens.Contains('}'))
         {
             return Result.Failure<SequencePattern>(
-                OrganizationSequenceErrors.UnsupportedPatternToken);
+                OrganizationSequenceErrors.UnsupportedPatternToken
+            );
         }
 
         return Result.Success(new SequencePattern(normalized));
     }
 
-    public string Format(
-        string code,
-        long number,
-        int padding,
-        DateTimeOffset instantUtc)
+    public string Format(string code, long number, int padding, DateTimeOffset instantUtc)
     {
         string paddedNumber = number.ToString(
             $"D{padding}",
-            System.Globalization.CultureInfo.InvariantCulture);
+            System.Globalization.CultureInfo.InvariantCulture
+        );
 
         return Value
             .Replace("{CODE}", code, StringComparison.Ordinal)

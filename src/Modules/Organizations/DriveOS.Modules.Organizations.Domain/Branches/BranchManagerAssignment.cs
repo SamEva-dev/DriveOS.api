@@ -3,12 +3,9 @@ using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Modules.Organizations.Domain.Branches;
 
-public sealed class BranchManagerAssignment :
-    Entity<BranchManagerAssignmentId>
+public sealed class BranchManagerAssignment : Entity<BranchManagerAssignmentId>
 {
-    private BranchManagerAssignment()
-    {
-    }
+    private BranchManagerAssignment() { }
 
     private BranchManagerAssignment(
         BranchManagerAssignmentId id,
@@ -16,7 +13,8 @@ public sealed class BranchManagerAssignment :
         UserId managerUserId,
         DateTimeOffset effectiveFromUtc,
         UserId assignedByUserId,
-        DateTimeOffset assignedAtUtc)
+        DateTimeOffset assignedAtUtc
+    )
         : base(id)
     {
         BranchId = branchId;
@@ -27,86 +25,51 @@ public sealed class BranchManagerAssignment :
         Status = BranchManagerAssignmentStatus.Active;
     }
 
-    public BranchId BranchId
-    {
-        get;
-        private set;
-    }
+    public BranchId BranchId { get; private set; }
 
-    public UserId ManagerUserId
-    {
-        get;
-        private set;
-    }
+    public UserId ManagerUserId { get; private set; }
 
-    public DateTimeOffset EffectiveFromUtc
-    {
-        get;
-        private set;
-    }
+    public DateTimeOffset EffectiveFromUtc { get; private set; }
 
-    public DateTimeOffset? EffectiveToUtc
-    {
-        get;
-        private set;
-    }
+    public DateTimeOffset? EffectiveToUtc { get; private set; }
 
-    public BranchManagerAssignmentStatus Status
-    {
-        get;
-        private set;
-    }
+    public BranchManagerAssignmentStatus Status { get; private set; }
 
-    public UserId AssignedByUserId
-    {
-        get;
-        private set;
-    }
+    public UserId AssignedByUserId { get; private set; }
 
-    public DateTimeOffset AssignedAtUtc
-    {
-        get;
-        private set;
-    }
+    public DateTimeOffset AssignedAtUtc { get; private set; }
 
-    public UserId? EndedByUserId
-    {
-        get;
-        private set;
-    }
+    public UserId? EndedByUserId { get; private set; }
 
-    public DateTimeOffset? EndedAtUtc
-    {
-        get;
-        private set;
-    }
+    public DateTimeOffset? EndedAtUtc { get; private set; }
 
     internal static BranchManagerAssignment Create(
         BranchId branchId,
         UserId managerUserId,
         DateTimeOffset effectiveFromUtc,
         UserId assignedByUserId,
-        DateTimeOffset assignedAtUtc)
+        DateTimeOffset assignedAtUtc
+    )
     {
         if (branchId.IsEmpty)
         {
-            throw new ArgumentException(
-                "The branch identifier is required.",
-                nameof(branchId));
+            throw new ArgumentException("The branch identifier is required.", nameof(branchId));
         }
 
         if (managerUserId.IsEmpty)
         {
             throw new ArgumentException(
                 "The manager user identifier is required.",
-                nameof(managerUserId));
+                nameof(managerUserId)
+            );
         }
 
         if (assignedByUserId.IsEmpty)
         {
             throw new ArgumentException(
                 "The assigning user identifier is required.",
-                nameof(assignedByUserId));
+                nameof(assignedByUserId)
+            );
         }
 
         return new BranchManagerAssignment(
@@ -115,13 +78,15 @@ public sealed class BranchManagerAssignment :
             managerUserId,
             effectiveFromUtc,
             assignedByUserId,
-            assignedAtUtc);
+            assignedAtUtc
+        );
     }
 
     internal void End(
         DateTimeOffset effectiveToUtc,
         UserId endedByUserId,
-        DateTimeOffset endedAtUtc)
+        DateTimeOffset endedAtUtc
+    )
     {
         if (Status == BranchManagerAssignmentStatus.Ended)
         {
@@ -132,13 +97,15 @@ public sealed class BranchManagerAssignment :
         {
             throw new ArgumentException(
                 "The ending user identifier is required.",
-                nameof(endedByUserId));
+                nameof(endedByUserId)
+            );
         }
 
         if (effectiveToUtc < EffectiveFromUtc)
         {
             throw new InvalidOperationException(
-                "The assignment end date cannot precede its start date.");
+                "The assignment end date cannot precede its start date."
+            );
         }
 
         EffectiveToUtc = effectiveToUtc;
@@ -147,15 +114,10 @@ public sealed class BranchManagerAssignment :
         Status = BranchManagerAssignmentStatus.Ended;
     }
 
-    public bool IsActiveAt(
-        DateTimeOffset dateTimeUtc)
+    public bool IsActiveAt(DateTimeOffset dateTimeUtc)
     {
-        return
-            Status == BranchManagerAssignmentStatus.Active &&
-            EffectiveFromUtc <= dateTimeUtc &&
-            (
-                EffectiveToUtc is null ||
-                EffectiveToUtc > dateTimeUtc
-            );
+        return Status == BranchManagerAssignmentStatus.Active
+            && EffectiveFromUtc <= dateTimeUtc
+            && (EffectiveToUtc is null || EffectiveToUtc > dateTimeUtc);
     }
 }

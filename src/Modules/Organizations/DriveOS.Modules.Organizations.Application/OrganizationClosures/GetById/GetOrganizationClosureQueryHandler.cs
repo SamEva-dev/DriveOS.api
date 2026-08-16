@@ -8,9 +8,15 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationClosures.GetById
 internal sealed class GetOrganizationClosureQueryHandler(IOrganizationClosureRepository repository)
     : IQueryHandler<GetOrganizationClosureQuery, OrganizationClosureModel>
 {
-    public async Task<Result<OrganizationClosureModel>> Handle(GetOrganizationClosureQuery query, CancellationToken cancellationToken)
+    public async Task<Result<OrganizationClosureModel>> Handle(
+        GetOrganizationClosureQuery query,
+        CancellationToken cancellationToken
+    )
     {
-        OrganizationClosure? closure = await repository.GetByIdAsync(query.ClosureId, cancellationToken);
+        OrganizationClosure? closure = await repository.GetByIdAsync(
+            query.ClosureId,
+            cancellationToken
+        );
         return closure is null
             ? Result.Failure<OrganizationClosureModel>(OrganizationClosureErrors.NotFound)
             : Result.Success(OrganizationClosureModel.FromDomain(closure));

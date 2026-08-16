@@ -9,9 +9,11 @@ public interface IOrganizationConfigurationReadService
     Task<OrganizationConfigurationResponse?> GetByIdAsync(
         OrganizationId organizationId,
         OrganizationConfigurationId configurationId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<IReadOnlyList<OrganizationConfigurationListItemResponse>> GetVersionsAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

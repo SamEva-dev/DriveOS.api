@@ -15,7 +15,8 @@ public sealed record CreateOrganizationLegalProfileRequest(
     string City,
     string? Region,
     string CountryCode,
-    bool ActivateImmediately);
+    bool ActivateImmediately
+);
 
 public sealed record UpdateOrganizationLegalProfileRequest(
     OrganizationLegalForm LegalForm,
@@ -29,7 +30,8 @@ public sealed record UpdateOrganizationLegalProfileRequest(
     string City,
     string? Region,
     string CountryCode,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 public sealed record ChangeOrganizationLegalProfileStatusRequest(int ExpectedRevision);
 
@@ -52,7 +54,8 @@ public sealed record OrganizationLegalProfileResponseContract(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);
 
 internal sealed record CreateOrganizationLegalProfileApiModel(
     OrganizationId OrganizationId,
@@ -67,7 +70,8 @@ internal sealed record CreateOrganizationLegalProfileApiModel(
     string City,
     string? Region,
     string CountryCode,
-    bool ActivateImmediately);
+    bool ActivateImmediately
+);
 
 internal sealed record UpdateOrganizationLegalProfileApiModel(
     OrganizationId OrganizationId,
@@ -82,8 +86,10 @@ internal sealed record UpdateOrganizationLegalProfileApiModel(
     string City,
     string? Region,
     string CountryCode,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 internal sealed record ChangeOrganizationLegalProfileStatusApiModel(
     OrganizationId OrganizationId,
-    int ExpectedRevision);
+    int ExpectedRevision
+);

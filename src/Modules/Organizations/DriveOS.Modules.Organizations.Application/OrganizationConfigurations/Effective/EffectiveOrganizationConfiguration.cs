@@ -5,7 +5,7 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationConfigurations.E
 public enum OrganizationConfigurationSource
 {
     Organization = 1,
-    BranchOverride = 2
+    BranchOverride = 2,
 }
 
 public sealed record EffectiveOrganizationConfiguration(
@@ -19,4 +19,5 @@ public sealed record EffectiveOrganizationConfiguration(
     DateTimeOffset? EffectiveToUtc,
     OrganizationConfigurationSource Source,
     Guid? BaseConfigurationId = null,
-    int? BranchOverrideVersionNumber = null);
+    int? BranchOverrideVersionNumber = null
+);

@@ -13,17 +13,18 @@ internal sealed class OrganizationClosureScheduler(
     IOrganizationAnonymizationService anonymizationService,
     IOrganizationClosureAuditSink auditSink,
     IClock clock,
-    ILogger<OrganizationClosureScheduler> logger)
-    : IOrganizationClosureScheduler
+    ILogger<OrganizationClosureScheduler> logger
+) : IOrganizationClosureScheduler
 {
     private const int BatchSize = 50;
 
     public async Task<int> ProcessDueClosuresAsync(CancellationToken cancellationToken)
     {
         DateTimeOffset now = clock.UtcNow;
-        List<OrganizationClosure> due = await dbContext.OrganizationClosures
-            .Where(x => x.Status == OrganizationClosureStatus.Scheduled &&
-                        x.RequestedEffectiveAtUtc <= now)
+        List<OrganizationClosure> due = await dbContext
+            .OrganizationClosures.Where(x =>
+                x.Status == OrganizationClosureStatus.Scheduled && x.RequestedEffectiveAtUtc <= now
+            )
             .OrderBy(x => x.RequestedEffectiveAtUtc)
             .Take(BatchSize)
             .ToListAsync(cancellationToken);
@@ -34,18 +35,26 @@ internal sealed class OrganizationClosureScheduler(
             OrganizationClosureExecutionResult execution = await orchestrator.ExecuteAsync(
                 closure,
                 closure.RequestedByUserId,
-                cancellationToken);
+                cancellationToken
+            );
 
             if (!execution.Succeeded)
             {
-                logger.LogWarning("Scheduled organization closure {ClosureId} did not complete.", closure.Id);
+                logger.LogWarning(
+                    "Scheduled organization closure {ClosureId} did not complete.",
+                    closure.Id
+                );
                 continue;
             }
 
             var completion = closure.Complete(closure.RequestedByUserId, now);
             if (completion.IsFailure)
             {
-                logger.LogWarning("Unable to mark organization closure {ClosureId} completed: {ErrorCode}.", closure.Id, completion.Error.Code);
+                logger.LogWarning(
+                    "Unable to mark organization closure {ClosureId} completed: {ErrorCode}.",
+                    closure.Id,
+                    completion.Error.Code
+                );
                 continue;
             }
 
@@ -56,7 +65,8 @@ internal sealed class OrganizationClosureScheduler(
                 closure.Id,
                 closure.RequestedByUserId,
                 new Dictionary<string, object?> { ["completedAtUtc"] = now },
-                cancellationToken);
+                cancellationToken
+            );
             completed++;
         }
 
@@ -66,12 +76,14 @@ internal sealed class OrganizationClosureScheduler(
     public async Task<int> ProcessDueAnonymizationsAsync(CancellationToken cancellationToken)
     {
         DateTimeOffset now = clock.UtcNow;
-        List<OrganizationClosure> due = await dbContext.OrganizationClosures
-            .AsNoTracking()
-            .Where(x => x.Status == OrganizationClosureStatus.Completed &&
-                        x.DataDisposition == OrganizationDataDisposition.AnonymizeAfterRetention &&
-                        x.RetentionUntilUtc != null &&
-                        x.RetentionUntilUtc <= now)
+        List<OrganizationClosure> due = await dbContext
+            .OrganizationClosures.AsNoTracking()
+            .Where(x =>
+                x.Status == OrganizationClosureStatus.Completed
+                && x.DataDisposition == OrganizationDataDisposition.AnonymizeAfterRetention
+                && x.RetentionUntilUtc != null
+                && x.RetentionUntilUtc <= now
+            )
             .OrderBy(x => x.RetentionUntilUtc)
             .Take(BatchSize)
             .ToListAsync(cancellationToken);
@@ -81,7 +93,8 @@ internal sealed class OrganizationClosureScheduler(
             await anonymizationService.AnonymizeAsync(
                 closure.OrganizationId,
                 closure.RetentionUntilUtc!.Value,
-                cancellationToken);
+                cancellationToken
+            );
         }
 
         return due.Count;

@@ -31,4 +31,5 @@ public sealed record OrganizationSettingsResponse(
     Guid? DefaultBranchId,
     int Version,
     DateTimeOffset CreatedAtUtc,
-    DateTimeOffset? LastModifiedAtUtc);
+    DateTimeOffset? LastModifiedAtUtc
+);

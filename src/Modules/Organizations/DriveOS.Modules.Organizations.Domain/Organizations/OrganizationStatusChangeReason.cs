@@ -11,8 +11,7 @@ public sealed record OrganizationStatusChangeReason
 
     public string Value { get; }
 
-    public static OrganizationStatusChangeReason Create(
-        string value)
+    public static OrganizationStatusChangeReason Create(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
@@ -22,11 +21,11 @@ public sealed record OrganizationStatusChangeReason
         {
             throw new ArgumentOutOfRangeException(
                 nameof(value),
-                $"The reason cannot exceed {MaximumLength} characters.");
+                $"The reason cannot exceed {MaximumLength} characters."
+            );
         }
 
-        return new OrganizationStatusChangeReason(
-            normalizedValue);
+        return new OrganizationStatusChangeReason(normalizedValue);
     }
 
     public override string ToString() => Value;

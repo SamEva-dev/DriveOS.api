@@ -7,16 +7,18 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSettings.UpdateP
 
 public sealed class UpdateOrganizationProfileCommandHandler(
     IOrganizationSettingsRepository repository,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<UpdateOrganizationProfileCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<UpdateOrganizationProfileCommand>
 {
     public async Task<Result> Handle(
         UpdateOrganizationProfileCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var settings = await repository.GetForUpdateAsync(
             command.OrganizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (settings is null)
         {
@@ -31,7 +33,8 @@ public sealed class UpdateOrganizationProfileCommandHandler(
         Result<OrganizationProfile> profileResult = OrganizationProfile.Create(
             command.TradeName,
             command.RegistrationNumber,
-            command.TaxNumber);
+            command.TaxNumber
+        );
 
         if (profileResult.IsFailure)
         {

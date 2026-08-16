@@ -13,5 +13,5 @@ public sealed record BranchUpdatedDomainEvent(
     BranchAddress PreviousAddress,
     BranchAddress NewAddress,
     string PreviousTimeZoneId,
-    string NewTimeZoneId)
-    : DomainEvent;
+    string NewTimeZoneId
+) : DomainEvent;

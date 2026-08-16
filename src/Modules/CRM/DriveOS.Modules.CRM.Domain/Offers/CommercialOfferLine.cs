@@ -7,10 +7,22 @@ public sealed class CommercialOfferLine : Entity<CommercialOfferLineId>
 {
     private CommercialOfferLine() { }
 
-    internal CommercialOfferLine(CommercialOfferLineId id, CommercialOfferId offerId, OfferLineType type,
-        ServiceId? serviceId, string description, decimal quantity, string unit,
-        decimal unitPrice, decimal discountAmount, decimal taxRate,
-        bool mandatory, OfferPriceSource priceSource, string? manualOverrideReason) : base(id)
+    internal CommercialOfferLine(
+        CommercialOfferLineId id,
+        CommercialOfferId offerId,
+        OfferLineType type,
+        ServiceId? serviceId,
+        string description,
+        decimal quantity,
+        string unit,
+        decimal unitPrice,
+        decimal discountAmount,
+        decimal taxRate,
+        bool mandatory,
+        OfferPriceSource priceSource,
+        string? manualOverrideReason
+    )
+        : base(id)
     {
         OfferId = offerId;
         Type = type;
@@ -46,5 +58,28 @@ public sealed class CommercialOfferLine : Entity<CommercialOfferLineId>
     public string? ManualOverrideReason { get; private set; }
 }
 
-public enum OfferLineType { RegistrationFee, TheoryTraining, PracticalLesson, SimulatorLesson, InitialAssessment, PedagogicalReview, ExamSupport, VehicleExamRental, DigitalAccess, AdministrativeService, PartnerTraining, Other }
-public enum OfferPriceSource { StandardCatalog, BranchCatalog, NegotiatedPrice, Campaign, PartnerAgreement, ManualOverride }
+public enum OfferLineType
+{
+    RegistrationFee,
+    TheoryTraining,
+    PracticalLesson,
+    SimulatorLesson,
+    InitialAssessment,
+    PedagogicalReview,
+    ExamSupport,
+    VehicleExamRental,
+    DigitalAccess,
+    AdministrativeService,
+    PartnerTraining,
+    Other,
+}
+
+public enum OfferPriceSource
+{
+    StandardCatalog,
+    BranchCatalog,
+    NegotiatedPrice,
+    Campaign,
+    PartnerAgreement,
+    ManualOverride,
+}

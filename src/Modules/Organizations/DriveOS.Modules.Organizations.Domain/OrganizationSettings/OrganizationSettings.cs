@@ -6,13 +6,9 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Domain.OrganizationSettings;
 
-public sealed class OrganizationSettings :
-    AggregateRoot<OrganizationSettingsId>,
-    IAuditableEntity
+public sealed class OrganizationSettings : AggregateRoot<OrganizationSettingsId>, IAuditableEntity
 {
-    private OrganizationSettings()
-    {
-    }
+    private OrganizationSettings() { }
 
     private OrganizationSettings(
         OrganizationSettingsId id,
@@ -21,7 +17,8 @@ public sealed class OrganizationSettings :
         OrganizationContactInformation contact,
         OrganizationAddress address,
         OrganizationRegionalSettings regional,
-        OrganizationOperationalSettings operational)
+        OrganizationOperationalSettings operational
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -53,18 +50,19 @@ public sealed class OrganizationSettings :
         OrganizationContactInformation contact,
         OrganizationAddress address,
         OrganizationRegionalSettings regional,
-        OrganizationOperationalSettings operational)
+        OrganizationOperationalSettings operational
+    )
     {
         if (id.IsEmpty)
         {
-            return Result.Failure<OrganizationSettings>(
-                OrganizationSettingsErrors.EmptyId);
+            return Result.Failure<OrganizationSettings>(OrganizationSettingsErrors.EmptyId);
         }
 
         if (organizationId.IsEmpty)
         {
             return Result.Failure<OrganizationSettings>(
-                OrganizationSettingsErrors.EmptyOrganizationId);
+                OrganizationSettingsErrors.EmptyOrganizationId
+            );
         }
 
         ArgumentNullException.ThrowIfNull(profile);
@@ -80,13 +78,16 @@ public sealed class OrganizationSettings :
             contact,
             address,
             regional,
-            operational);
+            operational
+        );
 
         settings.RaiseDomainEvent(
             new OrganizationSettingsCreatedDomainEvent(
                 settings.Id,
                 settings.OrganizationId,
-                settings.Version));
+                settings.Version
+            )
+        );
 
         return Result.Success(settings);
     }
@@ -177,10 +178,7 @@ public sealed class OrganizationSettings :
     {
         Version++;
         RaiseDomainEvent(
-            new OrganizationSettingsChangedDomainEvent(
-                Id,
-                OrganizationId,
-                section,
-                Version));
+            new OrganizationSettingsChangedDomainEvent(Id, OrganizationId, section, Version)
+        );
     }
 }

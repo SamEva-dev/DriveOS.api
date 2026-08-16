@@ -9,4 +9,5 @@ public sealed record LeadConversionRequestedDomainEvent(
     LeadId LeadId,
     CommercialOfferId AcceptedOfferId,
     BranchId BranchId,
-    UserId ResponsibleUserId) : DomainEvent;
+    UserId ResponsibleUserId
+) : DomainEvent;

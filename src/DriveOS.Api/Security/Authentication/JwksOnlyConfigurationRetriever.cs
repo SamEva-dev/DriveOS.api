@@ -10,14 +10,13 @@ internal sealed class JwksOnlyConfigurationRetriever
     public async Task<OpenIdConnectConfiguration> GetConfigurationAsync(
         string address,
         IDocumentRetriever retriever,
-        CancellationToken cancel)
+        CancellationToken cancel
+    )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(address);
         ArgumentNullException.ThrowIfNull(retriever);
 
-        string document = await retriever.GetDocumentAsync(
-            address,
-            cancel);
+        string document = await retriever.GetDocumentAsync(address, cancel);
 
         var jsonWebKeySet = new JsonWebKeySet(document);
         var configuration = new OpenIdConnectConfiguration();

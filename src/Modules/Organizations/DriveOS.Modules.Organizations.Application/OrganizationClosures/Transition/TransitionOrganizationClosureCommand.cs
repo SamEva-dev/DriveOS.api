@@ -7,4 +7,5 @@ public sealed record TransitionOrganizationClosureCommand(
     OrganizationClosureId ClosureId,
     OrganizationClosureAction Action,
     string? Comment,
-    DateTimeOffset? ScheduledAtUtc) : ICommand;
+    DateTimeOffset? ScheduledAtUtc
+) : ICommand;

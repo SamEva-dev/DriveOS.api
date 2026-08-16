@@ -17,30 +17,37 @@ public sealed class OrganizationSettingsApiMappingProfile : MappingProfile
     {
         configuration.CreateMap<
             OrganizationSettingsResponse,
-            OrganizationSettingsResponseContract>();
+            OrganizationSettingsResponseContract
+        >();
 
         configuration.CreateMap<
             CreateOrganizationSettingsApiModel,
-            CreateOrganizationSettingsCommand>();
+            CreateOrganizationSettingsCommand
+        >();
 
         configuration.CreateMap<
             UpdateOrganizationProfileApiModel,
-            UpdateOrganizationProfileCommand>();
+            UpdateOrganizationProfileCommand
+        >();
 
         configuration.CreateMap<
             UpdateOrganizationContactApiModel,
-            UpdateOrganizationContactCommand>();
+            UpdateOrganizationContactCommand
+        >();
 
         configuration.CreateMap<
             UpdateOrganizationAddressApiModel,
-            UpdateOrganizationAddressCommand>();
+            UpdateOrganizationAddressCommand
+        >();
 
         configuration.CreateMap<
             UpdateOrganizationRegionalSettingsApiModel,
-            UpdateOrganizationRegionalSettingsCommand>();
+            UpdateOrganizationRegionalSettingsCommand
+        >();
 
         configuration.CreateMap<
             UpdateOrganizationOperationalSettingsApiModel,
-            UpdateOrganizationOperationalSettingsCommand>();
+            UpdateOrganizationOperationalSettingsCommand
+        >();
     }
 }

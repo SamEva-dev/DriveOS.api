@@ -6,19 +6,21 @@ namespace DriveOS.Api.Endpoints.Organization.OrganizationConfigurations;
 public sealed record CreateOrganizationConfigurationDraftRequest(
     int VersionNumber,
     string CountryCode,
-    string PayloadJson);
+    string PayloadJson
+);
 
 public sealed record UpdateOrganizationConfigurationDraftRequest(
     string PayloadJson,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 public sealed record PublishOrganizationConfigurationRequest(
     DateTimeOffset EffectiveFromUtc,
     DateTimeOffset? EffectiveToUtc,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
-public sealed record ArchiveOrganizationConfigurationRequest(
-    int ExpectedRevision);
+public sealed record ArchiveOrganizationConfigurationRequest(int ExpectedRevision);
 
 public sealed record OrganizationConfigurationResponseContract(
     Guid Id,
@@ -35,7 +37,8 @@ public sealed record OrganizationConfigurationResponseContract(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);
 
 public sealed record OrganizationConfigurationListItemResponseContract(
     Guid Id,
@@ -46,28 +49,33 @@ public sealed record OrganizationConfigurationListItemResponseContract(
     DateTimeOffset? EffectiveToUtc,
     DateTimeOffset? PublishedAtUtc,
     int Revision,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc
+);
 
 internal sealed record CreateOrganizationConfigurationDraftApiModel(
     OrganizationId OrganizationId,
     int VersionNumber,
     string CountryCode,
-    string PayloadJson);
+    string PayloadJson
+);
 
 internal sealed record UpdateOrganizationConfigurationDraftApiModel(
     OrganizationId OrganizationId,
     OrganizationConfigurationId ConfigurationId,
     string PayloadJson,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 internal sealed record PublishOrganizationConfigurationApiModel(
     OrganizationId OrganizationId,
     OrganizationConfigurationId ConfigurationId,
     DateTimeOffset EffectiveFromUtc,
     DateTimeOffset? EffectiveToUtc,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 internal sealed record ArchiveOrganizationConfigurationApiModel(
     OrganizationId OrganizationId,
     OrganizationConfigurationId ConfigurationId,
-    int ExpectedRevision);
+    int ExpectedRevision
+);

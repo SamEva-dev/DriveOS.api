@@ -5,8 +5,8 @@ using Microsoft.Extensions.Options;
 namespace DriveOS.Modules.Organizations.Infrastructure.BranchConfigurationOverrides;
 
 internal sealed class BranchConfigurationMergePolicy(
-    IOptions<BranchConfigurationOverridePolicyOptions> options)
-    : IBranchConfigurationMergePolicy
+    IOptions<BranchConfigurationOverridePolicyOptions> options
+) : IBranchConfigurationMergePolicy
 {
     private readonly string[] _allowedPaths = Normalize(options.Value.AllowedPaths);
     private readonly string[] _lockedPaths = Normalize(options.Value.LockedPaths);
@@ -46,16 +46,17 @@ internal sealed class BranchConfigurationMergePolicy(
 
     private bool IsAllowed(string path) =>
         _allowedPaths.Any(allowed =>
-            IsSameOrDescendant(path, allowed) || IsSameOrDescendant(allowed, path));
+            IsSameOrDescendant(path, allowed) || IsSameOrDescendant(allowed, path)
+        );
 
     private static bool IsSameOrDescendant(string candidate, string root) =>
-        candidate.Equals(root, StringComparison.OrdinalIgnoreCase) ||
-        candidate.StartsWith(root + ".", StringComparison.OrdinalIgnoreCase);
+        candidate.Equals(root, StringComparison.OrdinalIgnoreCase)
+        || candidate.StartsWith(root + ".", StringComparison.OrdinalIgnoreCase);
 
     private static string[] Normalize(IEnumerable<string>? paths) =>
         (paths ?? Array.Empty<string>())
-        .Where(path => !string.IsNullOrWhiteSpace(path))
-        .Select(path => path.Trim().Trim('.'))
-        .Distinct(StringComparer.OrdinalIgnoreCase)
-        .ToArray();
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .Select(path => path.Trim().Trim('.'))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 }

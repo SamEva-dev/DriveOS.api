@@ -20,27 +20,33 @@ namespace DriveOS.Api.Endpoints.Organization.BranchConfigurationOverrides;
 public static class BranchConfigurationOverrideEndpoints
 {
     public static IEndpointRouteBuilder MapBranchConfigurationOverrideEndpoints(
-        this IEndpointRouteBuilder endpoints)
+        this IEndpointRouteBuilder endpoints
+    )
     {
         RouteGroupBuilder group = endpoints
-            .MapGroup("/api/organizations/{organizationId:guid}/branches/{branchId:guid}/configuration-overrides")
+            .MapGroup(
+                "/api/organizations/{organizationId:guid}/branches/{branchId:guid}/configuration-overrides"
+            )
             .WithTags("Branch configuration overrides");
 
-        group.MapGet("/", GetVersionsAsync)
+        group
+            .MapGet("/", GetVersionsAsync)
             .WithName("GetBranchConfigurationOverrideVersions")
             .Produces<IReadOnlyList<BranchConfigurationOverrideListItemResponseContract>>()
             .Produces<ApiErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
             .RequireAuthorization(DriveOsPermissionCodes.BranchConfigurationOverrides.Read);
 
-        group.MapGet("/{overrideId:guid}", GetByIdAsync)
+        group
+            .MapGet("/{overrideId:guid}", GetByIdAsync)
             .WithName("GetBranchConfigurationOverride")
             .Produces<BranchConfigurationOverrideResponseContract>()
             .Produces<ApiErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
             .RequireAuthorization(DriveOsPermissionCodes.BranchConfigurationOverrides.Read);
 
-        group.MapPost("/", CreateDraftAsync)
+        group
+            .MapPost("/", CreateDraftAsync)
             .WithName("CreateBranchConfigurationOverrideDraft")
             .Accepts<CreateBranchConfigurationOverrideDraftRequest>("application/json")
             .Produces(StatusCodes.Status201Created)
@@ -50,7 +56,8 @@ public static class BranchConfigurationOverrideEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.BranchConfigurationOverrides.Create);
 
-        group.MapPut("/{overrideId:guid}", UpdateDraftAsync)
+        group
+            .MapPut("/{overrideId:guid}", UpdateDraftAsync)
             .WithName("UpdateBranchConfigurationOverrideDraft")
             .Accepts<UpdateBranchConfigurationOverrideDraftRequest>("application/json")
             .Produces(StatusCodes.Status204NoContent)
@@ -60,7 +67,8 @@ public static class BranchConfigurationOverrideEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.BranchConfigurationOverrides.Update);
 
-        group.MapPost("/{overrideId:guid}/publish", PublishAsync)
+        group
+            .MapPost("/{overrideId:guid}/publish", PublishAsync)
             .WithName("PublishBranchConfigurationOverride")
             .Accepts<PublishBranchConfigurationOverrideRequest>("application/json")
             .Produces(StatusCodes.Status204NoContent)
@@ -70,7 +78,8 @@ public static class BranchConfigurationOverrideEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.BranchConfigurationOverrides.Publish);
 
-        group.MapPost("/{overrideId:guid}/archive", ArchiveAsync)
+        group
+            .MapPost("/{overrideId:guid}/archive", ArchiveAsync)
             .WithName("ArchiveBranchConfigurationOverride")
             .Accepts<ArchiveBranchConfigurationOverrideRequest>("application/json")
             .Produces(StatusCodes.Status204NoContent)
@@ -90,22 +99,38 @@ public static class BranchConfigurationOverrideEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetScope(organizationId, branchId, currentTenant, httpContext,
-                out OrganizationId organization, out BranchId branch, out IResult? failure))
+        if (
+            !TryGetScope(
+                organizationId,
+                branchId,
+                currentTenant,
+                httpContext,
+                out OrganizationId organization,
+                out BranchId branch,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         Result<IReadOnlyList<BranchConfigurationOverrideListItemResponse>> result =
             await mediator.Send(
                 new GetBranchConfigurationOverrideVersionsQuery(organization, branch),
-                cancellationToken);
+                cancellationToken
+            );
 
-        if (result.IsFailure) return result.Error.ToHttpResult(httpContext);
+        if (result.IsFailure)
+            return result.Error.ToHttpResult(httpContext);
 
-        var response = result.Value
-            .Select(item => mapper.Map<BranchConfigurationOverrideListItemResponse,
-                BranchConfigurationOverrideListItemResponseContract>(item))
+        var response = result
+            .Value.Select(item =>
+                mapper.Map<
+                    BranchConfigurationOverrideListItemResponse,
+                    BranchConfigurationOverrideListItemResponseContract
+                >(item)
+            )
             .ToArray();
 
         return Results.Ok(response);
@@ -119,21 +144,38 @@ public static class BranchConfigurationOverrideEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetIds(organizationId, branchId, overrideId, currentTenant, httpContext,
-                out OrganizationId organization, out BranchId branch,
-                out BranchConfigurationOverrideId branchOverride, out IResult? failure))
+        if (
+            !TryGetIds(
+                organizationId,
+                branchId,
+                overrideId,
+                currentTenant,
+                httpContext,
+                out OrganizationId organization,
+                out BranchId branch,
+                out BranchConfigurationOverrideId branchOverride,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         Result<BranchConfigurationOverrideResponse> result = await mediator.Send(
             new GetBranchConfigurationOverrideQuery(organization, branch, branchOverride),
-            cancellationToken);
+            cancellationToken
+        );
 
-        if (result.IsFailure) return result.Error.ToHttpResult(httpContext);
+        if (result.IsFailure)
+            return result.Error.ToHttpResult(httpContext);
 
-        return Results.Ok(mapper.Map<BranchConfigurationOverrideResponse,
-            BranchConfigurationOverrideResponseContract>(result.Value));
+        return Results.Ok(
+            mapper.Map<
+                BranchConfigurationOverrideResponse,
+                BranchConfigurationOverrideResponseContract
+            >(result.Value)
+        );
     }
 
     private static async Task<IResult> CreateDraftAsync(
@@ -144,15 +186,26 @@ public static class BranchConfigurationOverrideEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetScope(organizationId, branchId, currentTenant, httpContext,
-                out OrganizationId organization, out BranchId branch, out IResult? failure))
+        if (
+            !TryGetScope(
+                organizationId,
+                branchId,
+                currentTenant,
+                httpContext,
+                out OrganizationId organization,
+                out BranchId branch,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         if (request.BaseConfigurationId == Guid.Empty)
-            return BranchConfigurationOverrideErrors.EmptyBaseConfigurationId
-                .ToHttpResult(httpContext);
+            return BranchConfigurationOverrideErrors.EmptyBaseConfigurationId.ToHttpResult(
+                httpContext
+            );
 
         var model = new CreateBranchConfigurationOverrideDraftApiModel(
             organization,
@@ -160,18 +213,24 @@ public static class BranchConfigurationOverrideEndpoints
             new OrganizationConfigurationId(request.BaseConfigurationId),
             request.VersionNumber,
             request.CountryCode,
-            request.PayloadJson);
+            request.PayloadJson
+        );
 
         Result<BranchConfigurationOverrideId> result = await mediator.Send(
-            mapper.Map<CreateBranchConfigurationOverrideDraftApiModel,
-                CreateBranchConfigurationOverrideDraftCommand>(model),
-            cancellationToken);
+            mapper.Map<
+                CreateBranchConfigurationOverrideDraftApiModel,
+                CreateBranchConfigurationOverrideDraftCommand
+            >(model),
+            cancellationToken
+        );
 
-        if (result.IsFailure) return result.Error.ToHttpResult(httpContext);
+        if (result.IsFailure)
+            return result.Error.ToHttpResult(httpContext);
 
         return Results.Created(
             $"/api/organizations/{organizationId}/branches/{branchId}/configuration-overrides/{result.Value.Value}",
-            new { id = result.Value.Value });
+            new { id = result.Value.Value }
+        );
     }
 
     private static async Task<IResult> UpdateDraftAsync(
@@ -183,20 +242,39 @@ public static class BranchConfigurationOverrideEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetIds(organizationId, branchId, overrideId, currentTenant, httpContext,
-                out OrganizationId organization, out BranchId branch,
-                out BranchConfigurationOverrideId branchOverride, out IResult? failure))
+        if (
+            !TryGetIds(
+                organizationId,
+                branchId,
+                overrideId,
+                currentTenant,
+                httpContext,
+                out OrganizationId organization,
+                out BranchId branch,
+                out BranchConfigurationOverrideId branchOverride,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         var model = new UpdateBranchConfigurationOverrideDraftApiModel(
-            organization, branch, branchOverride, request.PayloadJson, request.ExpectedRevision);
+            organization,
+            branch,
+            branchOverride,
+            request.PayloadJson,
+            request.ExpectedRevision
+        );
 
         Result result = await mediator.Send(
-            mapper.Map<UpdateBranchConfigurationOverrideDraftApiModel,
-                UpdateBranchConfigurationOverrideDraftCommand>(model),
-            cancellationToken);
+            mapper.Map<
+                UpdateBranchConfigurationOverrideDraftApiModel,
+                UpdateBranchConfigurationOverrideDraftCommand
+            >(model),
+            cancellationToken
+        );
 
         return result.IsSuccess ? Results.NoContent() : result.Error.ToHttpResult(httpContext);
     }
@@ -210,11 +288,22 @@ public static class BranchConfigurationOverrideEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetIds(organizationId, branchId, overrideId, currentTenant, httpContext,
-                out OrganizationId organization, out BranchId branch,
-                out BranchConfigurationOverrideId branchOverride, out IResult? failure))
+        if (
+            !TryGetIds(
+                organizationId,
+                branchId,
+                overrideId,
+                currentTenant,
+                httpContext,
+                out OrganizationId organization,
+                out BranchId branch,
+                out BranchConfigurationOverrideId branchOverride,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         var model = new PublishBranchConfigurationOverrideApiModel(
@@ -223,12 +312,16 @@ public static class BranchConfigurationOverrideEndpoints
             branchOverride,
             request.EffectiveFromUtc,
             request.EffectiveToUtc,
-            request.ExpectedRevision);
+            request.ExpectedRevision
+        );
 
         Result result = await mediator.Send(
-            mapper.Map<PublishBranchConfigurationOverrideApiModel,
-                PublishBranchConfigurationOverrideCommand>(model),
-            cancellationToken);
+            mapper.Map<
+                PublishBranchConfigurationOverrideApiModel,
+                PublishBranchConfigurationOverrideCommand
+            >(model),
+            cancellationToken
+        );
 
         return result.IsSuccess ? Results.NoContent() : result.Error.ToHttpResult(httpContext);
     }
@@ -242,20 +335,38 @@ public static class BranchConfigurationOverrideEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetIds(organizationId, branchId, overrideId, currentTenant, httpContext,
-                out OrganizationId organization, out BranchId branch,
-                out BranchConfigurationOverrideId branchOverride, out IResult? failure))
+        if (
+            !TryGetIds(
+                organizationId,
+                branchId,
+                overrideId,
+                currentTenant,
+                httpContext,
+                out OrganizationId organization,
+                out BranchId branch,
+                out BranchConfigurationOverrideId branchOverride,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         var model = new ArchiveBranchConfigurationOverrideApiModel(
-            organization, branch, branchOverride, request.ExpectedRevision);
+            organization,
+            branch,
+            branchOverride,
+            request.ExpectedRevision
+        );
 
         Result result = await mediator.Send(
-            mapper.Map<ArchiveBranchConfigurationOverrideApiModel,
-                ArchiveBranchConfigurationOverrideCommand>(model),
-            cancellationToken);
+            mapper.Map<
+                ArchiveBranchConfigurationOverrideApiModel,
+                ArchiveBranchConfigurationOverrideCommand
+            >(model),
+            cancellationToken
+        );
 
         return result.IsSuccess ? Results.NoContent() : result.Error.ToHttpResult(httpContext);
     }
@@ -269,12 +380,22 @@ public static class BranchConfigurationOverrideEndpoints
         out OrganizationId organizationId,
         out BranchId branchId,
         out BranchConfigurationOverrideId overrideId,
-        out IResult? failure)
+        out IResult? failure
+    )
     {
         overrideId = default;
 
-        if (!TryGetScope(rawOrganizationId, rawBranchId, currentTenant, httpContext,
-                out organizationId, out branchId, out failure))
+        if (
+            !TryGetScope(
+                rawOrganizationId,
+                rawBranchId,
+                currentTenant,
+                httpContext,
+                out organizationId,
+                out branchId,
+                out failure
+            )
+        )
             return false;
 
         if (rawOverrideId == Guid.Empty)
@@ -294,7 +415,8 @@ public static class BranchConfigurationOverrideEndpoints
         HttpContext httpContext,
         out OrganizationId organizationId,
         out BranchId branchId,
-        out IResult? failure)
+        out IResult? failure
+    )
     {
         organizationId = default;
         branchId = default;
@@ -302,15 +424,15 @@ public static class BranchConfigurationOverrideEndpoints
 
         if (rawOrganizationId == Guid.Empty)
         {
-            failure = BranchConfigurationOverrideErrors.EmptyOrganizationId
-                .ToHttpResult(httpContext);
+            failure = BranchConfigurationOverrideErrors.EmptyOrganizationId.ToHttpResult(
+                httpContext
+            );
             return false;
         }
 
         if (rawBranchId == Guid.Empty)
         {
-            failure = BranchConfigurationOverrideErrors.EmptyBranchId
-                .ToHttpResult(httpContext);
+            failure = BranchConfigurationOverrideErrors.EmptyBranchId.ToHttpResult(httpContext);
             return false;
         }
 
@@ -319,9 +441,11 @@ public static class BranchConfigurationOverrideEndpoints
 
         if (!currentTenant.HasTenant || currentTenant.OrganizationId != organizationId)
         {
-            failure = Error.Forbidden(
+            failure = Error
+                .Forbidden(
                     "BranchConfigurationOverrides.Tenant.Forbidden",
-                    "errors.branchConfigurationOverride.tenant.forbidden")
+                    "errors.branchConfigurationOverride.tenant.forbidden"
+                )
                 .ToHttpResult(httpContext);
             return false;
         }

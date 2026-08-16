@@ -4,8 +4,8 @@ using DriveOS.Modules.Organizations.Application.OrganizationClosures.Commands;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.OrganizationClosures;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
-using DriveOS.Modules.Organizations.Domain.OrganizationSequences;
 using DriveOS.Modules.Organizations.Domain.Organizations;
+using DriveOS.Modules.Organizations.Domain.OrganizationSequences;
 using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using DriveOS.SharedKernel.Identifiers;
@@ -20,13 +20,14 @@ internal sealed class OrganizationClosureOrchestrator(
     IOrganizationAnonymizationService anonymizationService,
     IOrganizationClosureAuditSink auditSink,
     IClock clock,
-    ILogger<OrganizationClosureOrchestrator> logger)
-    : IOrganizationClosureOrchestrator
+    ILogger<OrganizationClosureOrchestrator> logger
+) : IOrganizationClosureOrchestrator
 {
     public async Task<OrganizationClosureExecutionResult> ExecuteAsync(
         OrganizationClosure closure,
         UserId actorUserId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         ArgumentNullException.ThrowIfNull(closure);
 
@@ -38,23 +39,41 @@ internal sealed class OrganizationClosureOrchestrator(
         await RunAsync(OrganizationClosureSteps.FreezeSequences, FreezeSequencesAsync, steps);
         await RunAsync(OrganizationClosureSteps.EndRepresentatives, EndRepresentativesAsync, steps);
         await RunAsync(OrganizationClosureSteps.RevokeAccess, NoOpAsync, steps);
-        await RunAsync(OrganizationClosureSteps.TerminateSubscription, TerminateSubscriptionAsync, steps);
+        await RunAsync(
+            OrganizationClosureSteps.TerminateSubscription,
+            TerminateSubscriptionAsync,
+            steps
+        );
         await RunAsync(OrganizationClosureSteps.DisableIntegrations, NoOpAsync, steps);
         await RunAsync(OrganizationClosureSteps.ArchiveData, ArchiveAsync, steps);
-        await RunAsync(OrganizationClosureSteps.FinalizeOrganization, FinalizeOrganizationAsync, steps);
+        await RunAsync(
+            OrganizationClosureSteps.FinalizeOrganization,
+            FinalizeOrganizationAsync,
+            steps
+        );
 
         bool succeeded = steps.All(x => x.Succeeded);
         await auditSink.WriteAsync(
-            succeeded ? "OrganizationClosureExecutionSucceeded" : "OrganizationClosureExecutionFailed",
+            succeeded
+                ? "OrganizationClosureExecutionSucceeded"
+                : "OrganizationClosureExecutionFailed",
             closure.OrganizationId,
             closure.Id,
             actorUserId,
             new Dictionary<string, object?>
             {
-                ["steps"] = steps.Select(x => new { x.Step, x.Succeeded, x.ErrorCode }).ToArray(),
+                ["steps"] = steps
+                    .Select(x => new
+                    {
+                        x.Step,
+                        x.Succeeded,
+                        x.ErrorCode,
+                    })
+                    .ToArray(),
                 ["occurredAtUtc"] = now,
             },
-            cancellationToken);
+            cancellationToken
+        );
 
         return new OrganizationClosureExecutionResult(succeeded, steps);
 
@@ -62,8 +81,10 @@ internal sealed class OrganizationClosureOrchestrator(
 
         async Task CloseBranchesAsync()
         {
-            List<Branch> branches = await dbContext.Branches
-                .Where(x => x.OrganizationId == closure.OrganizationId && x.Status != BranchStatus.Closed)
+            List<Branch> branches = await dbContext
+                .Branches.Where(x =>
+                    x.OrganizationId == closure.OrganizationId && x.Status != BranchStatus.Closed
+                )
                 .ToListAsync(cancellationToken);
 
             var reason = BranchStatusChangeReason.Create("Organization closure execution.");
@@ -77,9 +98,11 @@ internal sealed class OrganizationClosureOrchestrator(
 
         async Task FreezeSequencesAsync()
         {
-            List<OrganizationSequence> sequences = await dbContext.OrganizationSequences
-                .Where(x => x.OrganizationId == closure.OrganizationId &&
-                            x.Status != OrganizationSequenceStatus.Archived)
+            List<OrganizationSequence> sequences = await dbContext
+                .OrganizationSequences.Where(x =>
+                    x.OrganizationId == closure.OrganizationId
+                    && x.Status != OrganizationSequenceStatus.Archived
+                )
                 .ToListAsync(cancellationToken);
 
             foreach (OrganizationSequence sequence in sequences)
@@ -94,9 +117,11 @@ internal sealed class OrganizationClosureOrchestrator(
 
         async Task EndRepresentativesAsync()
         {
-            List<OrganizationRepresentative> representatives = await dbContext.OrganizationRepresentatives
-                .Where(x => x.OrganizationId == closure.OrganizationId &&
-                            x.Status == OrganizationRepresentativeStatus.Active)
+            List<OrganizationRepresentative> representatives = await dbContext
+                .OrganizationRepresentatives.Where(x =>
+                    x.OrganizationId == closure.OrganizationId
+                    && x.Status == OrganizationRepresentativeStatus.Active
+                )
                 .ToListAsync(cancellationToken);
 
             // Suspension is used during organizational closure because the domain invariant
@@ -113,17 +138,24 @@ internal sealed class OrganizationClosureOrchestrator(
 
         async Task TerminateSubscriptionAsync()
         {
-            OrganizationSubscription? subscription = await dbContext.OrganizationSubscriptions
-                .SingleOrDefaultAsync(x => x.OrganizationId == closure.OrganizationId, cancellationToken);
+            OrganizationSubscription? subscription =
+                await dbContext.OrganizationSubscriptions.SingleOrDefaultAsync(
+                    x => x.OrganizationId == closure.OrganizationId,
+                    cancellationToken
+                );
 
-            if (subscription is null || subscription.Status is SubscriptionStatus.Cancelled or SubscriptionStatus.Expired)
+            if (
+                subscription is null
+                || subscription.Status is SubscriptionStatus.Cancelled or SubscriptionStatus.Expired
+            )
                 return;
 
             var cancellationResult = SubscriptionCancellation.Create(
                 now,
                 now,
                 "Organization closure execution.",
-                actorUserId);
+                actorUserId
+            );
 
             if (cancellationResult.IsFailure)
                 throw new InvalidOperationException(cancellationResult.Error.Code);
@@ -139,8 +171,10 @@ internal sealed class OrganizationClosureOrchestrator(
 
         async Task FinalizeOrganizationAsync()
         {
-            Organization? organization = await dbContext.Organizations
-                .SingleOrDefaultAsync(x => x.Id == closure.OrganizationId, cancellationToken);
+            Organization? organization = await dbContext.Organizations.SingleOrDefaultAsync(
+                x => x.Id == closure.OrganizationId,
+                cancellationToken
+            );
 
             if (organization is null)
                 throw new InvalidOperationException("Organizations.NotFound");
@@ -150,13 +184,18 @@ internal sealed class OrganizationClosureOrchestrator(
                 organization.Close(
                     OrganizationStatusChangeReason.Create("Organization closure completed."),
                     actorUserId.Value,
-                    now);
+                    now
+                );
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        async Task RunAsync(string step, Func<Task> action, ICollection<OrganizationClosureStepResult> results)
+        async Task RunAsync(
+            string step,
+            Func<Task> action,
+            ICollection<OrganizationClosureStepResult> results
+        )
         {
             try
             {
@@ -165,7 +204,12 @@ internal sealed class OrganizationClosureOrchestrator(
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Organization closure step {Step} failed for {OrganizationId}.", step, closure.OrganizationId);
+                logger.LogError(
+                    exception,
+                    "Organization closure step {Step} failed for {OrganizationId}.",
+                    step,
+                    closure.OrganizationId
+                );
                 results.Add(new OrganizationClosureStepResult(step, false, exception.Message));
             }
         }
@@ -175,16 +219,32 @@ internal sealed class OrganizationClosureOrchestrator(
         OrganizationId organizationId,
         string justification,
         UserId actorUserId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (string.IsNullOrWhiteSpace(justification))
-            throw new ArgumentException("A reopening justification is required.", nameof(justification));
+            throw new ArgumentException(
+                "A reopening justification is required.",
+                nameof(justification)
+            );
 
-        if (await anonymizationService.HasIrreversibleAnonymizationStartedAsync(organizationId, cancellationToken))
+        if (
+            await anonymizationService.HasIrreversibleAnonymizationStartedAsync(
+                organizationId,
+                cancellationToken
+            )
+        )
         {
             return new OrganizationClosureExecutionResult(
                 false,
-                [new OrganizationClosureStepResult("verify-anonymization", false, "Organizations.Closure.IrreversibleAnonymizationStarted")]);
+                [
+                    new OrganizationClosureStepResult(
+                        "verify-anonymization",
+                        false,
+                        "Organizations.Closure.IrreversibleAnonymizationStarted"
+                    ),
+                ]
+            );
         }
 
         // Reopening must pass the normal activation-readiness command flow. This method
@@ -193,10 +253,12 @@ internal sealed class OrganizationClosureOrchestrator(
             "Organization {OrganizationId} reopening requested by {ActorUserId}. Justification: {Justification}",
             organizationId,
             actorUserId,
-            justification.Trim());
+            justification.Trim()
+        );
 
         return new OrganizationClosureExecutionResult(
             true,
-            [new OrganizationClosureStepResult("reopening-request-accepted", true)]);
+            [new OrganizationClosureStepResult("reopening-request-accepted", true)]
+        );
     }
 }

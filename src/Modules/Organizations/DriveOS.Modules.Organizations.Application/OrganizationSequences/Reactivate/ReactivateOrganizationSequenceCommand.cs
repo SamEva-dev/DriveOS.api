@@ -7,4 +7,5 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.Reacti
 public sealed record ReactivateOrganizationSequenceCommand(
     OrganizationId OrganizationId,
     OrganizationSequenceId SequenceId,
-    int ExpectedRevision) : ICommand;
+    int ExpectedRevision
+) : ICommand;

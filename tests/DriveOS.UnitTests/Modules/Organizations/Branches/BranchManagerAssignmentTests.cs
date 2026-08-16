@@ -10,232 +10,141 @@ public sealed class BranchManagerAssignmentTests
     [Fact]
     public void AssignPrimaryManager_ShouldCreateActiveAssignment()
     {
-        Branch branch =
-            CreateBranch();
+        Branch branch = CreateBranch();
 
-        var managerUserId =
-            UserId.New();
+        var managerUserId = UserId.New();
 
-        var assignedByUserId =
-            UserId.New();
+        var assignedByUserId = UserId.New();
 
-        DateTimeOffset now =
-            DateTimeOffset.UtcNow;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        var result =
-            branch.AssignPrimaryManager(
-                managerUserId,
-                now,
-                assignedByUserId,
-                now);
+        var result = branch.AssignPrimaryManager(managerUserId, now, assignedByUserId, now);
 
-        result.IsSuccess
-            .Should()
-            .BeTrue();
+        result.IsSuccess.Should().BeTrue();
 
-        branch.ManagerAssignments
-            .Should()
-            .ContainSingle();
+        branch.ManagerAssignments.Should().ContainSingle();
 
-        BranchManagerAssignment
-            assignment =
-                branch.ManagerAssignments
-                    .Single();
+        BranchManagerAssignment assignment = branch.ManagerAssignments.Single();
 
-        assignment.ManagerUserId
-            .Should()
-            .Be(managerUserId);
+        assignment.ManagerUserId.Should().Be(managerUserId);
 
-        assignment.Status
-            .Should()
-            .Be(
-                BranchManagerAssignmentStatus
-                    .Active);
+        assignment.Status.Should().Be(BranchManagerAssignmentStatus.Active);
 
-        branch.HasActiveManagerAt(now)
-            .Should()
-            .BeTrue();
+        branch.HasActiveManagerAt(now).Should().BeTrue();
     }
 
     [Fact]
     public void AssignPrimaryManager_ShouldEndPreviousAssignment()
     {
-        Branch branch =
-            CreateBranch();
+        Branch branch = CreateBranch();
 
-        var firstManager =
-            UserId.New();
+        var firstManager = UserId.New();
 
-        var secondManager =
-            UserId.New();
+        var secondManager = UserId.New();
 
-        var assignedBy =
-            UserId.New();
+        var assignedBy = UserId.New();
 
-        DateTimeOffset firstDate =
-            DateTimeOffset.UtcNow;
+        DateTimeOffset firstDate = DateTimeOffset.UtcNow;
 
-        DateTimeOffset secondDate =
-            firstDate.AddDays(10);
+        DateTimeOffset secondDate = firstDate.AddDays(10);
 
-        branch.AssignPrimaryManager(
-            firstManager,
-            firstDate,
-            assignedBy,
-            firstDate);
+        branch.AssignPrimaryManager(firstManager, firstDate, assignedBy, firstDate);
 
-        var result =
-            branch.AssignPrimaryManager(
-                secondManager,
-                secondDate,
-                assignedBy,
-                secondDate);
+        var result = branch.AssignPrimaryManager(secondManager, secondDate, assignedBy, secondDate);
 
-        result.IsSuccess
-            .Should()
-            .BeTrue();
+        result.IsSuccess.Should().BeTrue();
 
-        branch.ManagerAssignments
-            .Should()
-            .HaveCount(2);
+        branch.ManagerAssignments.Should().HaveCount(2);
 
-        BranchManagerAssignment
-            oldAssignment =
-                branch.ManagerAssignments
-                    .Single(
-                        assignment =>
-                            assignment
-                                .ManagerUserId ==
-                            firstManager);
+        BranchManagerAssignment oldAssignment = branch.ManagerAssignments.Single(assignment =>
+            assignment.ManagerUserId == firstManager
+        );
 
-        oldAssignment.Status
-            .Should()
-            .Be(
-                BranchManagerAssignmentStatus
-                    .Ended);
+        oldAssignment.Status.Should().Be(BranchManagerAssignmentStatus.Ended);
 
-        oldAssignment.EffectiveToUtc
-            .Should()
-            .Be(secondDate);
+        oldAssignment.EffectiveToUtc.Should().Be(secondDate);
 
-        branch
-            .GetActiveManagerAssignmentAt(
-                secondDate)
-            ?.ManagerUserId
-            .Should()
-            .Be(secondManager);
+        branch.GetActiveManagerAssignmentAt(secondDate)?.ManagerUserId.Should().Be(secondManager);
     }
 
     [Fact]
     public void AssigningSameManager_ShouldBeIdempotent()
     {
-        Branch branch =
-            CreateBranch();
+        Branch branch = CreateBranch();
 
-        var managerUserId =
-            UserId.New();
+        var managerUserId = UserId.New();
 
-        var assignedBy =
-            UserId.New();
+        var assignedBy = UserId.New();
 
-        DateTimeOffset now =
-            DateTimeOffset.UtcNow;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        branch.AssignPrimaryManager(
+        branch.AssignPrimaryManager(managerUserId, now, assignedBy, now);
+
+        var result = branch.AssignPrimaryManager(
             managerUserId,
-            now,
+            now.AddDays(1),
             assignedBy,
-            now);
+            now.AddDays(1)
+        );
 
-        var result =
-            branch.AssignPrimaryManager(
-                managerUserId,
-                now.AddDays(1),
-                assignedBy,
-                now.AddDays(1));
+        result.IsSuccess.Should().BeTrue();
 
-        result.IsSuccess
-            .Should()
-            .BeTrue();
-
-        branch.ManagerAssignments
-            .Should()
-            .ContainSingle();
+        branch.ManagerAssignments.Should().ContainSingle();
     }
 
     [Fact]
     public void DraftBranchWithoutManager_ShouldNotActivate()
     {
-        Branch branch =
-            CreateBranch();
+        Branch branch = CreateBranch();
 
         Action action = () =>
             branch.Activate(
-                BranchStatusChangeReason.Create(
-                    "Agence prête."),
+                BranchStatusChangeReason.Create("Agence prête."),
                 Guid.NewGuid(),
-                DateTimeOffset.UtcNow);
+                DateTimeOffset.UtcNow
+            );
 
-        action.Should()
-            .Throw<
-                InvalidOperationException>();
+        action.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
     public void DraftBranchWithManager_ShouldActivate()
     {
-        Branch branch =
-            CreateBranch();
+        Branch branch = CreateBranch();
 
-        DateTimeOffset now =
-            DateTimeOffset.UtcNow;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        branch.AssignPrimaryManager(
-            UserId.New(),
-            now,
-            UserId.New(),
-            now);
+        branch.AssignPrimaryManager(UserId.New(), now, UserId.New(), now);
 
-        branch.Activate(
-            BranchStatusChangeReason.Create(
-                "Agence prête."),
-            Guid.NewGuid(),
-            now);
+        branch.Activate(BranchStatusChangeReason.Create("Agence prête."), Guid.NewGuid(), now);
 
-        branch.Status
-            .Should()
-            .Be(BranchStatus.Active);
+        branch.Status.Should().Be(BranchStatus.Active);
     }
 
     private static Branch CreateBranch()
     {
-        Result<BranchName> name =
-            BranchName.Create(
-                "Nice Centre");
+        Result<BranchName> name = BranchName.Create("Nice Centre");
 
-        Result<BranchCode> code =
-            BranchCode.Create(
-                "NICE-CENTRE");
+        Result<BranchCode> code = BranchCode.Create("NICE-CENTRE");
 
-        Result<BranchAddress> address =
-            BranchAddress.Create(
-                "10 rue de France",
-                null,
-                "06000",
-                "Nice",
-                "FR");
+        Result<BranchAddress> address = BranchAddress.Create(
+            "10 rue de France",
+            null,
+            "06000",
+            "Nice",
+            "FR"
+        );
 
-        Result<Branch> branch =
-            Branch.Create(
-                BranchId.New(),
-                OrganizationId.New(),
-                name.Value,
-                code.Value,
-                BranchType
-                    .DrivingSchoolAgency,
-                address.Value,
-                "Europe/Paris",
-                false);
+        Result<Branch> branch = Branch.Create(
+            BranchId.New(),
+            OrganizationId.New(),
+            name.Value,
+            code.Value,
+            BranchType.DrivingSchoolAgency,
+            address.Value,
+            "Europe/Paris",
+            false
+        );
 
         return branch.Value;
     }
@@ -243,127 +152,82 @@ public sealed class BranchManagerAssignmentTests
     [Fact]
     public void Close_ShouldEndActiveManagerAssignment()
     {
-        Branch branch =
-            CreateBranch();
+        Branch branch = CreateBranch();
 
-        DateTimeOffset now =
-            DateTimeOffset.UtcNow;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        UserId managerUserId =
-            UserId.New();
+        UserId managerUserId = UserId.New();
 
-        UserId changedByUserId =
-            UserId.New();
+        UserId changedByUserId = UserId.New();
 
-        branch.AssignPrimaryManager(
-            managerUserId,
-            now,
-            changedByUserId,
-            now);
+        branch.AssignPrimaryManager(managerUserId, now, changedByUserId, now);
 
         branch.Activate(
-            BranchStatusChangeReason.Create(
-                "Agence prête."),
+            BranchStatusChangeReason.Create("Agence prête."),
             changedByUserId.Value,
-            now);
+            now
+        );
 
-        DateTimeOffset closedAt =
-            now.AddHours(1);
+        DateTimeOffset closedAt = now.AddHours(1);
 
         branch.Close(
-            BranchStatusChangeReason.Create(
-                "Fermeture définitive."),
+            BranchStatusChangeReason.Create("Fermeture définitive."),
             changedByUserId.Value,
-            closedAt);
+            closedAt
+        );
 
-        branch.Status
-            .Should()
-            .Be(BranchStatus.Closed);
+        branch.Status.Should().Be(BranchStatus.Closed);
 
-        branch.HasActiveManagerAt(
-                closedAt)
-            .Should()
-            .BeFalse();
+        branch.HasActiveManagerAt(closedAt).Should().BeFalse();
 
-        BranchManagerAssignment
-            assignment =
-                branch.ManagerAssignments
-                    .Single();
+        BranchManagerAssignment assignment = branch.ManagerAssignments.Single();
 
-        assignment.Status
-            .Should()
-            .Be(
-                BranchManagerAssignmentStatus
-                    .Ended);
+        assignment.Status.Should().Be(BranchManagerAssignmentStatus.Ended);
 
-        assignment.EffectiveToUtc
-            .Should()
-            .Be(closedAt);
+        assignment.EffectiveToUtc.Should().Be(closedAt);
 
-        assignment.EndedByUserId
-            .Should()
-            .Be(changedByUserId);
+        assignment.EndedByUserId.Should().Be(changedByUserId);
     }
 
     [Fact]
     public void AssignPrimaryManager_WithFutureDate_ShouldFail()
     {
-        Branch branch =
-            CreateBranch();
+        Branch branch = CreateBranch();
 
-        DateTimeOffset assignedAt =
-            DateTimeOffset.UtcNow;
+        DateTimeOffset assignedAt = DateTimeOffset.UtcNow;
 
-        Result result =
-            branch.AssignPrimaryManager(
-                UserId.New(),
-                assignedAt.AddMinutes(1),
-                UserId.New(),
-                assignedAt);
+        Result result = branch.AssignPrimaryManager(
+            UserId.New(),
+            assignedAt.AddMinutes(1),
+            UserId.New(),
+            assignedAt
+        );
 
-        result.IsFailure
-            .Should()
-            .BeTrue();
+        result.IsFailure.Should().BeTrue();
 
-        result.Error
-            .Should()
-            .Be(
-                BranchErrors
-                    .ManagerEffectiveDateCannotBeFuture);
+        result.Error.Should().Be(BranchErrors.ManagerEffectiveDateCannotBeFuture);
 
-        branch.ManagerAssignments
-            .Should()
-            .BeEmpty();
+        branch.ManagerAssignments.Should().BeEmpty();
     }
 
     [Fact]
     public void AssignPrimaryManager_WithPastDate_ShouldFail()
     {
-        Branch branch =
-            CreateBranch();
+        Branch branch = CreateBranch();
 
-        DateTimeOffset assignedAt =
-            DateTimeOffset.UtcNow;
+        DateTimeOffset assignedAt = DateTimeOffset.UtcNow;
 
-        Result result =
-            branch.AssignPrimaryManager(
-                UserId.New(),
-                assignedAt.AddMinutes(-1),
-                UserId.New(),
-                assignedAt);
+        Result result = branch.AssignPrimaryManager(
+            UserId.New(),
+            assignedAt.AddMinutes(-1),
+            UserId.New(),
+            assignedAt
+        );
 
-        result.IsFailure
-            .Should()
-            .BeTrue();
+        result.IsFailure.Should().BeTrue();
 
-        result.Error
-            .Should()
-            .Be(
-                BranchErrors
-                    .ManagerEffectiveDateCannotBePast);
+        result.Error.Should().Be(BranchErrors.ManagerEffectiveDateCannotBePast);
 
-        branch.ManagerAssignments
-            .Should()
-            .BeEmpty();
+        branch.ManagerAssignments.Should().BeEmpty();
     }
 }

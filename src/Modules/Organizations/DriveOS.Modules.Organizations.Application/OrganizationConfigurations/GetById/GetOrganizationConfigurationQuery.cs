@@ -7,5 +7,5 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationConfigurations.G
 
 public sealed record GetOrganizationConfigurationQuery(
     OrganizationId OrganizationId,
-    OrganizationConfigurationId ConfigurationId)
-    : IQuery<OrganizationConfigurationResponse>;
+    OrganizationConfigurationId ConfigurationId
+) : IQuery<OrganizationConfigurationResponse>;

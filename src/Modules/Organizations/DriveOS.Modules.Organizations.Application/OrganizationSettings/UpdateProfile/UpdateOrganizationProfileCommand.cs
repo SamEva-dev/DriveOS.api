@@ -8,5 +8,5 @@ public sealed record UpdateOrganizationProfileCommand(
     string? TradeName,
     string? RegistrationNumber,
     string? TaxNumber,
-    int ExpectedVersion)
-    : ICommand;
+    int ExpectedVersion
+) : ICommand;

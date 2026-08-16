@@ -7,18 +7,19 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.Reacti
 
 internal sealed class ReactivateOrganizationSequenceCommandHandler(
     IOrganizationSequenceRepository sequenceRepository,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<ReactivateOrganizationSequenceCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<ReactivateOrganizationSequenceCommand>
 {
     public async Task<Result> Handle(
         ReactivateOrganizationSequenceCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        OrganizationSequence? sequence =
-            await sequenceRepository.GetForUpdateAsync(
-                command.SequenceId,
-                command.OrganizationId,
-                cancellationToken);
+        OrganizationSequence? sequence = await sequenceRepository.GetForUpdateAsync(
+            command.SequenceId,
+            command.OrganizationId,
+            cancellationToken
+        );
 
         if (sequence is null)
         {

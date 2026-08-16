@@ -7,20 +7,21 @@ namespace DriveOS.Modules.Organizations.Application.Branches.SetPrimaryBranch;
 
 internal sealed class SetPrimaryBranchCommandHandler(
     IBranchRepository branchRepository,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<SetPrimaryBranchCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<SetPrimaryBranchCommand>
 {
     public async Task<Result> Handle(
         SetPrimaryBranchCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         Branch? targetBranch = await branchRepository.GetByIdAsync(
             command.BranchId,
             asNoTracking: false,
-            cancellationToken);
+            cancellationToken
+        );
 
-        if (targetBranch is null ||
-            targetBranch.OrganizationId != command.OrganizationId)
+        if (targetBranch is null || targetBranch.OrganizationId != command.OrganizationId)
         {
             return Result.Failure(BranchErrors.NotFound);
         }
@@ -35,10 +36,10 @@ internal sealed class SetPrimaryBranchCommandHandler(
         Branch? currentPrimary = await branchRepository.GetPrimaryAsync(
             command.OrganizationId,
             asNoTracking: false,
-            cancellationToken);
+            cancellationToken
+        );
 
-        if (currentPrimary is not null &&
-            currentPrimary.Id != targetBranch.Id)
+        if (currentPrimary is not null && currentPrimary.Id != targetBranch.Id)
         {
             currentPrimary.RemovePrimaryDesignation();
         }

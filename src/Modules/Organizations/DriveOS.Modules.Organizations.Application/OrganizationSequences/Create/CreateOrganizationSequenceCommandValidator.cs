@@ -15,10 +15,14 @@ internal sealed class CreateOrganizationSequenceCommandValidator
 
         RuleFor(command => command.BranchId)
             .NotNull()
-            .When(command => command.Scope == Domain.OrganizationSequences.OrganizationSequenceScope.Branch);
+            .When(command =>
+                command.Scope == Domain.OrganizationSequences.OrganizationSequenceScope.Branch
+            );
 
         RuleFor(command => command.BranchId)
             .Null()
-            .When(command => command.Scope == Domain.OrganizationSequences.OrganizationSequenceScope.Organization);
+            .When(command =>
+                command.Scope == Domain.OrganizationSequences.OrganizationSequenceScope.Organization
+            );
     }
 }

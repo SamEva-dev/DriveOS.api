@@ -9,5 +9,5 @@ public sealed record OrganizationStatusChangedDomainEvent(
     OrganizationStatus NewStatus,
     string Reason,
     Guid ChangedByUserId,
-    DateTimeOffset ChangedAtUtc)
-    : DomainEvent;
+    DateTimeOffset ChangedAtUtc
+) : DomainEvent;

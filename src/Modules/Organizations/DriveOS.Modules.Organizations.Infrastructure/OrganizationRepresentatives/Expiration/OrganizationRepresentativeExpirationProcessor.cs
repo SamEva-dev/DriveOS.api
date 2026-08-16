@@ -12,22 +12,32 @@ namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentativ
 internal sealed class OrganizationRepresentativeExpirationProcessor(
     OrganizationsDbContext dbContext,
     OrganizationRepresentativeAccessSynchronizationService accessSynchronizationService,
-    IOptions<OrganizationRepresentativeExpirationOptions> options)
-    : IOrganizationRepresentativeExpirationProcessor
+    IOptions<OrganizationRepresentativeExpirationOptions> options
+) : IOrganizationRepresentativeExpirationProcessor
 {
-    public async Task<int> ProcessAsync(DateOnly today, int batchSize, CancellationToken cancellationToken = default)
+    public async Task<int> ProcessAsync(
+        DateOnly today,
+        int batchSize,
+        CancellationToken cancellationToken = default
+    )
     {
-        if (!Guid.TryParse(options.Value.SystemUserId, out Guid rawSystemUserId) || rawSystemUserId == Guid.Empty)
+        if (
+            !Guid.TryParse(options.Value.SystemUserId, out Guid rawSystemUserId)
+            || rawSystemUserId == Guid.Empty
+        )
             return 0;
 
         UserId systemUserId = new(rawSystemUserId);
-        List<OrganizationRepresentative> candidates = await dbContext.OrganizationRepresentatives
-            .Where(x =>
-                x.RepresentativeType != OrganizationRepresentativeType.Owner &&
-                x.EffectiveTo.HasValue &&
-                x.EffectiveTo.Value < today &&
-                (x.Status == OrganizationRepresentativeStatus.Active ||
-                 x.Status == OrganizationRepresentativeStatus.Suspended))
+        List<OrganizationRepresentative> candidates = await dbContext
+            .OrganizationRepresentatives.Where(x =>
+                x.RepresentativeType != OrganizationRepresentativeType.Owner
+                && x.EffectiveTo.HasValue
+                && x.EffectiveTo.Value < today
+                && (
+                    x.Status == OrganizationRepresentativeStatus.Active
+                    || x.Status == OrganizationRepresentativeStatus.Suspended
+                )
+            )
             .OrderBy(x => x.EffectiveTo)
             .Take(Math.Clamp(batchSize, 1, 1000))
             .ToListAsync(cancellationToken);
@@ -39,7 +49,8 @@ internal sealed class OrganizationRepresentativeExpirationProcessor(
                 representative.EffectiveTo!.Value,
                 "Automatic expiration of the representative mandate.",
                 systemUserId,
-                isLastActiveOwner: false);
+                isLastActiveOwner: false
+            );
 
             if (result.IsSuccess)
                 ended.Add(representative);

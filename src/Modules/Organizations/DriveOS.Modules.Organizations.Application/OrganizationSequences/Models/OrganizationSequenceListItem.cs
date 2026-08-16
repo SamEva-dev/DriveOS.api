@@ -10,4 +10,5 @@ public sealed record OrganizationSequenceListItem(
     long NextValue,
     string ResetPolicy,
     string Status,
-    int Revision);
+    int Revision
+);

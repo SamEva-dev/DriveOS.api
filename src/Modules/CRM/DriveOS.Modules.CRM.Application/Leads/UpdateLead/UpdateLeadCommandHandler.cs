@@ -7,17 +7,16 @@ namespace DriveOS.Modules.CRM.Application.Leads.UpdateLead;
 
 public sealed class UpdateLeadCommandHandler(
     ILeadRepository leadRepository,
-    ICrmUnitOfWork unitOfWork)
-    : ICommandHandler<UpdateLeadCommand>
+    ICrmUnitOfWork unitOfWork
+) : ICommandHandler<UpdateLeadCommand>
 {
-    public async Task<Result> Handle(
-        UpdateLeadCommand command,
-        CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateLeadCommand command, CancellationToken cancellationToken)
     {
         Lead? lead = await leadRepository.GetByIdForUpdateAsync(
             command.OrganizationId,
             command.LeadId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (lead is null)
         {
@@ -28,7 +27,8 @@ public sealed class UpdateLeadCommandHandler(
             command.FirstName,
             command.LastName,
             command.Email,
-            command.Phone);
+            command.Phone
+        );
 
         if (identityResult.IsFailure)
         {
@@ -38,7 +38,8 @@ public sealed class UpdateLeadCommandHandler(
         Result<RequestedTraining> trainingResult = RequestedTraining.Create(
             command.LicenseCategory,
             command.Transmission,
-            command.PreferredLocation);
+            command.PreferredLocation
+        );
 
         if (trainingResult.IsFailure)
         {
@@ -47,7 +48,8 @@ public sealed class UpdateLeadCommandHandler(
 
         Result<LeadSource> sourceResult = LeadSource.Create(
             command.SourceType,
-            command.SourceDetail);
+            command.SourceDetail
+        );
 
         if (sourceResult.IsFailure)
         {
@@ -58,7 +60,8 @@ public sealed class UpdateLeadCommandHandler(
             command.BranchId,
             identityResult.Value,
             trainingResult.Value,
-            sourceResult.Value);
+            sourceResult.Value
+        );
 
         if (updateResult.IsFailure)
         {

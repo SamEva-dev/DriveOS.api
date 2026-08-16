@@ -18,4 +18,5 @@ public sealed record GenerateCommercialOfferCommand(
     string? FinancingNotes,
     string? Conditions,
     string? InternalNotes,
-    IReadOnlyCollection<CommercialOfferLineDraft> Lines) : ICommand<Guid>;
+    IReadOnlyCollection<CommercialOfferLineDraft> Lines
+) : ICommand<Guid>;

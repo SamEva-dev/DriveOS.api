@@ -9,22 +9,28 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.
 internal sealed class UpdateOrganizationRepresentativeAuthorityCommandHandler(
     IOrganizationRepresentativeRepository repository,
     OrganizationRepresentativeAccessSynchronizationService accessSynchronizationService,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<UpdateOrganizationRepresentativeAuthorityCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<UpdateOrganizationRepresentativeAuthorityCommand>
 {
-    public async Task<Result> Handle(UpdateOrganizationRepresentativeAuthorityCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(
+        UpdateOrganizationRepresentativeAuthorityCommand command,
+        CancellationToken cancellationToken
+    )
     {
         OrganizationRepresentative? representative = await repository.GetForUpdateAsync(
             command.RepresentativeId,
             command.OrganizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (representative is null)
             return Result.Failure(OrganizationRepresentativeErrors.NotFound);
         if (representative.Revision != command.ExpectedRevision)
             return Result.Failure(OrganizationRepresentativeErrors.ConcurrentUpdate);
 
-        Result<RepresentativeAuthorityScope> scope = RepresentativeAuthorityScope.Create(command.AuthorityScope);
+        Result<RepresentativeAuthorityScope> scope = RepresentativeAuthorityScope.Create(
+            command.AuthorityScope
+        );
         if (scope.IsFailure)
             return Result.Failure(scope.Error);
 
@@ -32,7 +38,8 @@ internal sealed class UpdateOrganizationRepresentativeAuthorityCommandHandler(
             scope.Value,
             command.UserId,
             command.EffectiveFrom,
-            command.EffectiveTo);
+            command.EffectiveTo
+        );
 
         if (result.IsFailure)
             return result;

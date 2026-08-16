@@ -8,4 +8,5 @@ public sealed record BranchConfigurationOverridePublishedDomainEvent(
     OrganizationId OrganizationId,
     BranchId BranchId,
     int VersionNumber,
-    DateTimeOffset EffectiveFromUtc) : DomainEvent;
+    DateTimeOffset EffectiveFromUtc
+) : DomainEvent;

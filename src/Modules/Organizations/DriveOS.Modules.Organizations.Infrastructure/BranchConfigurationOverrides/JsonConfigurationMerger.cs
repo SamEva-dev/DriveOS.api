@@ -8,7 +8,7 @@ internal sealed class JsonConfigurationMerger : IJsonConfigurationMerger
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        WriteIndented = false
+        WriteIndented = false,
     };
 
     public string Merge(string baseJson, string overrideJson)
@@ -24,8 +24,10 @@ internal sealed class JsonConfigurationMerger : IJsonConfigurationMerger
     {
         foreach ((string propertyName, JsonNode? sourceValue) in source)
         {
-            if (sourceValue is JsonObject sourceObject &&
-                target[propertyName] is JsonObject targetObject)
+            if (
+                sourceValue is JsonObject sourceObject
+                && target[propertyName] is JsonObject targetObject
+            )
             {
                 MergeObjects(targetObject, sourceObject);
                 continue;
@@ -41,6 +43,9 @@ internal sealed class JsonConfigurationMerger : IJsonConfigurationMerger
     {
         JsonNode? node = JsonNode.Parse(json);
         return node as JsonObject
-            ?? throw new ArgumentException("The configuration JSON root must be an object.", parameterName);
+            ?? throw new ArgumentException(
+                "The configuration JSON root must be an object.",
+                parameterName
+            );
     }
 }

@@ -5,16 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Queries;
 
-internal sealed class OrganizationSettingsReadService(
-    OrganizationsDbContext dbContext)
+internal sealed class OrganizationSettingsReadService(OrganizationsDbContext dbContext)
     : IOrganizationSettingsReadService
 {
     public async Task<OrganizationSettingsResponse?> GetByOrganizationIdAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        var row = await dbContext.OrganizationSettings
-            .AsNoTracking()
+        var row = await dbContext
+            .OrganizationSettings.AsNoTracking()
             .Where(settings => settings.OrganizationId == organizationId)
             .Select(settings => new
             {
@@ -50,7 +50,7 @@ internal sealed class OrganizationSettingsReadService(
                     : settings.Operational.DefaultBranchId.Value.Value,
                 settings.Version,
                 settings.CreatedAtUtc,
-                settings.LastModifiedAtUtc
+                settings.LastModifiedAtUtc,
             })
             .SingleOrDefaultAsync(cancellationToken);
 
@@ -75,8 +75,10 @@ internal sealed class OrganizationSettingsReadService(
             row.Region,
             row.AddressCountryCode,
             row.DefaultLanguage,
-            row.SupportedLanguages
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+            row.SupportedLanguages.Split(
+                ',',
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+            ),
             row.TimeZoneId,
             row.CurrencyCode,
             row.DateFormat,
@@ -91,6 +93,7 @@ internal sealed class OrganizationSettingsReadService(
             row.DefaultBranchId,
             row.Version,
             row.CreatedAtUtc,
-            row.LastModifiedAtUtc);
+            row.LastModifiedAtUtc
+        );
     }
 }

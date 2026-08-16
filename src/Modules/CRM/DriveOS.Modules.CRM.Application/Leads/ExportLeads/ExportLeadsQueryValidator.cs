@@ -6,10 +6,12 @@ public sealed class ExportLeadsQueryValidator : AbstractValidator<ExportLeadsQue
 {
     public ExportLeadsQueryValidator()
     {
-        RuleFor(query => query.OrganizationId).Must(id => !id.IsEmpty)
+        RuleFor(query => query.OrganizationId)
+            .Must(id => !id.IsEmpty)
             .WithErrorCode("Crm.Leads.OrganizationId.Empty")
             .WithMessage("errors.crm.leads.organizationId.empty");
-        RuleFor(query => query.Search).MaximumLength(200)
+        RuleFor(query => query.Search)
+            .MaximumLength(200)
             .When(query => !string.IsNullOrWhiteSpace(query.Search))
             .WithErrorCode("Crm.Leads.Search.TooLong")
             .WithMessage("errors.crm.leads.search.tooLong");

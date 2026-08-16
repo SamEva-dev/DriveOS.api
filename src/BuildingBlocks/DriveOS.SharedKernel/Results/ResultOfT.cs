@@ -4,10 +4,7 @@ public sealed class Result<TValue> : Result
 {
     private readonly TValue? _value;
 
-    private Result(
-        TValue? value,
-        bool isSuccess,
-        Error error)
+    private Result(TValue? value, bool isSuccess, Error error)
         : base(isSuccess, error)
     {
         _value = value;
@@ -17,28 +14,22 @@ public sealed class Result<TValue> : Result
         IsSuccess
             ? _value!
             : throw new InvalidOperationException(
-                "The value of a failed result cannot be accessed.");
+                "The value of a failed result cannot be accessed."
+            );
 
     public static Result<TValue> Success(TValue value)
     {
         ArgumentNullException.ThrowIfNull(value);
 
-        return new Result<TValue>(
-            value,
-            true,
-            Error.None);
+        return new Result<TValue>(value, true, Error.None);
     }
 
-    public new static Result<TValue> Failure(Error error)
+    public static new Result<TValue> Failure(Error error)
     {
         ArgumentNullException.ThrowIfNull(error);
 
-        return new Result<TValue>(
-            default,
-            false,
-            error);
+        return new Result<TValue>(default, false, error);
     }
 
-    public static implicit operator Result<TValue>(TValue value) =>
-        Success(value);
+    public static implicit operator Result<TValue>(TValue value) => Success(value);
 }

@@ -18,4 +18,5 @@ public sealed record CreateCrmActivityCommand(
     CrmActivityMetadata Metadata,
     string? NextActionTitle = null,
     DateTimeOffset? NextActionDueAtUtc = null,
-    CrmTaskType NextActionType = CrmTaskType.FollowUp) : ICommand<Guid>;
+    CrmTaskType NextActionType = CrmTaskType.FollowUp
+) : ICommand<Guid>;

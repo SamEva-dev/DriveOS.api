@@ -8,16 +8,27 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationClosures.GetRead
 
 internal sealed class GetOrganizationClosureReadinessQueryHandler(
     IOrganizationClosureRepository repository,
-    IOrganizationClosureReadinessService readinessService)
-    : IQueryHandler<GetOrganizationClosureReadinessQuery, OrganizationClosureReadinessModel>
+    IOrganizationClosureReadinessService readinessService
+) : IQueryHandler<GetOrganizationClosureReadinessQuery, OrganizationClosureReadinessModel>
 {
-    public async Task<Result<OrganizationClosureReadinessModel>> Handle(GetOrganizationClosureReadinessQuery query, CancellationToken cancellationToken)
+    public async Task<Result<OrganizationClosureReadinessModel>> Handle(
+        GetOrganizationClosureReadinessQuery query,
+        CancellationToken cancellationToken
+    )
     {
-        OrganizationClosure? closure = await repository.GetByIdAsync(query.ClosureId, cancellationToken);
+        OrganizationClosure? closure = await repository.GetByIdAsync(
+            query.ClosureId,
+            cancellationToken
+        );
         if (closure is null)
-            return Result.Failure<OrganizationClosureReadinessModel>(OrganizationClosureErrors.NotFound);
+            return Result.Failure<OrganizationClosureReadinessModel>(
+                OrganizationClosureErrors.NotFound
+            );
 
-        OrganizationClosureReadinessReport report = await readinessService.EvaluateAsync(closure.OrganizationId, cancellationToken);
+        OrganizationClosureReadinessReport report = await readinessService.EvaluateAsync(
+            closure.OrganizationId,
+            cancellationToken
+        );
         return Result.Success(OrganizationClosureReadinessModel.FromReport(report));
     }
 }

@@ -6,4 +6,5 @@ public sealed record CrmTaskClosedDomainEvent(
     CrmTaskId TaskId,
     OrganizationId OrganizationId,
     CrmTaskStatus Status,
-    DateTimeOffset ClosedAtUtc) : DomainEvent;
+    DateTimeOffset ClosedAtUtc
+) : DomainEvent;

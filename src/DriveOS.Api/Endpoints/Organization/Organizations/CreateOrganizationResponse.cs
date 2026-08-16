@@ -1,4 +1,3 @@
 ﻿namespace DriveOS.Api.Endpoints.Organization.Organizations;
 
-public sealed record CreateOrganizationResponse(
-    Guid OrganizationId);
+public sealed record CreateOrganizationResponse(Guid OrganizationId);

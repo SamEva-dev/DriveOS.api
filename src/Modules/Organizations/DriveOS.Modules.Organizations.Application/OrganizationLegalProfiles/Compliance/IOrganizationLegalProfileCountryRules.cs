@@ -5,5 +5,6 @@ public interface IOrganizationLegalProfileCountryRules
     string CountryCode { get; }
 
     OrganizationLegalProfileComplianceResult Validate(
-        OrganizationLegalProfileComplianceInput input);
+        OrganizationLegalProfileComplianceInput input
+    );
 }

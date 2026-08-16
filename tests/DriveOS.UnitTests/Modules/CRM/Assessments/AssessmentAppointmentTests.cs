@@ -20,8 +20,11 @@ public sealed class AssessmentAppointmentTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Notes.Should().Be("Initiale");
-        result.Value.DomainEvents.Should().ContainSingle()
-            .Which.Should().BeOfType<AssessmentAppointmentScheduledDomainEvent>();
+        result
+            .Value.DomainEvents.Should()
+            .ContainSingle()
+            .Which.Should()
+            .BeOfType<AssessmentAppointmentScheduledDomainEvent>();
     }
 
     [Fact]
@@ -33,8 +36,9 @@ public sealed class AssessmentAppointmentTests
         var result = appointment.Reschedule(start.AddDays(1), start.AddDays(1).AddHours(2));
 
         result.IsSuccess.Should().BeTrue();
-        appointment.DomainEvents.Should().Contain(x =>
-            x is AssessmentAppointmentRescheduledDomainEvent);
+        appointment
+            .DomainEvents.Should()
+            .Contain(x => x is AssessmentAppointmentRescheduledDomainEvent);
     }
 
     [Fact]
@@ -56,10 +60,24 @@ public sealed class AssessmentAppointmentTests
         DateTimeOffset start = DateTimeOffset.UtcNow.AddDays(1);
 
         var result = AssessmentAppointment.Schedule(
-            AssessmentAppointmentId.New(), OrganizationId, LeadId, null, start, start.AddHours(1),
-            AssessmentType.TheoryAssessment, AssessmentDeliveryMode.Remote,
-            AssessmentLocationKind.MeetingPoint, "Nice", null, null, null, null,
-            null, null, null);
+            AssessmentAppointmentId.New(),
+            OrganizationId,
+            LeadId,
+            null,
+            start,
+            start.AddHours(1),
+            AssessmentType.TheoryAssessment,
+            AssessmentDeliveryMode.Remote,
+            AssessmentLocationKind.MeetingPoint,
+            "Nice",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Crm.Assessments.Location.InvalidRemote");
@@ -71,10 +89,24 @@ public sealed class AssessmentAppointmentTests
         DateTimeOffset start = DateTimeOffset.UtcNow.AddDays(1);
 
         var result = AssessmentAppointment.Schedule(
-            AssessmentAppointmentId.New(), OrganizationId, LeadId, null, start, start.AddHours(1),
-            AssessmentType.TheoryAssessment, AssessmentDeliveryMode.Remote,
-            AssessmentLocationKind.VideoConference, "https://meet.example", null,
-            null, null, null, 45m, " eur ", null);
+            AssessmentAppointmentId.New(),
+            OrganizationId,
+            LeadId,
+            null,
+            start,
+            start.AddHours(1),
+            AssessmentType.TheoryAssessment,
+            AssessmentDeliveryMode.Remote,
+            AssessmentLocationKind.VideoConference,
+            "https://meet.example",
+            null,
+            null,
+            null,
+            null,
+            45m,
+            " eur ",
+            null
+        );
 
         result.IsSuccess.Should().BeTrue();
         result.Value.PriceCurrency.Should().Be("EUR");
@@ -83,10 +115,25 @@ public sealed class AssessmentAppointmentTests
 
     private static DriveOS.SharedKernel.Results.Result<AssessmentAppointment> ScheduleValid(
         DateTimeOffset start,
-        string? notes = null) =>
+        string? notes = null
+    ) =>
         AssessmentAppointment.Schedule(
-            AssessmentAppointmentId.New(), OrganizationId, LeadId, null, start, start.AddHours(1),
-            AssessmentType.TheoryAssessment, AssessmentDeliveryMode.Remote,
-            AssessmentLocationKind.VideoConference, "https://meet.example", null,
-            null, null, null, null, null, notes);
+            AssessmentAppointmentId.New(),
+            OrganizationId,
+            LeadId,
+            null,
+            start,
+            start.AddHours(1),
+            AssessmentType.TheoryAssessment,
+            AssessmentDeliveryMode.Remote,
+            AssessmentLocationKind.VideoConference,
+            "https://meet.example",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            notes
+        );
 }

@@ -4,9 +4,7 @@ namespace DriveOS.Modules.Organizations.Domain.Organizations;
 
 public sealed class OrganizationStatusHistoryEntry
 {
-    private OrganizationStatusHistoryEntry()
-    {
-    }
+    private OrganizationStatusHistoryEntry() { }
 
     private OrganizationStatusHistoryEntry(
         Guid id,
@@ -15,7 +13,8 @@ public sealed class OrganizationStatusHistoryEntry
         OrganizationStatus newStatus,
         OrganizationStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
         Id = id;
         OrganizationId = organizationId;
@@ -46,26 +45,30 @@ public sealed class OrganizationStatusHistoryEntry
         OrganizationStatus newStatus,
         OrganizationStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
         if (organizationId.IsEmpty)
         {
             throw new ArgumentException(
                 "The organization identifier is required.",
-                nameof(organizationId));
+                nameof(organizationId)
+            );
         }
 
         if (previousStatus == newStatus)
         {
             throw new InvalidOperationException(
-                "The previous and new statuses cannot be identical.");
+                "The previous and new statuses cannot be identical."
+            );
         }
 
         if (changedByUserId == Guid.Empty)
         {
             throw new ArgumentException(
                 "The user identifier is required.",
-                nameof(changedByUserId));
+                nameof(changedByUserId)
+            );
         }
 
         ArgumentNullException.ThrowIfNull(reason);
@@ -77,6 +80,7 @@ public sealed class OrganizationStatusHistoryEntry
             newStatus,
             reason,
             changedByUserId,
-            changedAtUtc);
+            changedAtUtc
+        );
     }
 }

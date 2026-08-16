@@ -7,5 +7,5 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.GetByI
 
 public sealed record GetOrganizationSequenceByIdQuery(
     OrganizationId OrganizationId,
-    OrganizationSequenceId SequenceId)
-    : IQuery<OrganizationSequenceResponse>;
+    OrganizationSequenceId SequenceId
+) : IQuery<OrganizationSequenceResponse>;

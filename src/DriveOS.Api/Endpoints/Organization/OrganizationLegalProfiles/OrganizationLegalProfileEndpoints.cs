@@ -17,20 +17,24 @@ namespace DriveOS.Api.Endpoints.Organization.OrganizationLegalProfiles;
 
 public static class OrganizationLegalProfileEndpoints
 {
-    public static IEndpointRouteBuilder MapOrganizationLegalProfileEndpoints(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapOrganizationLegalProfileEndpoints(
+        this IEndpointRouteBuilder endpoints
+    )
     {
         RouteGroupBuilder group = endpoints
             .MapGroup("/api/organizations/{organizationId:guid}/legal-profile")
             .WithTags("Organization legal profile");
 
-        group.MapGet("/", GetAsync)
+        group
+            .MapGet("/", GetAsync)
             .WithName("GetOrganizationLegalProfile")
             .Produces<OrganizationLegalProfileResponseContract>()
             .Produces<ApiErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
             .RequireAuthorization(DriveOsPermissionCodes.OrganizationLegalProfiles.Read);
 
-        group.MapPost("/", CreateAsync)
+        group
+            .MapPost("/", CreateAsync)
             .WithName("CreateOrganizationLegalProfile")
             .Produces(StatusCodes.Status201Created)
             .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
@@ -39,7 +43,8 @@ public static class OrganizationLegalProfileEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.OrganizationLegalProfiles.Create);
 
-        group.MapPut("/", UpdateAsync)
+        group
+            .MapPut("/", UpdateAsync)
             .WithName("UpdateOrganizationLegalProfile")
             .Produces(StatusCodes.Status204NoContent)
             .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
@@ -48,7 +53,8 @@ public static class OrganizationLegalProfileEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.OrganizationLegalProfiles.Update);
 
-        group.MapPost("/activate", ActivateAsync)
+        group
+            .MapPost("/activate", ActivateAsync)
             .WithName("ActivateOrganizationLegalProfile")
             .Produces(StatusCodes.Status204NoContent)
             .Produces<ApiErrorResponse>(StatusCodes.Status403Forbidden)
@@ -56,7 +62,8 @@ public static class OrganizationLegalProfileEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.OrganizationLegalProfiles.Activate);
 
-        group.MapPost("/archive", ArchiveAsync)
+        group
+            .MapPost("/archive", ArchiveAsync)
             .WithName("ArchiveOrganizationLegalProfile")
             .Produces(StatusCodes.Status204NoContent)
             .Produces<ApiErrorResponse>(StatusCodes.Status403Forbidden)
@@ -73,13 +80,24 @@ public static class OrganizationLegalProfileEndpoints
         IObjectMapper mapper,
         ICurrentTenant tenant,
         HttpContext context,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryOrganization(organizationId, tenant, context, out OrganizationId organization, out IResult? failure))
+        if (
+            !TryOrganization(
+                organizationId,
+                tenant,
+                context,
+                out OrganizationId organization,
+                out IResult? failure
+            )
+        )
             return failure!;
 
-        Result<OrganizationLegalProfileResponse> result =
-            await mediator.Send(new GetOrganizationLegalProfileQuery(organization), cancellationToken);
+        Result<OrganizationLegalProfileResponse> result = await mediator.Send(
+            new GetOrganizationLegalProfileQuery(organization),
+            cancellationToken
+        );
 
         if (result.IsFailure)
             return result.Error.ToHttpResult(context);
@@ -105,7 +123,8 @@ public static class OrganizationLegalProfileEndpoints
             source.CreatedAtUtc,
             source.CreatedByUserId?.Value,
             source.LastModifiedAtUtc,
-            source.LastModifiedByUserId?.Value);
+            source.LastModifiedByUserId?.Value
+        );
 
         return Results.Ok(response);
     }
@@ -117,9 +136,18 @@ public static class OrganizationLegalProfileEndpoints
         IObjectMapper mapper,
         ICurrentTenant tenant,
         HttpContext context,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryOrganization(organizationId, tenant, context, out OrganizationId organization, out IResult? failure))
+        if (
+            !TryOrganization(
+                organizationId,
+                tenant,
+                context,
+                out OrganizationId organization,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         var model = new CreateOrganizationLegalProfileApiModel(
@@ -135,16 +163,22 @@ public static class OrganizationLegalProfileEndpoints
             request.City,
             request.Region,
             request.CountryCode,
-            request.ActivateImmediately);
+            request.ActivateImmediately
+        );
 
         Result<OrganizationLegalProfileId> result = await mediator.Send(
-            mapper.Map<CreateOrganizationLegalProfileApiModel, CreateOrganizationLegalProfileCommand>(model),
-            cancellationToken);
+            mapper.Map<
+                CreateOrganizationLegalProfileApiModel,
+                CreateOrganizationLegalProfileCommand
+            >(model),
+            cancellationToken
+        );
 
         return result.IsSuccess
             ? Results.Created(
                 $"/api/organizations/{organizationId}/legal-profile",
-                new { id = result.Value.Value })
+                new { id = result.Value.Value }
+            )
             : result.Error.ToHttpResult(context);
     }
 
@@ -155,9 +189,18 @@ public static class OrganizationLegalProfileEndpoints
         IObjectMapper mapper,
         ICurrentTenant tenant,
         HttpContext context,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryOrganization(organizationId, tenant, context, out OrganizationId organization, out IResult? failure))
+        if (
+            !TryOrganization(
+                organizationId,
+                tenant,
+                context,
+                out OrganizationId organization,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         var model = new UpdateOrganizationLegalProfileApiModel(
@@ -173,11 +216,16 @@ public static class OrganizationLegalProfileEndpoints
             request.City,
             request.Region,
             request.CountryCode,
-            request.ExpectedRevision);
+            request.ExpectedRevision
+        );
 
         Result result = await mediator.Send(
-            mapper.Map<UpdateOrganizationLegalProfileApiModel, UpdateOrganizationLegalProfileCommand>(model),
-            cancellationToken);
+            mapper.Map<
+                UpdateOrganizationLegalProfileApiModel,
+                UpdateOrganizationLegalProfileCommand
+            >(model),
+            cancellationToken
+        );
 
         return result.IsSuccess ? Results.NoContent() : result.Error.ToHttpResult(context);
     }
@@ -189,8 +237,18 @@ public static class OrganizationLegalProfileEndpoints
         IObjectMapper mapper,
         ICurrentTenant tenant,
         HttpContext context,
-        CancellationToken cancellationToken) =>
-        ChangeStatusAsync(organizationId, request, mediator, mapper, tenant, context, cancellationToken, archive: false);
+        CancellationToken cancellationToken
+    ) =>
+        ChangeStatusAsync(
+            organizationId,
+            request,
+            mediator,
+            mapper,
+            tenant,
+            context,
+            cancellationToken,
+            archive: false
+        );
 
     private static Task<IResult> ArchiveAsync(
         Guid organizationId,
@@ -199,8 +257,18 @@ public static class OrganizationLegalProfileEndpoints
         IObjectMapper mapper,
         ICurrentTenant tenant,
         HttpContext context,
-        CancellationToken cancellationToken) =>
-        ChangeStatusAsync(organizationId, request, mediator, mapper, tenant, context, cancellationToken, archive: true);
+        CancellationToken cancellationToken
+    ) =>
+        ChangeStatusAsync(
+            organizationId,
+            request,
+            mediator,
+            mapper,
+            tenant,
+            context,
+            cancellationToken,
+            archive: true
+        );
 
     private static async Task<IResult> ChangeStatusAsync(
         Guid rawOrganizationId,
@@ -210,20 +278,40 @@ public static class OrganizationLegalProfileEndpoints
         ICurrentTenant tenant,
         HttpContext context,
         CancellationToken cancellationToken,
-        bool archive)
+        bool archive
+    )
     {
-        if (!TryOrganization(rawOrganizationId, tenant, context, out OrganizationId organization, out IResult? failure))
+        if (
+            !TryOrganization(
+                rawOrganizationId,
+                tenant,
+                context,
+                out OrganizationId organization,
+                out IResult? failure
+            )
+        )
             return failure!;
 
-        var model = new ChangeOrganizationLegalProfileStatusApiModel(organization, request.ExpectedRevision);
+        var model = new ChangeOrganizationLegalProfileStatusApiModel(
+            organization,
+            request.ExpectedRevision
+        );
 
         Result result = archive
             ? await mediator.Send(
-                mapper.Map<ChangeOrganizationLegalProfileStatusApiModel, ArchiveOrganizationLegalProfileCommand>(model),
-                cancellationToken)
+                mapper.Map<
+                    ChangeOrganizationLegalProfileStatusApiModel,
+                    ArchiveOrganizationLegalProfileCommand
+                >(model),
+                cancellationToken
+            )
             : await mediator.Send(
-                mapper.Map<ChangeOrganizationLegalProfileStatusApiModel, ActivateOrganizationLegalProfileCommand>(model),
-                cancellationToken);
+                mapper.Map<
+                    ChangeOrganizationLegalProfileStatusApiModel,
+                    ActivateOrganizationLegalProfileCommand
+                >(model),
+                cancellationToken
+            );
 
         return result.IsSuccess ? Results.NoContent() : result.Error.ToHttpResult(context);
     }
@@ -233,22 +321,29 @@ public static class OrganizationLegalProfileEndpoints
         ICurrentTenant tenant,
         HttpContext context,
         out OrganizationId organizationId,
-        out IResult? failure)
+        out IResult? failure
+    )
     {
         organizationId = new OrganizationId(rawOrganizationId);
         failure = null;
 
         if (rawOrganizationId == Guid.Empty)
         {
-            failure = Error.Validation(
+            failure = Error
+                .Validation(
                     "OrganizationLegalProfiles.Identifier.Invalid",
                     "errors.organizationLegalProfile.identifier.invalid",
-                    new Dictionary<string, object?> { ["parameter"] = "organizationId" })
+                    new Dictionary<string, object?> { ["parameter"] = "organizationId" }
+                )
                 .ToHttpResult(context);
             return false;
         }
 
-        if (!tenant.HasTenant || tenant.OrganizationId is null || tenant.OrganizationId.Value != organizationId)
+        if (
+            !tenant.HasTenant
+            || tenant.OrganizationId is null
+            || tenant.OrganizationId.Value != organizationId
+        )
         {
             failure = Results.Forbid();
             return false;

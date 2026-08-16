@@ -1,3 +1,12 @@
-using DriveOS.Application.Abstractions.Messaging; using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives; using DriveOS.SharedKernel.Identifiers;
+using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
+using DriveOS.SharedKernel.Identifiers;
+
 namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.Reactivate;
-public sealed record ReactivateOrganizationRepresentativeCommand(OrganizationId OrganizationId,OrganizationRepresentativeId RepresentativeId,string Reason,int ExpectedRevision):ICommand;
+
+public sealed record ReactivateOrganizationRepresentativeCommand(
+    OrganizationId OrganizationId,
+    OrganizationRepresentativeId RepresentativeId,
+    string Reason,
+    int ExpectedRevision
+) : ICommand;

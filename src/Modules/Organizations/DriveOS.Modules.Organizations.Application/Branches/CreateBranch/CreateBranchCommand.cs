@@ -2,8 +2,7 @@
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.SharedKernel.Identifiers;
 
-namespace DriveOS.Modules.Organizations.Application
-    .Branches.CreateBranch;
+namespace DriveOS.Modules.Organizations.Application.Branches.CreateBranch;
 
 public sealed record CreateBranchCommand(
     OrganizationId OrganizationId,
@@ -15,5 +14,5 @@ public sealed record CreateBranchCommand(
     string PostalCode,
     string City,
     string TimeZoneId,
-    bool IsPrimary)
-    : ICommand<BranchId>;
+    bool IsPrimary
+) : ICommand<BranchId>;

@@ -16,7 +16,8 @@ public sealed record OrganizationOperationalSettings
         int defaultCancellationDelayHours,
         bool allowStudentSelfBooking,
         bool requireBranchForOperations,
-        BranchId? defaultBranchId)
+        BranchId? defaultBranchId
+    )
     {
         DefaultSessionDurationMinutes = defaultSessionDurationMinutes;
         DefaultBookingLeadTimeMinutes = defaultBookingLeadTimeMinutes;
@@ -39,36 +40,46 @@ public sealed record OrganizationOperationalSettings
         int defaultCancellationDelayHours,
         bool allowStudentSelfBooking,
         bool requireBranchForOperations,
-        BranchId? defaultBranchId)
+        BranchId? defaultBranchId
+    )
     {
-        if (defaultSessionDurationMinutes is < MinimumSessionDurationMinutes or > MaximumSessionDurationMinutes)
+        if (
+            defaultSessionDurationMinutes
+            is < MinimumSessionDurationMinutes
+                or > MaximumSessionDurationMinutes
+        )
         {
             return Result.Failure<OrganizationOperationalSettings>(
-                OrganizationSettingsErrors.InvalidSessionDuration);
+                OrganizationSettingsErrors.InvalidSessionDuration
+            );
         }
 
         if (defaultBookingLeadTimeMinutes is < 0 or > MaximumBookingLeadTimeMinutes)
         {
             return Result.Failure<OrganizationOperationalSettings>(
-                OrganizationSettingsErrors.InvalidBookingLeadTime);
+                OrganizationSettingsErrors.InvalidBookingLeadTime
+            );
         }
 
         if (defaultCancellationDelayHours is < 0 or > MaximumCancellationDelayHours)
         {
             return Result.Failure<OrganizationOperationalSettings>(
-                OrganizationSettingsErrors.InvalidCancellationDelay);
+                OrganizationSettingsErrors.InvalidCancellationDelay
+            );
         }
 
         if (defaultBranchId is { IsEmpty: true })
         {
             return Result.Failure<OrganizationOperationalSettings>(
-                OrganizationSettingsErrors.InvalidDefaultBranch);
+                OrganizationSettingsErrors.InvalidDefaultBranch
+            );
         }
 
         if (requireBranchForOperations && defaultBranchId is null)
         {
             return Result.Failure<OrganizationOperationalSettings>(
-                OrganizationSettingsErrors.DefaultBranchRequired);
+                OrganizationSettingsErrors.DefaultBranchRequired
+            );
         }
 
         return Result.Success(
@@ -78,6 +89,8 @@ public sealed record OrganizationOperationalSettings
                 defaultCancellationDelayHours,
                 allowStudentSelfBooking,
                 requireBranchForOperations,
-                defaultBranchId));
+                defaultBranchId
+            )
+        );
     }
 }

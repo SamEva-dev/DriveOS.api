@@ -4,8 +4,7 @@ using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
 
-namespace DriveOS.Modules.Organizations.Application
-    .Organizations.CreateOrganization;
+namespace DriveOS.Modules.Organizations.Application.Organizations.CreateOrganization;
 
 public sealed class CreateOrganizationCommandHandler
     : ICommandHandler<CreateOrganizationCommand, OrganizationId>
@@ -15,7 +14,8 @@ public sealed class CreateOrganizationCommandHandler
 
     public CreateOrganizationCommandHandler(
         IOrganizationRepository organizationRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork
+    )
     {
         _organizationRepository = organizationRepository;
         _unitOfWork = unitOfWork;
@@ -23,51 +23,43 @@ public sealed class CreateOrganizationCommandHandler
 
     public async Task<Result<OrganizationId>> Handle(
         CreateOrganizationCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        string normalizedLegalName =
-            command.LegalName.Trim();
+        string normalizedLegalName = command.LegalName.Trim();
 
-        string normalizedCountryCode =
-            command.CountryCode.Trim().ToUpperInvariant();
+        string normalizedCountryCode = command.CountryCode.Trim().ToUpperInvariant();
 
-        bool alreadyExists =
-            await _organizationRepository.ExistsByLegalNameAsync(
-                normalizedLegalName,
-                normalizedCountryCode,
-                cancellationToken);
+        bool alreadyExists = await _organizationRepository.ExistsByLegalNameAsync(
+            normalizedLegalName,
+            normalizedCountryCode,
+            cancellationToken
+        );
 
         if (alreadyExists)
         {
-            return Result.Failure<OrganizationId>(
-                OrganizationErrors.LegalNameAlreadyExists);
+            return Result.Failure<OrganizationId>(OrganizationErrors.LegalNameAlreadyExists);
         }
 
-        var organizationType =
-            (OrganizationType)command.OrganizationType;
+        var organizationType = (OrganizationType)command.OrganizationType;
 
-        Result<Organization> creationResult =
-            Organization.Create(
-                OrganizationId.New(),
-                normalizedLegalName,
-                normalizedCountryCode,
-                organizationType);
+        Result<Organization> creationResult = Organization.Create(
+            OrganizationId.New(),
+            normalizedLegalName,
+            normalizedCountryCode,
+            organizationType
+        );
 
         if (creationResult.IsFailure)
         {
-            return Result.Failure<OrganizationId>(
-                creationResult.Error);
+            return Result.Failure<OrganizationId>(creationResult.Error);
         }
 
-        Organization organization =
-            creationResult.Value;
+        Organization organization = creationResult.Value;
 
-        await _organizationRepository.AddAsync(
-            organization,
-            cancellationToken);
+        await _organizationRepository.AddAsync(organization, cancellationToken);
 
-        await _unitOfWork.CommitAsync(
-            cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
 
         return Result.Success(organization.Id);
     }

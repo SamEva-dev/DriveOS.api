@@ -4,6 +4,5 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Co
 
 public interface IOrganizationLegalProfileComplianceService
 {
-    OrganizationLegalProfileComplianceResult Validate(
-        OrganizationLegalProfile profile);
+    OrganizationLegalProfileComplianceResult Validate(OrganizationLegalProfile profile);
 }

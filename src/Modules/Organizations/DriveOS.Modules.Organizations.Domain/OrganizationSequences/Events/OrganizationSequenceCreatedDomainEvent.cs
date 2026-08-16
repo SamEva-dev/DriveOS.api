@@ -7,4 +7,5 @@ public sealed record OrganizationSequenceCreatedDomainEvent(
     OrganizationSequenceId SequenceId,
     OrganizationId OrganizationId,
     BranchId? BranchId,
-    string Code) : DomainEvent;
+    string Code
+) : DomainEvent;

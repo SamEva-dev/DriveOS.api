@@ -7,5 +7,5 @@ public sealed record OrganizationSettingsChangedDomainEvent(
     OrganizationSettingsId SettingsId,
     OrganizationId OrganizationId,
     OrganizationSettingsSection Section,
-    int Version)
-    : DomainEvent;
+    int Version
+) : DomainEvent;

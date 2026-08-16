@@ -7,18 +7,19 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.Archiv
 
 internal sealed class ArchiveOrganizationSequenceCommandHandler(
     IOrganizationSequenceRepository sequenceRepository,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<ArchiveOrganizationSequenceCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<ArchiveOrganizationSequenceCommand>
 {
     public async Task<Result> Handle(
         ArchiveOrganizationSequenceCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        OrganizationSequence? sequence =
-            await sequenceRepository.GetForUpdateAsync(
-                command.SequenceId,
-                command.OrganizationId,
-                cancellationToken);
+        OrganizationSequence? sequence = await sequenceRepository.GetForUpdateAsync(
+            command.SequenceId,
+            command.OrganizationId,
+            cancellationToken
+        );
 
         if (sequence is null)
         {

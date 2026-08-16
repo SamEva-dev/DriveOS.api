@@ -15,18 +15,17 @@ public sealed record SubscriptionPeriod
 
     public static Result<SubscriptionPeriod> Create(
         DateTimeOffset startsAtUtc,
-        DateTimeOffset? endsAtUtc)
+        DateTimeOffset? endsAtUtc
+    )
     {
         if (endsAtUtc.HasValue && endsAtUtc.Value <= startsAtUtc)
         {
-            return Result.Failure<SubscriptionPeriod>(
-                OrganizationSubscriptionErrors.InvalidPeriod);
+            return Result.Failure<SubscriptionPeriod>(OrganizationSubscriptionErrors.InvalidPeriod);
         }
 
         return Result.Success(new SubscriptionPeriod(startsAtUtc, endsAtUtc));
     }
 
     public bool Contains(DateTimeOffset instant) =>
-        instant >= StartsAtUtc &&
-        (!EndsAtUtc.HasValue || instant < EndsAtUtc.Value);
+        instant >= StartsAtUtc && (!EndsAtUtc.HasValue || instant < EndsAtUtc.Value);
 }

@@ -8,19 +8,21 @@ public sealed record CreateBranchConfigurationOverrideDraftRequest(
     Guid BaseConfigurationId,
     int VersionNumber,
     string CountryCode,
-    string PayloadJson);
+    string PayloadJson
+);
 
 public sealed record UpdateBranchConfigurationOverrideDraftRequest(
     string PayloadJson,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 public sealed record PublishBranchConfigurationOverrideRequest(
     DateTimeOffset EffectiveFromUtc,
     DateTimeOffset? EffectiveToUtc,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
-public sealed record ArchiveBranchConfigurationOverrideRequest(
-    int ExpectedRevision);
+public sealed record ArchiveBranchConfigurationOverrideRequest(int ExpectedRevision);
 
 public sealed record BranchConfigurationOverrideResponseContract(
     Guid Id,
@@ -39,7 +41,8 @@ public sealed record BranchConfigurationOverrideResponseContract(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);
 
 public sealed record BranchConfigurationOverrideListItemResponseContract(
     Guid Id,
@@ -51,7 +54,8 @@ public sealed record BranchConfigurationOverrideListItemResponseContract(
     DateTimeOffset? EffectiveToUtc,
     DateTimeOffset? PublishedAtUtc,
     int Revision,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc
+);
 
 internal sealed record CreateBranchConfigurationOverrideDraftApiModel(
     OrganizationId OrganizationId,
@@ -59,14 +63,16 @@ internal sealed record CreateBranchConfigurationOverrideDraftApiModel(
     OrganizationConfigurationId BaseConfigurationId,
     int VersionNumber,
     string CountryCode,
-    string PayloadJson);
+    string PayloadJson
+);
 
 internal sealed record UpdateBranchConfigurationOverrideDraftApiModel(
     OrganizationId OrganizationId,
     BranchId BranchId,
     BranchConfigurationOverrideId OverrideId,
     string PayloadJson,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 internal sealed record PublishBranchConfigurationOverrideApiModel(
     OrganizationId OrganizationId,
@@ -74,10 +80,12 @@ internal sealed record PublishBranchConfigurationOverrideApiModel(
     BranchConfigurationOverrideId OverrideId,
     DateTimeOffset EffectiveFromUtc,
     DateTimeOffset? EffectiveToUtc,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 internal sealed record ArchiveBranchConfigurationOverrideApiModel(
     OrganizationId OrganizationId,
     BranchId BranchId,
     BranchConfigurationOverrideId OverrideId,
-    int ExpectedRevision);
+    int ExpectedRevision
+);

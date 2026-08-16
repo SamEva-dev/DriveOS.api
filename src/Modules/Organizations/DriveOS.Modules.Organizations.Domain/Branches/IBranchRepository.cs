@@ -3,27 +3,30 @@ using DriveOS.SharedKernel.Persistence;
 
 namespace DriveOS.Modules.Organizations.Domain.Branches;
 
-public interface IBranchRepository :
-    IRepository<Branch, BranchId>
+public interface IBranchRepository : IRepository<Branch, BranchId>
 {
     Task<bool> ExistsByNameAsync(
         OrganizationId organizationId,
         string normalizedName,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<bool> ExistsByNameAsync(
         OrganizationId organizationId,
         string normalizedName,
         BranchId excludedBranchId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<bool> ExistsByCodeAsync(
         OrganizationId organizationId,
         BranchCode code,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<Branch?> GetPrimaryAsync(
         OrganizationId organizationId,
         bool asNoTracking = false,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

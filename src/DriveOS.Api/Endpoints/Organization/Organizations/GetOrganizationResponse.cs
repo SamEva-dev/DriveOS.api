@@ -9,4 +9,5 @@ public sealed record GetOrganizationResponse(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);

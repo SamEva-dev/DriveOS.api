@@ -16,5 +16,5 @@ public enum LeadClosureReason
     PartnerReferral = 12,
     CancelledByLead = 13,
     ConvertedElsewhere = 14,
-    Other = 15
+    Other = 15,
 }

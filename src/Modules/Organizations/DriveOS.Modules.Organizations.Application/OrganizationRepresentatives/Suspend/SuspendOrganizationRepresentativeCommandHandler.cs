@@ -13,12 +13,13 @@ internal sealed class SuspendOrganizationRepresentativeCommandHandler(
     OrganizationRepresentativeAccessSynchronizationService accessSynchronizationService,
     IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
-    : ICommandHandler<SuspendOrganizationRepresentativeCommand>
+    ICurrentUser currentUser
+) : ICommandHandler<SuspendOrganizationRepresentativeCommand>
 {
     public async Task<Result> Handle(
         SuspendOrganizationRepresentativeCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
         {
@@ -28,7 +29,8 @@ internal sealed class SuspendOrganizationRepresentativeCommandHandler(
         OrganizationRepresentative? representative = await repository.GetForUpdateAsync(
             command.RepresentativeId,
             command.OrganizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (representative is null)
         {
@@ -46,17 +48,18 @@ internal sealed class SuspendOrganizationRepresentativeCommandHandler(
             int remainingActiveOwners = await repository.CountActiveOwnersAsync(
                 command.OrganizationId,
                 representative.Id,
-                cancellationToken);
+                cancellationToken
+            );
 
             if (remainingActiveOwners == 0)
             {
-                return Result.Failure(OrganizationRepresentativeErrors.LastActiveOwnerCannotBeEnded);
+                return Result.Failure(
+                    OrganizationRepresentativeErrors.LastActiveOwnerCannotBeEnded
+                );
             }
         }
 
-        Result result = representative.Suspend(
-            command.Reason,
-            currentUser.UserId.Value);
+        Result result = representative.Suspend(command.Reason, currentUser.UserId.Value);
 
         if (result.IsFailure)
         {

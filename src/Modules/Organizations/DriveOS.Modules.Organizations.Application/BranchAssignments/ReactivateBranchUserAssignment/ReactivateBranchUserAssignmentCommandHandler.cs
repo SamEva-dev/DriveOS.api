@@ -2,114 +2,88 @@
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
-using DriveOS.Modules.Organizations.Domain
-    .BranchAssignments;
+using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Results;
 
-namespace DriveOS.Modules.Organizations.Application
-    .BranchAssignments.ReactivateBranchUserAssignment;
+namespace DriveOS.Modules.Organizations.Application.BranchAssignments.ReactivateBranchUserAssignment;
 
-internal sealed class
-    ReactivateBranchUserAssignmentCommandHandler(
-        IBranchUserAssignmentRepository assignmentRepository,
-        IUnitOfWork unitOfWork,
-        ICurrentUser currentUser,
-        IClock clock)
-    : ICommandHandler<
-        ReactivateBranchUserAssignmentCommand>
+internal sealed class ReactivateBranchUserAssignmentCommandHandler(
+    IBranchUserAssignmentRepository assignmentRepository,
+    IUnitOfWork unitOfWork,
+    ICurrentUser currentUser,
+    IClock clock
+) : ICommandHandler<ReactivateBranchUserAssignmentCommand>
 {
     public async Task<Result> Handle(
         ReactivateBranchUserAssignmentCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (
-            !currentUser.IsAuthenticated ||
-            currentUser.UserId is null)
+        if (!currentUser.IsAuthenticated || currentUser.UserId is null)
         {
-            return Result.Failure(
-                OrganizationErrors
-                    .CurrentUserRequired);
+            return Result.Failure(OrganizationErrors.CurrentUserRequired);
         }
 
-        BranchUserAssignment? assignment =
-            await assignmentRepository
-                .GetByIdAsync(
-                    command.AssignmentId,
-                    asNoTracking: false,
-                    cancellationToken);
+        BranchUserAssignment? assignment = await assignmentRepository.GetByIdAsync(
+            command.AssignmentId,
+            asNoTracking: false,
+            cancellationToken
+        );
 
-        if (
-            assignment is null ||
-            assignment.OrganizationId !=
-            command.OrganizationId)
+        if (assignment is null || assignment.OrganizationId != command.OrganizationId)
         {
-            return Result.Failure(
-                BranchUserAssignmentErrors
-                    .NotFound);
+            return Result.Failure(BranchUserAssignmentErrors.NotFound);
         }
 
-        bool duplicateExists =
-            await assignmentRepository
-                .HasAnotherOpenAssignmentAsync(
-                    command.OrganizationId,
-                    assignment.BranchId,
-                    assignment.UserId,
-                    assignment.Role,
-                    assignment.Id,
-                    cancellationToken);
+        bool duplicateExists = await assignmentRepository.HasAnotherOpenAssignmentAsync(
+            command.OrganizationId,
+            assignment.BranchId,
+            assignment.UserId,
+            assignment.Role,
+            assignment.Id,
+            cancellationToken
+        );
 
         if (duplicateExists)
         {
-            return Result.Failure(
-                BranchUserAssignmentErrors
-                    .DuplicateActiveAssignment);
+            return Result.Failure(BranchUserAssignmentErrors.DuplicateActiveAssignment);
         }
 
-        if (
-            assignment.AssignmentType ==
-            BranchAssignmentType.Primary)
+        if (assignment.AssignmentType == BranchAssignmentType.Primary)
         {
-            bool primaryExists =
-                await assignmentRepository
-                    .HasAnotherPrimaryAssignmentAsync(
-                        command.OrganizationId,
-                        assignment.UserId,
-                        assignment.Id,
-                        cancellationToken);
+            bool primaryExists = await assignmentRepository.HasAnotherPrimaryAssignmentAsync(
+                command.OrganizationId,
+                assignment.UserId,
+                assignment.Id,
+                cancellationToken
+            );
 
             if (primaryExists)
             {
-                return Result.Failure(
-                    BranchUserAssignmentErrors
-                        .PrimaryAssignmentAlreadyExists);
+                return Result.Failure(BranchUserAssignmentErrors.PrimaryAssignmentAlreadyExists);
             }
         }
 
-        Result<BranchAssignmentReason>
-            reasonResult =
-                BranchAssignmentReason.Create(
-                    command.Reason);
+        Result<BranchAssignmentReason> reasonResult = BranchAssignmentReason.Create(command.Reason);
 
         if (reasonResult.IsFailure)
         {
-            return Result.Failure(
-                reasonResult.Error);
+            return Result.Failure(reasonResult.Error);
         }
 
-        Result result =
-            assignment.Reactivate(
-                reasonResult.Value,
-                currentUser.UserId.Value,
-                clock.UtcNow);
+        Result result = assignment.Reactivate(
+            reasonResult.Value,
+            currentUser.UserId.Value,
+            clock.UtcNow
+        );
 
         if (result.IsFailure)
         {
             return result;
         }
 
-        await unitOfWork.CommitAsync(
-            cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
 
         return Result.Success();
     }

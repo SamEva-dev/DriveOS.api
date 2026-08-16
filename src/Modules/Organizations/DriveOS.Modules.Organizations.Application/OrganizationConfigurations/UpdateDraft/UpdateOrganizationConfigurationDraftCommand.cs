@@ -8,4 +8,5 @@ public sealed record UpdateOrganizationConfigurationDraftCommand(
     OrganizationId OrganizationId,
     OrganizationConfigurationId ConfigurationId,
     string PayloadJson,
-    int ExpectedRevision) : ICommand;
+    int ExpectedRevision
+) : ICommand;

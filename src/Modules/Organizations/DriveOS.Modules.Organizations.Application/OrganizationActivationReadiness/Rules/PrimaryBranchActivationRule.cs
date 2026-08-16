@@ -5,34 +5,42 @@ using DriveOS.SharedKernel.Identifiers;
 namespace DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Rules;
 
 public sealed class PrimaryBranchActivationRule(
-    IOrganizationActivationReadinessDataSource dataSource)
-    : IOrganizationActivationReadinessRule
+    IOrganizationActivationReadinessDataSource dataSource
+) : IOrganizationActivationReadinessRule
 {
     public int Order => 50;
 
     public async Task<OrganizationActivationRequirementResult> EvaluateAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        BranchId? branchId = await dataSource.GetPrimaryBranchIdAsync(organizationId, cancellationToken);
+        BranchId? branchId = await dataSource.GetPrimaryBranchIdAsync(
+            organizationId,
+            cancellationToken
+        );
         if (branchId is null)
         {
             return OrganizationActivationRequirementResult.Missing(
                 OrganizationActivationRequirementCode.PrimaryBranch,
-                "organizations.activationReadiness.requirements.primaryBranch.missing");
+                "organizations.activationReadiness.requirements.primaryBranch.missing"
+            );
         }
 
         bool hasManager = await dataSource.HasActiveBranchManagerAsync(
             organizationId,
             branchId.Value,
-            cancellationToken);
+            cancellationToken
+        );
 
         return hasManager
             ? OrganizationActivationRequirementResult.Satisfied(
                 OrganizationActivationRequirementCode.PrimaryBranchManager,
-                "organizations.activationReadiness.requirements.primaryBranchManager.satisfied")
+                "organizations.activationReadiness.requirements.primaryBranchManager.satisfied"
+            )
             : OrganizationActivationRequirementResult.Missing(
                 OrganizationActivationRequirementCode.PrimaryBranchManager,
-                "organizations.activationReadiness.requirements.primaryBranchManager.missing");
+                "organizations.activationReadiness.requirements.primaryBranchManager.missing"
+            );
     }
 }

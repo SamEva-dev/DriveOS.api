@@ -11,9 +11,9 @@ public sealed class OrganizationSubscriptionTests
     public void Create_WithTrialingStatus_ShouldRequireTrialPeriod()
     {
         SubscriptionPlanCode plan = SubscriptionPlanCode.Create("Starter").Value;
-        SubscriptionPeriod period = SubscriptionPeriod.Create(
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddMonths(1)).Value;
+        SubscriptionPeriod period = SubscriptionPeriod
+            .Create(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddMonths(1))
+            .Value;
 
         var result = OrganizationSubscription.Create(
             OrganizationSubscriptionId.New(),
@@ -21,7 +21,8 @@ public sealed class OrganizationSubscriptionTests
             plan,
             SubscriptionStatus.Trialing,
             SubscriptionBillingCycle.Monthly,
-            period);
+            period
+        );
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(OrganizationSubscriptionErrors.InvalidTrialPeriod);
@@ -33,8 +34,11 @@ public sealed class OrganizationSubscriptionTests
         OrganizationSubscription subscription = CreateActiveSubscription();
 
         subscription.Version.Should().Be(1);
-        subscription.DomainEvents.Should().ContainSingle()
-            .Which.Should().BeOfType<OrganizationSubscriptionCreatedDomainEvent>();
+        subscription
+            .DomainEvents.Should()
+            .ContainSingle()
+            .Which.Should()
+            .BeOfType<OrganizationSubscriptionCreatedDomainEvent>();
     }
 
     [Fact]
@@ -52,15 +56,17 @@ public sealed class OrganizationSubscriptionTests
                 ["ActiveStudents.Maximum"] = 500,
             },
             "Upgrade contractuel",
-            UserId.New());
+            UserId.New()
+        );
 
         result.IsSuccess.Should().BeTrue();
         subscription.PlanCode.Should().Be(plan);
         subscription.HasEntitlement("Fleet.Management").Should().BeTrue();
         subscription.GetLimit("Branches.Maximum").Should().Be(10);
         subscription.Version.Should().Be(2);
-        subscription.DomainEvents.Should().Contain(
-            item => item is OrganizationSubscriptionPlanChangedDomainEvent);
+        subscription
+            .DomainEvents.Should()
+            .Contain(item => item is OrganizationSubscriptionPlanChangedDomainEvent);
     }
 
     [Fact]
@@ -73,7 +79,8 @@ public sealed class OrganizationSubscriptionTests
             ["Fleet.Management", "Fleet.Management"],
             new Dictionary<string, long>(),
             "Upgrade",
-            UserId.New());
+            UserId.New()
+        );
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(OrganizationSubscriptionErrors.DuplicateEntitlement);
@@ -84,11 +91,9 @@ public sealed class OrganizationSubscriptionTests
     {
         OrganizationSubscription subscription = CreateActiveSubscription();
         DateTimeOffset now = DateTimeOffset.UtcNow;
-        SubscriptionCancellation cancellation = SubscriptionCancellation.Create(
-            now,
-            now.AddDays(30),
-            "Résiliation demandée",
-            UserId.New()).Value;
+        SubscriptionCancellation cancellation = SubscriptionCancellation
+            .Create(now, now.AddDays(30), "Résiliation demandée", UserId.New())
+            .Value;
 
         subscription.Cancel(cancellation).IsSuccess.Should().BeTrue();
 
@@ -97,23 +102,28 @@ public sealed class OrganizationSubscriptionTests
             [],
             new Dictionary<string, long>(),
             "Tentative de modification",
-            UserId.New());
+            UserId.New()
+        );
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(
-            OrganizationSubscriptionErrors.CancelledSubscriptionCannotBeChanged);
+        result
+            .Error.Should()
+            .Be(OrganizationSubscriptionErrors.CancelledSubscriptionCannotBeChanged);
     }
 
     private static OrganizationSubscription CreateActiveSubscription()
     {
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        return OrganizationSubscription.Create(
-            OrganizationSubscriptionId.New(),
-            OrganizationId.New(),
-            SubscriptionPlanCode.Create("Professional").Value,
-            SubscriptionStatus.Active,
-            SubscriptionBillingCycle.Monthly,
-            SubscriptionPeriod.Create(now, now.AddMonths(1)).Value).Value;
+        return OrganizationSubscription
+            .Create(
+                OrganizationSubscriptionId.New(),
+                OrganizationId.New(),
+                SubscriptionPlanCode.Create("Professional").Value,
+                SubscriptionStatus.Active,
+                SubscriptionBillingCycle.Monthly,
+                SubscriptionPeriod.Create(now, now.AddMonths(1)).Value
+            )
+            .Value;
     }
 }

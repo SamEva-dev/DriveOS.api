@@ -15,4 +15,5 @@ public sealed record GetBranchResponse(
     string CountryCode,
     string TimeZoneId,
     DateTimeOffset CreatedAtUtc,
-    DateTimeOffset? LastModifiedAtUtc);
+    DateTimeOffset? LastModifiedAtUtc
+);

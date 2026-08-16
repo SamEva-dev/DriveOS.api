@@ -7,5 +7,6 @@ public interface IOrganizationLegalProfileReadService
 {
     Task<OrganizationLegalProfileResponse?> GetByOrganizationIdAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

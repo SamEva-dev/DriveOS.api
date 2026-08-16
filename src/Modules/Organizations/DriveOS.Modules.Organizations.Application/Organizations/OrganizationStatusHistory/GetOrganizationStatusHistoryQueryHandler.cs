@@ -8,32 +8,30 @@ using DriveOS.SharedKernel.Results;
 namespace DriveOS.Modules.Organizations.Application.Organizations.OrganizationStatusHistory;
 
 internal sealed class GetOrganizationStatusHistoryQueryHandler(
-    IOrganizationReadService organizationReadService)
-    : IQueryHandler<
-        GetOrganizationStatusHistoryQuery,
-        IReadOnlyList<OrganizationStatusHistoryItem>>
+    IOrganizationReadService organizationReadService
+) : IQueryHandler<GetOrganizationStatusHistoryQuery, IReadOnlyList<OrganizationStatusHistoryItem>>
 {
     public async Task<Result<IReadOnlyList<OrganizationStatusHistoryItem>>> Handle(
         GetOrganizationStatusHistoryQuery query,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         OrganizationId organizationId = new(query.OrganizationId);
 
-        OrganizationResponse? organization =
-            await organizationReadService.GetByIdAsync(
-                organizationId,
-                cancellationToken);
+        OrganizationResponse? organization = await organizationReadService.GetByIdAsync(
+            organizationId,
+            cancellationToken
+        );
 
         if (organization is null)
         {
             return Result.Failure<IReadOnlyList<OrganizationStatusHistoryItem>>(
-                OrganizationErrors.NotFoundById(organizationId));
+                OrganizationErrors.NotFoundById(organizationId)
+            );
         }
 
         IReadOnlyList<OrganizationStatusHistoryItem> history =
-            await organizationReadService.GetStatusHistoryAsync(
-                organizationId,
-                cancellationToken);
+            await organizationReadService.GetStatusHistoryAsync(organizationId, cancellationToken);
 
         return Result.Success(history);
     }

@@ -9,4 +9,5 @@ public sealed record UpdateBranchRequest(
     string? AddressLine2,
     string PostalCode,
     string City,
-    string TimeZoneId);
+    string TimeZoneId
+);

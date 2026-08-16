@@ -12,20 +12,22 @@ public sealed class OrganizationSettingsAggregateTests
     {
         OrganizationId organizationId = OrganizationId.New();
 
-        var result = DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationSettings.Create(
-            OrganizationSettingsId.New(),
-            organizationId,
-            OrganizationSettingsTestData.CreateProfile(),
-            OrganizationSettingsTestData.CreateContact(),
-            OrganizationSettingsTestData.CreateAddress(),
-            OrganizationSettingsTestData.CreateRegional(),
-            OrganizationSettingsTestData.CreateOperational());
+        var result =
+            DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationSettings.Create(
+                OrganizationSettingsId.New(),
+                organizationId,
+                OrganizationSettingsTestData.CreateProfile(),
+                OrganizationSettingsTestData.CreateContact(),
+                OrganizationSettingsTestData.CreateAddress(),
+                OrganizationSettingsTestData.CreateRegional(),
+                OrganizationSettingsTestData.CreateOperational()
+            );
 
         result.IsSuccess.Should().BeTrue();
         result.Value.OrganizationId.Should().Be(organizationId);
         result.Value.Version.Should().Be(1);
-        result.Value.DomainEvents
-            .OfType<OrganizationSettingsCreatedDomainEvent>()
+        result
+            .Value.DomainEvents.OfType<OrganizationSettingsCreatedDomainEvent>()
             .Should()
             .ContainSingle();
     }
@@ -34,8 +36,8 @@ public sealed class OrganizationSettingsAggregateTests
     public void UpdateRegionalSettings_ShouldIncrementVersionAndRaiseEvent_WhenValuesChange()
     {
         var settings = OrganizationSettingsTestData.CreateAggregate();
-        OrganizationRegionalSettings regional =
-            OrganizationRegionalSettings.Create(
+        OrganizationRegionalSettings regional = OrganizationRegionalSettings
+            .Create(
                 "en-GB",
                 ["fr-FR", "en-GB"],
                 "Europe/London",
@@ -43,19 +45,21 @@ public sealed class OrganizationSettingsAggregateTests
                 "dd/MM/yyyy",
                 "HH:mm",
                 DayOfWeek.Monday,
-                MeasurementSystem.Metric).Value;
+                MeasurementSystem.Metric
+            )
+            .Value;
 
         var result = settings.UpdateRegionalSettings(regional);
 
         result.IsSuccess.Should().BeTrue();
         settings.Version.Should().Be(2);
         settings.Regional.Should().Be(regional);
-        settings.DomainEvents
-            .OfType<OrganizationSettingsChangedDomainEvent>()
+        settings
+            .DomainEvents.OfType<OrganizationSettingsChangedDomainEvent>()
             .Should()
             .Contain(changed =>
-                changed.Section == OrganizationSettingsSection.Regional &&
-                changed.Version == 2);
+                changed.Section == OrganizationSettingsSection.Regional && changed.Version == 2
+            );
     }
 
     [Fact]
@@ -74,13 +78,7 @@ public sealed class OrganizationSettingsAggregateTests
     [Fact]
     public void OperationalSettings_ShouldFail_WhenBranchIsRequiredWithoutDefaultBranch()
     {
-        var result = OrganizationOperationalSettings.Create(
-            60,
-            120,
-            24,
-            true,
-            true,
-            null);
+        var result = OrganizationOperationalSettings.Create(60, 120, 24, true, true, null);
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(OrganizationSettingsErrors.DefaultBranchRequired);
@@ -97,7 +95,8 @@ public sealed class OrganizationSettingsAggregateTests
             "dd/MM/yyyy",
             "HH:mm",
             DayOfWeek.Monday,
-            MeasurementSystem.Metric);
+            MeasurementSystem.Metric
+        );
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(OrganizationSettingsErrors.DefaultLanguageNotSupported);

@@ -17,13 +17,15 @@ public sealed record SubscriptionPlanCode
         if (string.IsNullOrWhiteSpace(normalized))
         {
             return Result.Failure<SubscriptionPlanCode>(
-                OrganizationSubscriptionErrors.EmptyPlanCode);
+                OrganizationSubscriptionErrors.EmptyPlanCode
+            );
         }
 
         if (normalized.Length > MaximumLength)
         {
             return Result.Failure<SubscriptionPlanCode>(
-                OrganizationSubscriptionErrors.PlanCodeTooLong(MaximumLength));
+                OrganizationSubscriptionErrors.PlanCodeTooLong(MaximumLength)
+            );
         }
 
         return Result.Success(new SubscriptionPlanCode(normalized));

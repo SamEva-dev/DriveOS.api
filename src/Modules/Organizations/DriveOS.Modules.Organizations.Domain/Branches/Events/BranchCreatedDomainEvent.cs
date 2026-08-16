@@ -10,5 +10,5 @@ public sealed record BranchCreatedDomainEvent(
     string Name,
     string Code,
     BranchType BranchType,
-    bool IsPrimary)
-    : DomainEvent;
+    bool IsPrimary
+) : DomainEvent;

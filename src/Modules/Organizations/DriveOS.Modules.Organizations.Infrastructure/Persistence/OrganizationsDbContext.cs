@@ -2,102 +2,80 @@
 using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.BranchConfigurationOverrides;
 using DriveOS.Modules.Organizations.Domain.Branches;
+using DriveOS.Modules.Organizations.Domain.Networks;
+using DriveOS.Modules.Organizations.Domain.OrganizationClosures;
 using DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
+using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
+using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 using DriveOS.Modules.Organizations.Domain.Organizations;
-using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
 using DriveOS.Modules.Organizations.Domain.OrganizationSequences;
+using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
 using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
-using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
-using DriveOS.Modules.Organizations.Domain.OrganizationClosures;
-using DriveOS.Modules.Organizations.Domain.Networks;
 
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence;
 
-public sealed class OrganizationsDbContext :
-    DbContext,
-    IUnitOfWork
+public sealed class OrganizationsDbContext : DbContext, IUnitOfWork
 {
     private IDbContextTransaction? _currentTransaction;
 
-    public OrganizationsDbContext(
-        DbContextOptions<OrganizationsDbContext> options)
-        : base(options)
-    {
-    }
+    public OrganizationsDbContext(DbContextOptions<OrganizationsDbContext> options)
+        : base(options) { }
 
-    public DbSet<Organization> Organizations =>
-        Set<Organization>();
+    public DbSet<Organization> Organizations => Set<Organization>();
 
-    public DbSet<OrganizationSettings> OrganizationSettings =>
-        Set<OrganizationSettings>();
+    public DbSet<OrganizationSettings> OrganizationSettings => Set<OrganizationSettings>();
 
     public DbSet<OrganizationSubscription> OrganizationSubscriptions =>
         Set<OrganizationSubscription>();
 
-    public DbSet<Branch> Branches =>
-        Set<Branch>();
+    public DbSet<Branch> Branches => Set<Branch>();
 
     public DbSet<BranchManagerAssignment> BranchManagerAssignments =>
         Set<BranchManagerAssignment>();
-    public DbSet<BranchUserAssignment>
-    BranchUserAssignments =>
-        Set<BranchUserAssignment>();
+    public DbSet<BranchUserAssignment> BranchUserAssignments => Set<BranchUserAssignment>();
 
-
-    public DbSet<BranchStatusHistoryEntry> BranchStatusHistory =>
-        Set<BranchStatusHistoryEntry>();
+    public DbSet<BranchStatusHistoryEntry> BranchStatusHistory => Set<BranchStatusHistoryEntry>();
 
     public DbSet<OrganizationConfiguration> OrganizationConfigurations =>
-    Set<OrganizationConfiguration>();
+        Set<OrganizationConfiguration>();
 
     public DbSet<BranchConfigurationOverride> BranchConfigurationOverrides =>
         Set<BranchConfigurationOverride>();
 
-    public DbSet<OrganizationSequence> OrganizationSequences =>
-        Set<OrganizationSequence>();
+    public DbSet<OrganizationSequence> OrganizationSequences => Set<OrganizationSequence>();
 
     public DbSet<OrganizationRepresentative> OrganizationRepresentatives =>
-Set<OrganizationRepresentative>();
+        Set<OrganizationRepresentative>();
 
     public DbSet<OrganizationLegalProfile> OrganizationLegalProfiles =>
-    Set<OrganizationLegalProfile>();
+        Set<OrganizationLegalProfile>();
 
-    public DbSet<OrganizationClosure> OrganizationClosures =>
-            Set<OrganizationClosure>();
+    public DbSet<OrganizationClosure> OrganizationClosures => Set<OrganizationClosure>();
 
     public DbSet<NetworkOrganizationMembership> NetworkOrganizationMemberships =>
         Set<NetworkOrganizationMembership>();
-    public bool HasActiveTransaction =>
-        _currentTransaction is not null;
+    public bool HasActiveTransaction => _currentTransaction is not null;
 
-    public async Task BeginTransactionAsync(
-        CancellationToken cancellationToken = default)
+    public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (HasActiveTransaction)
         {
-            throw new InvalidOperationException(
-                "A transaction is already active.");
+            throw new InvalidOperationException("A transaction is already active.");
         }
 
-        _currentTransaction =
-            await Database.BeginTransactionAsync(
-                cancellationToken);
+        _currentTransaction = await Database.BeginTransactionAsync(cancellationToken);
     }
 
-    public Task<int> CommitAsync(
-        CancellationToken cancellationToken = default)
+    public Task<int> CommitAsync(CancellationToken cancellationToken = default)
     {
         return SaveChangesAsync(cancellationToken);
     }
 
-    public async Task CommitTransactionAsync(
-        CancellationToken cancellationToken = default)
+    public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
-        IDbContextTransaction transaction =
-            GetActiveTransaction();
+        IDbContextTransaction transaction = GetActiveTransaction();
 
         try
         {
@@ -115,11 +93,9 @@ Set<OrganizationRepresentative>();
         }
     }
 
-    public async Task RollbackTransactionAsync(
-        CancellationToken cancellationToken = default)
+    public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
-        IDbContextTransaction transaction =
-            GetActiveTransaction();
+        IDbContextTransaction transaction = GetActiveTransaction();
 
         try
         {
@@ -132,14 +108,11 @@ Set<OrganizationRepresentative>();
         }
     }
 
-    protected override void OnModelCreating(
-        ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema(
-            OrganizationsSchema.Name);
+        modelBuilder.HasDefaultSchema(OrganizationsSchema.Name);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(
-            typeof(OrganizationsDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrganizationsDbContext).Assembly);
 
         base.OnModelCreating(modelBuilder);
     }
@@ -161,8 +134,7 @@ Set<OrganizationRepresentative>();
     private IDbContextTransaction GetActiveTransaction()
     {
         return _currentTransaction
-            ?? throw new InvalidOperationException(
-                "No active transaction exists.");
+            ?? throw new InvalidOperationException("No active transaction exists.");
     }
 
     private async ValueTask DisposeCurrentTransactionAsync()

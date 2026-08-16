@@ -12,52 +12,60 @@ public sealed class CreateOrganizationConfigurationDraftCommandHandler(
     IOrganizationReadService organizationReadService,
     IOrganizationConfigurationRepository repository,
     IUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
-    : ICommandHandler<CreateOrganizationConfigurationDraftCommand, OrganizationConfigurationId>
+    ICurrentUser currentUser
+) : ICommandHandler<CreateOrganizationConfigurationDraftCommand, OrganizationConfigurationId>
 {
     public async Task<Result<OrganizationConfigurationId>> Handle(
         CreateOrganizationConfigurationDraftCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
         {
             return Result.Failure<OrganizationConfigurationId>(
-                OrganizationConfigurationErrors.CurrentUserRequired);
+                OrganizationConfigurationErrors.CurrentUserRequired
+            );
         }
 
         var organization = await organizationReadService.GetByIdAsync(
             command.OrganizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (organization is null)
         {
             return Result.Failure<OrganizationConfigurationId>(OrganizationErrors.NotFound);
         }
 
-        if (await repository.VersionExistsAsync(
+        if (
+            await repository.VersionExistsAsync(
                 command.OrganizationId,
                 command.VersionNumber,
-                cancellationToken))
+                cancellationToken
+            )
+        )
         {
             return Result.Failure<OrganizationConfigurationId>(
-                OrganizationConfigurationErrors.VersionAlreadyExists);
+                OrganizationConfigurationErrors.VersionAlreadyExists
+            );
         }
 
-        Result<ConfigurationPayload> payloadResult =
-            ConfigurationPayload.Create(command.PayloadJson);
+        Result<ConfigurationPayload> payloadResult = ConfigurationPayload.Create(
+            command.PayloadJson
+        );
 
         if (payloadResult.IsFailure)
         {
             return Result.Failure<OrganizationConfigurationId>(payloadResult.Error);
         }
 
-        Result<OrganizationConfiguration> creationResult =
-            OrganizationConfiguration.CreateDraft(
-                OrganizationConfigurationId.New(),
-                command.OrganizationId,
-                command.VersionNumber,
-                command.CountryCode,
-                payloadResult.Value);
+        Result<OrganizationConfiguration> creationResult = OrganizationConfiguration.CreateDraft(
+            OrganizationConfigurationId.New(),
+            command.OrganizationId,
+            command.VersionNumber,
+            command.CountryCode,
+            payloadResult.Value
+        );
 
         if (creationResult.IsFailure)
         {

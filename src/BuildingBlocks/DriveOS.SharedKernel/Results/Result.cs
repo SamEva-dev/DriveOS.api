@@ -6,14 +6,12 @@ public class Result
     {
         if (isSuccess && error != Error.None)
         {
-            throw new InvalidOperationException(
-                "A successful result cannot contain an error.");
+            throw new InvalidOperationException("A successful result cannot contain an error.");
         }
 
         if (!isSuccess && error == Error.None)
         {
-            throw new InvalidOperationException(
-                "A failed result must contain an error.");
+            throw new InvalidOperationException("A failed result must contain an error.");
         }
 
         IsSuccess = isSuccess;
@@ -26,8 +24,7 @@ public class Result
 
     public Error Error { get; }
 
-    public static Result Success() =>
-        new(true, Error.None);
+    public static Result Success() => new(true, Error.None);
 
     public static Result Failure(Error error)
     {
@@ -36,10 +33,7 @@ public class Result
         return new Result(false, error);
     }
 
-    public static Result<TValue> Success<TValue>(TValue value) =>
-        Result<TValue>.Success(value);
+    public static Result<TValue> Success<TValue>(TValue value) => Result<TValue>.Success(value);
 
-    public static Result<TValue> Failure<TValue>(Error error) =>
-        Result<TValue>.Failure(error);
+    public static Result<TValue> Failure<TValue>(Error error) => Result<TValue>.Failure(error);
 }
-

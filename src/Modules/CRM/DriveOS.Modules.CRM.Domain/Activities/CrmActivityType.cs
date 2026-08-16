@@ -11,5 +11,5 @@ public enum CrmActivityType
     StageChanged = 7,
     OfferSent = 8,
     DocumentReceived = 9,
-    SystemEvent = 10
+    SystemEvent = 10,
 }

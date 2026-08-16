@@ -13,5 +13,5 @@ public sealed record CreateOrganizationRepresentativeCommand(
     bool IsPrimaryOwner,
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
-    bool ActivateImmediately)
-    : ICommand<OrganizationRepresentativeId>;
+    bool ActivateImmediately
+) : ICommand<OrganizationRepresentativeId>;

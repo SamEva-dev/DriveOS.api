@@ -42,16 +42,12 @@ public abstract class Entity<TId>
         return HashCode.Combine(GetType(), Id);
     }
 
-    public static bool operator ==(
-        Entity<TId>? left,
-        Entity<TId>? right)
+    public static bool operator ==(Entity<TId>? left, Entity<TId>? right)
     {
         return Equals(left, right);
     }
 
-    public static bool operator !=(
-        Entity<TId>? left,
-        Entity<TId>? right)
+    public static bool operator !=(Entity<TId>? left, Entity<TId>? right)
     {
         return !Equals(left, right);
     }

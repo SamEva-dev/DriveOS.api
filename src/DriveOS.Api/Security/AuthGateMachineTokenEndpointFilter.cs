@@ -2,36 +2,32 @@
 
 namespace DriveOS.Api.Security;
 
-public sealed class AuthGateMachineTokenEndpointFilter
-    : IEndpointFilter
+public sealed class AuthGateMachineTokenEndpointFilter : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(
         EndpointFilterInvocationContext context,
-        EndpointFilterDelegate next)
+        EndpointFilterDelegate next
+    )
     {
         HttpContext httpContext = context.HttpContext;
-        string authorization =
-            httpContext.Request.Headers.Authorization.ToString();
+        string authorization = httpContext.Request.Headers.Authorization.ToString();
 
-        if (!AuthenticationHeaderValue.TryParse(
+        if (
+            !AuthenticationHeaderValue.TryParse(
                 authorization,
-                out AuthenticationHeaderValue? header) ||
-            !string.Equals(
-                header.Scheme,
-                "Bearer",
-                StringComparison.OrdinalIgnoreCase) ||
-            string.IsNullOrWhiteSpace(header.Parameter))
+                out AuthenticationHeaderValue? header
+            )
+            || !string.Equals(header.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(header.Parameter)
+        )
         {
             return Results.Unauthorized();
         }
 
         IAuthGateMachineTokenValidator validator =
-            httpContext.RequestServices.GetRequiredService<
-                IAuthGateMachineTokenValidator>();
+            httpContext.RequestServices.GetRequiredService<IAuthGateMachineTokenValidator>();
 
-        var principal = await validator.ValidateAsync(
-            header.Parameter,
-            httpContext.RequestAborted);
+        var principal = await validator.ValidateAsync(header.Parameter, httpContext.RequestAborted);
 
         if (principal is null)
         {

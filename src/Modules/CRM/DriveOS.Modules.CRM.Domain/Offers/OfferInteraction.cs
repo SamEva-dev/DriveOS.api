@@ -7,9 +7,16 @@ public sealed class OfferInteraction : Entity<OfferInteractionId>
 {
     private OfferInteraction() { }
 
-    internal OfferInteraction(OfferInteractionId id, CommercialOfferId offerId,
-        OfferInteractionType type, DateTimeOffset occurredAtUtc, UserId? actorUserId,
-        string? summary, string? metadataJson) : base(id)
+    internal OfferInteraction(
+        OfferInteractionId id,
+        CommercialOfferId offerId,
+        OfferInteractionType type,
+        DateTimeOffset occurredAtUtc,
+        UserId? actorUserId,
+        string? summary,
+        string? metadataJson
+    )
+        : base(id)
     {
         OfferId = offerId;
         Type = type;
@@ -40,5 +47,5 @@ public enum OfferInteractionType
     Rejected = 9,
     Withdrawn = 10,
     Expired = 11,
-    VersionCreated = 12
+    VersionCreated = 12,
 }

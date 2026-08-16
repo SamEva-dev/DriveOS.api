@@ -1,5 +1,5 @@
-using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.Modules.CRM.Domain.Assessments.Events;
+using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.SharedKernel.Auditing;
 using DriveOS.SharedKernel.Domain;
 using DriveOS.SharedKernel.Identifiers;
@@ -28,7 +28,9 @@ public sealed class AssessmentAppointment : AggregateRoot<AssessmentAppointmentI
         Guid? simulatorId,
         decimal? priceAmount,
         string? priceCurrency,
-        string? notes) : base(id)
+        string? notes
+    )
+        : base(id)
     {
         OrganizationId = organizationId;
         LeadId = leadId;
@@ -89,16 +91,27 @@ public sealed class AssessmentAppointment : AggregateRoot<AssessmentAppointmentI
         Guid? simulatorId,
         decimal? priceAmount,
         string? priceCurrency,
-        string? notes)
+        string? notes
+    )
     {
         if (id == AssessmentAppointmentId.Empty)
-            return Result.Failure<AssessmentAppointment>(AssessmentAppointmentErrors.InvalidIdentifier);
+            return Result.Failure<AssessmentAppointment>(
+                AssessmentAppointmentErrors.InvalidIdentifier
+            );
         if (startsAtUtc == default || endsAtUtc <= startsAtUtc)
             return Result.Failure<AssessmentAppointment>(AssessmentAppointmentErrors.InvalidPeriod);
 
         Result detailsValidation = ValidateSchedulingDetails(
-            branchId, deliveryMode, locationKind, locationDetails,
-            vehicleId, roomId, simulatorId, priceAmount, priceCurrency);
+            branchId,
+            deliveryMode,
+            locationKind,
+            locationDetails,
+            vehicleId,
+            roomId,
+            simulatorId,
+            priceAmount,
+            priceCurrency
+        );
         if (detailsValidation.IsFailure)
             return Result.Failure<AssessmentAppointment>(detailsValidation.Error);
 
@@ -123,15 +136,19 @@ public sealed class AssessmentAppointment : AggregateRoot<AssessmentAppointmentI
             simulatorId,
             priceAmount,
             NormalizeCurrency(priceCurrency),
-            normalizedNotes);
+            normalizedNotes
+        );
 
-        appointment.RaiseDomainEvent(new AssessmentAppointmentScheduledDomainEvent(
-            appointment.Id,
-            appointment.OrganizationId,
-            appointment.LeadId,
-            appointment.BranchId,
-            appointment.StartsAtUtc,
-            appointment.EndsAtUtc));
+        appointment.RaiseDomainEvent(
+            new AssessmentAppointmentScheduledDomainEvent(
+                appointment.Id,
+                appointment.OrganizationId,
+                appointment.LeadId,
+                appointment.BranchId,
+                appointment.StartsAtUtc,
+                appointment.EndsAtUtc
+            )
+        );
 
         return Result.Success(appointment);
     }
@@ -145,16 +162,22 @@ public sealed class AssessmentAppointment : AggregateRoot<AssessmentAppointmentI
         Guid? roomId,
         Guid? simulatorId,
         decimal? priceAmount,
-        string? priceCurrency)
+        string? priceCurrency
+    )
     {
         if (locationKind == AssessmentLocationKind.Branch && !branchId.HasValue)
             return Result.Failure(AssessmentAppointmentErrors.BranchRequired);
-        if (locationKind != AssessmentLocationKind.Branch && string.IsNullOrWhiteSpace(locationDetails))
+        if (
+            locationKind != AssessmentLocationKind.Branch
+            && string.IsNullOrWhiteSpace(locationDetails)
+        )
             return Result.Failure(AssessmentAppointmentErrors.LocationDetailsRequired);
         if (Normalize(locationDetails)?.Length > 500)
             return Result.Failure(AssessmentAppointmentErrors.LocationDetailsTooLong);
-        if (deliveryMode == AssessmentDeliveryMode.Remote &&
-            locationKind != AssessmentLocationKind.VideoConference)
+        if (
+            deliveryMode == AssessmentDeliveryMode.Remote
+            && locationKind != AssessmentLocationKind.VideoConference
+        )
             return Result.Failure(AssessmentAppointmentErrors.InvalidRemoteLocation);
         if (locationKind == AssessmentLocationKind.Simulator && !simulatorId.HasValue)
             return Result.Failure(AssessmentAppointmentErrors.SimulatorRequired);
@@ -187,11 +210,14 @@ public sealed class AssessmentAppointment : AggregateRoot<AssessmentAppointmentI
         EndsAtUtc = endsAtUtc.ToUniversalTime();
         Status = AssessmentAppointmentStatus.Rescheduled;
 
-        RaiseDomainEvent(new AssessmentAppointmentRescheduledDomainEvent(
-            Id,
-            OrganizationId,
-            StartsAtUtc,
-            EndsAtUtc));
+        RaiseDomainEvent(
+            new AssessmentAppointmentRescheduledDomainEvent(
+                Id,
+                OrganizationId,
+                StartsAtUtc,
+                EndsAtUtc
+            )
+        );
 
         return Result.Success();
     }
@@ -199,8 +225,11 @@ public sealed class AssessmentAppointment : AggregateRoot<AssessmentAppointmentI
     public Result Complete(DateTimeOffset nowUtc)
     {
         Result result = Close(AssessmentAppointmentStatus.Completed, nowUtc);
-        if (result.IsFailure) return result;
-        RaiseDomainEvent(new AssessmentAppointmentCompletedDomainEvent(Id, OrganizationId, ClosedAtUtc!.Value));
+        if (result.IsFailure)
+            return result;
+        RaiseDomainEvent(
+            new AssessmentAppointmentCompletedDomainEvent(Id, OrganizationId, ClosedAtUtc!.Value)
+        );
         return Result.Success();
     }
 
@@ -210,10 +239,9 @@ public sealed class AssessmentAppointment : AggregateRoot<AssessmentAppointmentI
         if (result.IsFailure)
             return result;
 
-        RaiseDomainEvent(new AssessmentAppointmentCancelledDomainEvent(
-            Id,
-            OrganizationId,
-            ClosedAtUtc!.Value));
+        RaiseDomainEvent(
+            new AssessmentAppointmentCancelledDomainEvent(Id, OrganizationId, ClosedAtUtc!.Value)
+        );
 
         return Result.Success();
     }
@@ -232,9 +260,10 @@ public sealed class AssessmentAppointment : AggregateRoot<AssessmentAppointmentI
     }
 
     private static bool IsActive(AssessmentAppointmentStatus status) =>
-        status is AssessmentAppointmentStatus.Scheduled
-            or AssessmentAppointmentStatus.Confirmed
-            or AssessmentAppointmentStatus.Rescheduled;
+        status
+            is AssessmentAppointmentStatus.Scheduled
+                or AssessmentAppointmentStatus.Confirmed
+                or AssessmentAppointmentStatus.Rescheduled;
 
     public void SetCreatedAudit(DateTimeOffset at, UserId? by)
     {

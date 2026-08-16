@@ -7,4 +7,5 @@ public sealed record OrganizationRepresentativeCreatedDomainEvent(
     OrganizationRepresentativeId RepresentativeId,
     OrganizationId OrganizationId,
     PersonId PersonId,
-    OrganizationRepresentativeType RepresentativeType) : DomainEvent;
+    OrganizationRepresentativeType RepresentativeType
+) : DomainEvent;

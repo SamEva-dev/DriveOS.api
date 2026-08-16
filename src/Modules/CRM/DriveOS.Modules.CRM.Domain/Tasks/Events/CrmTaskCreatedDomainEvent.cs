@@ -6,4 +6,5 @@ public sealed record CrmTaskCreatedDomainEvent(
     CrmTaskId TaskId,
     OrganizationId OrganizationId,
     LeadId LeadId,
-    DateTimeOffset DueAtUtc) : DomainEvent;
+    DateTimeOffset DueAtUtc
+) : DomainEvent;

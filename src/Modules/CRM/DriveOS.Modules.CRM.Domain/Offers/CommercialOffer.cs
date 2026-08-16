@@ -12,13 +12,26 @@ public sealed class CommercialOffer : AggregateRoot<CommercialOfferId>, IAuditab
 {
     private readonly List<CommercialOfferLine> _lines = [];
     private readonly List<OfferInteraction> _interactions = [];
+
     private CommercialOffer() { }
 
-    private CommercialOffer(CommercialOfferId id, OrganizationId organizationId, LeadId leadId,
-        AssessmentSessionId assessmentSessionId, int assessmentRevision, BranchId? branchId,
-        int version, string trainingCode, string currency, DateTimeOffset validUntilUtc,
-        decimal estimatedFundingAmount, string? financingNotes, string? conditions,
-        string? internalNotes) : base(id)
+    private CommercialOffer(
+        CommercialOfferId id,
+        OrganizationId organizationId,
+        LeadId leadId,
+        AssessmentSessionId assessmentSessionId,
+        int assessmentRevision,
+        BranchId? branchId,
+        int version,
+        string trainingCode,
+        string currency,
+        DateTimeOffset validUntilUtc,
+        decimal estimatedFundingAmount,
+        string? financingNotes,
+        string? conditions,
+        string? internalNotes
+    )
+        : base(id)
     {
         OrganizationId = organizationId;
         LeadId = leadId;
@@ -81,12 +94,24 @@ public sealed class CommercialOffer : AggregateRoot<CommercialOfferId>, IAuditab
     public DateTimeOffset? LastModifiedAtUtc { get; private set; }
     public UserId? LastModifiedByUserId { get; private set; }
 
-    public static Result<CommercialOffer> Generate(CommercialOfferId id, OrganizationId organizationId,
-        LeadId leadId, AssessmentSessionId assessmentSessionId, int assessmentRevision,
-        BranchId? branchId, int version, string trainingCode, string currency,
-        DateTimeOffset validUntilUtc, DateTimeOffset nowUtc, decimal estimatedFundingAmount,
-        string? financingNotes, string? conditions, string? internalNotes,
-        IReadOnlyCollection<CommercialOfferLineDraft> lines)
+    public static Result<CommercialOffer> Generate(
+        CommercialOfferId id,
+        OrganizationId organizationId,
+        LeadId leadId,
+        AssessmentSessionId assessmentSessionId,
+        int assessmentRevision,
+        BranchId? branchId,
+        int version,
+        string trainingCode,
+        string currency,
+        DateTimeOffset validUntilUtc,
+        DateTimeOffset nowUtc,
+        decimal estimatedFundingAmount,
+        string? financingNotes,
+        string? conditions,
+        string? internalNotes,
+        IReadOnlyCollection<CommercialOfferLineDraft> lines
+    )
     {
         if (id == CommercialOfferId.Empty || assessmentSessionId == AssessmentSessionId.Empty)
             return Result.Failure<CommercialOffer>(CommercialOfferErrors.InvalidIdentifier);
@@ -102,39 +127,81 @@ public sealed class CommercialOffer : AggregateRoot<CommercialOfferId>, IAuditab
         if (lines.Count == 0 || estimatedFundingAmount < 0)
             return Result.Failure<CommercialOffer>(CommercialOfferErrors.InvalidAmount);
 
-        var offer = new CommercialOffer(id, organizationId, leadId, assessmentSessionId,
-            assessmentRevision, branchId, version, trainingCode.Trim(), normalizedCurrency,
-            validUntilUtc.ToUniversalTime(), decimal.Round(estimatedFundingAmount, 2),
-            Normalize(financingNotes), Normalize(conditions), Normalize(internalNotes));
+        var offer = new CommercialOffer(
+            id,
+            organizationId,
+            leadId,
+            assessmentSessionId,
+            assessmentRevision,
+            branchId,
+            version,
+            trainingCode.Trim(),
+            normalizedCurrency,
+            validUntilUtc.ToUniversalTime(),
+            decimal.Round(estimatedFundingAmount, 2),
+            Normalize(financingNotes),
+            Normalize(conditions),
+            Normalize(internalNotes)
+        );
 
         foreach (CommercialOfferLineDraft line in lines)
         {
             Result addResult = offer.AddLine(line);
-            if (addResult.IsFailure) return Result.Failure<CommercialOffer>(addResult.Error);
+            if (addResult.IsFailure)
+                return Result.Failure<CommercialOffer>(addResult.Error);
         }
         offer.Recalculate();
-        offer.RaiseDomainEvent(new CommercialOfferCreatedDomainEvent(
-            offer.Id, offer.OrganizationId, offer.LeadId, offer.Version,
-            offer.Amount, offer.Currency));
+        offer.RaiseDomainEvent(
+            new CommercialOfferCreatedDomainEvent(
+                offer.Id,
+                offer.OrganizationId,
+                offer.LeadId,
+                offer.Version,
+                offer.Amount,
+                offer.Currency
+            )
+        );
         offer.AddInteraction(OfferInteractionType.Created, nowUtc, null, null, null);
         return Result.Success(offer);
     }
 
     private Result AddLine(CommercialOfferLineDraft line)
     {
-        if (string.IsNullOrWhiteSpace(line.Description) || line.Description.Trim().Length > 500 ||
-            line.Quantity <= 0 || string.IsNullOrWhiteSpace(line.Unit) || line.Unit.Trim().Length > 30 ||
-            line.UnitPrice < 0 || line.DiscountAmount < 0 || line.DiscountAmount > line.Quantity * line.UnitPrice ||
-            line.TaxRate is < 0 or > 100)
+        if (
+            string.IsNullOrWhiteSpace(line.Description)
+            || line.Description.Trim().Length > 500
+            || line.Quantity <= 0
+            || string.IsNullOrWhiteSpace(line.Unit)
+            || line.Unit.Trim().Length > 30
+            || line.UnitPrice < 0
+            || line.DiscountAmount < 0
+            || line.DiscountAmount > line.Quantity * line.UnitPrice
+            || line.TaxRate is < 0 or > 100
+        )
             return Result.Failure(CommercialOfferErrors.InvalidLine);
-        if (line.PriceSource == OfferPriceSource.ManualOverride && string.IsNullOrWhiteSpace(line.ManualOverrideReason))
+        if (
+            line.PriceSource == OfferPriceSource.ManualOverride
+            && string.IsNullOrWhiteSpace(line.ManualOverrideReason)
+        )
             return Result.Failure(CommercialOfferErrors.ManualOverrideReasonRequired);
 
-        _lines.Add(new CommercialOfferLine(CommercialOfferLineId.New(), Id, line.Type, line.ServiceId,
-            line.Description.Trim(), decimal.Round(line.Quantity, 2), line.Unit.Trim(),
-            decimal.Round(line.UnitPrice, 2), decimal.Round(line.DiscountAmount, 2),
-            decimal.Round(line.TaxRate, 2), line.Mandatory, line.PriceSource,
-            Normalize(line.ManualOverrideReason)));
+        _lines.Add(
+            new CommercialOfferLine(
+                CommercialOfferLineId.New(),
+                Id,
+                line.Type,
+                line.ServiceId,
+                line.Description.Trim(),
+                decimal.Round(line.Quantity, 2),
+                line.Unit.Trim(),
+                decimal.Round(line.UnitPrice, 2),
+                decimal.Round(line.DiscountAmount, 2),
+                decimal.Round(line.TaxRate, 2),
+                line.Mandatory,
+                line.PriceSource,
+                Normalize(line.ManualOverrideReason)
+            )
+        );
         return Result.Success();
     }
 
@@ -147,27 +214,52 @@ public sealed class CommercialOffer : AggregateRoot<CommercialOfferId>, IAuditab
         ProspectRemainingAmount = Math.Max(0, Amount - EstimatedFundingAmount);
     }
 
-    public Result SubmitForReview() => Transition(CommercialOfferStatus.Draft, CommercialOfferStatus.InternalReview);
-    public Result Approve() => Transition(CommercialOfferStatus.InternalReview, CommercialOfferStatus.Approved);
-    public Result PrepareDelivery(OfferDeliveryChannel channel, string recipientSnapshotJson,
-        string subject, string message, string language, string documentReference,
-        string? attachmentSnapshotJson, string? secureLinkTokenHash,
-        DateTimeOffset? secureLinkExpiresAtUtc, DateTimeOffset nowUtc)
+    public Result SubmitForReview() =>
+        Transition(CommercialOfferStatus.Draft, CommercialOfferStatus.InternalReview);
+
+    public Result Approve() =>
+        Transition(CommercialOfferStatus.InternalReview, CommercialOfferStatus.Approved);
+
+    public Result PrepareDelivery(
+        OfferDeliveryChannel channel,
+        string recipientSnapshotJson,
+        string subject,
+        string message,
+        string language,
+        string documentReference,
+        string? attachmentSnapshotJson,
+        string? secureLinkTokenHash,
+        DateTimeOffset? secureLinkExpiresAtUtc,
+        DateTimeOffset nowUtc
+    )
     {
-        if (Status is not (CommercialOfferStatus.Approved or CommercialOfferStatus.Sent) || ValidUntilUtc <= nowUtc)
+        if (
+            Status is not (CommercialOfferStatus.Approved or CommercialOfferStatus.Sent)
+            || ValidUntilUtc <= nowUtc
+        )
             return Result.Failure(CommercialOfferErrors.InvalidTransition);
         if (string.IsNullOrWhiteSpace(recipientSnapshotJson) || recipientSnapshotJson == "[]")
             return Result.Failure(CommercialOfferErrors.RecipientRequired);
-        if (string.IsNullOrWhiteSpace(subject) || subject.Trim().Length > 250 ||
-            string.IsNullOrWhiteSpace(message) || message.Trim().Length > 8000)
+        if (
+            string.IsNullOrWhiteSpace(subject)
+            || subject.Trim().Length > 250
+            || string.IsNullOrWhiteSpace(message)
+            || message.Trim().Length > 8000
+        )
             return Result.Failure(CommercialOfferErrors.InvalidMessage);
         string normalizedLanguage = language?.Trim().ToLowerInvariant() ?? string.Empty;
         if (normalizedLanguage.Length is < 2 or > 10)
             return Result.Failure(CommercialOfferErrors.InvalidLanguage);
         if (string.IsNullOrWhiteSpace(documentReference) || documentReference.Trim().Length > 500)
             return Result.Failure(CommercialOfferErrors.InvalidMessage);
-        if (channel.RequiresSecureLink() &&
-            (string.IsNullOrWhiteSpace(secureLinkTokenHash) || secureLinkExpiresAtUtc is null || secureLinkExpiresAtUtc <= nowUtc))
+        if (
+            channel.RequiresSecureLink()
+            && (
+                string.IsNullOrWhiteSpace(secureLinkTokenHash)
+                || secureLinkExpiresAtUtc is null
+                || secureLinkExpiresAtUtc <= nowUtc
+            )
+        )
             return Result.Failure(CommercialOfferErrors.SecureLinkRequired);
 
         DeliveryChannel = channel;
@@ -182,143 +274,329 @@ public sealed class CommercialOffer : AggregateRoot<CommercialOfferId>, IAuditab
         SecureLinkRevokedAtUtc = null;
         DeliveryAttemptCount++;
         DeliveryStatus = OfferDeliveryStatus.Ready;
-        RaiseDomainEvent(new CommercialOfferDeliveryPreparedDomainEvent(
-            Id, OrganizationId, LeadId, channel,
-            CountRecipients(recipientSnapshotJson), normalizedLanguage, SecureLinkExpiresAtUtc));
+        RaiseDomainEvent(
+            new CommercialOfferDeliveryPreparedDomainEvent(
+                Id,
+                OrganizationId,
+                LeadId,
+                channel,
+                CountRecipients(recipientSnapshotJson),
+                normalizedLanguage,
+                SecureLinkExpiresAtUtc
+            )
+        );
         return Result.Success();
     }
 
     public Result MarkSent(DateTimeOffset nowUtc)
     {
-        if (Status is not (CommercialOfferStatus.Approved or CommercialOfferStatus.Sent) || DeliveryStatus is not (OfferDeliveryStatus.Ready or OfferDeliveryStatus.Sending))
+        if (
+            Status is not (CommercialOfferStatus.Approved or CommercialOfferStatus.Sent)
+            || DeliveryStatus is not (OfferDeliveryStatus.Ready or OfferDeliveryStatus.Sending)
+        )
             return Result.Failure(CommercialOfferErrors.InvalidTransition);
         Status = CommercialOfferStatus.Sent;
         DeliveryStatus = OfferDeliveryStatus.Sent;
         SentAtUtc = nowUtc.ToUniversalTime();
         LastContactAtUtc = SentAtUtc;
         AddInteraction(OfferInteractionType.Sent, SentAtUtc.Value, null, null, null);
-        RaiseDomainEvent(new CommercialOfferSentDomainEvent(Id, OrganizationId, LeadId, SentAtUtc.Value));
+        RaiseDomainEvent(
+            new CommercialOfferSentDomainEvent(Id, OrganizationId, LeadId, SentAtUtc.Value)
+        );
         return Result.Success();
     }
 
     public Result RevokeSecureLink(DateTimeOffset nowUtc)
     {
-        if (SecureLinkExpiresAtUtc is null) return Result.Failure(CommercialOfferErrors.SecureLinkRequired);
-        if (SecureLinkRevokedAtUtc is not null) return Result.Failure(CommercialOfferErrors.SecureLinkAlreadyRevoked);
+        if (SecureLinkExpiresAtUtc is null)
+            return Result.Failure(CommercialOfferErrors.SecureLinkRequired);
+        if (SecureLinkRevokedAtUtc is not null)
+            return Result.Failure(CommercialOfferErrors.SecureLinkAlreadyRevoked);
         SecureLinkRevokedAtUtc = nowUtc.ToUniversalTime();
         DeliveryStatus = OfferDeliveryStatus.LinkExpired;
-        RaiseDomainEvent(new CommercialOfferSecureLinkRevokedDomainEvent(
-            Id, OrganizationId, LeadId, SecureLinkRevokedAtUtc.Value));
+        RaiseDomainEvent(
+            new CommercialOfferSecureLinkRevokedDomainEvent(
+                Id,
+                OrganizationId,
+                LeadId,
+                SecureLinkRevokedAtUtc.Value
+            )
+        );
         return Result.Success();
     }
+
     public Result Accept(DateTimeOffset nowUtc)
     {
         Result result = Decide(CommercialOfferStatus.Accepted, nowUtc);
         if (result.IsSuccess)
         {
             AddInteraction(OfferInteractionType.Accepted, DecidedAtUtc!.Value, null, null, null);
-            RaiseDomainEvent(new CommercialOfferAcceptedDomainEvent(Id, OrganizationId, LeadId, DecidedAtUtc.Value));
+            RaiseDomainEvent(
+                new CommercialOfferAcceptedDomainEvent(
+                    Id,
+                    OrganizationId,
+                    LeadId,
+                    DecidedAtUtc.Value
+                )
+            );
         }
         return result;
     }
+
     public Result Reject(DateTimeOffset nowUtc)
     {
         Result result = Decide(CommercialOfferStatus.Rejected, nowUtc);
         if (result.IsSuccess)
         {
             AddInteraction(OfferInteractionType.Rejected, DecidedAtUtc!.Value, null, null, null);
-            RaiseDomainEvent(new CommercialOfferRejectedDomainEvent(Id, OrganizationId, LeadId, DecidedAtUtc.Value));
+            RaiseDomainEvent(
+                new CommercialOfferRejectedDomainEvent(
+                    Id,
+                    OrganizationId,
+                    LeadId,
+                    DecidedAtUtc.Value
+                )
+            );
         }
         return result;
     }
-    public Result Supersede(DateTimeOffset nowUtc) { Status = CommercialOfferStatus.Superseded; DecidedAtUtc = nowUtc.ToUniversalTime(); return Result.Success(); }
+
+    public Result Supersede(DateTimeOffset nowUtc)
+    {
+        Status = CommercialOfferStatus.Superseded;
+        DecidedAtUtc = nowUtc.ToUniversalTime();
+        return Result.Success();
+    }
+
     public Result RecordView(DateTimeOffset nowUtc)
     {
-        if (Status is not (CommercialOfferStatus.Sent or CommercialOfferStatus.Viewed or CommercialOfferStatus.Negotiation) ||
-            SecureLinkRevokedAtUtc is not null || SecureLinkExpiresAtUtc is null || SecureLinkExpiresAtUtc <= nowUtc)
+        if (
+            Status
+                is not (
+                    CommercialOfferStatus.Sent
+                    or CommercialOfferStatus.Viewed
+                    or CommercialOfferStatus.Negotiation
+                )
+            || SecureLinkRevokedAtUtc is not null
+            || SecureLinkExpiresAtUtc is null
+            || SecureLinkExpiresAtUtc <= nowUtc
+        )
             return Result.Failure(CommercialOfferErrors.SecureLinkExpired);
 
         DateTimeOffset viewedAt = nowUtc.ToUniversalTime();
         ViewedAtUtc ??= viewedAt;
         LastViewedAtUtc = viewedAt;
         ViewCount++;
-        if (Status == CommercialOfferStatus.Sent) Status = CommercialOfferStatus.Viewed;
+        if (Status == CommercialOfferStatus.Sent)
+            Status = CommercialOfferStatus.Viewed;
         DeliveryStatus = OfferDeliveryStatus.Viewed;
         AddInteraction(OfferInteractionType.Viewed, viewedAt, null, null, null);
-        RaiseDomainEvent(new CommercialOfferViewedDomainEvent(Id, OrganizationId, LeadId, ViewCount, viewedAt));
+        RaiseDomainEvent(
+            new CommercialOfferViewedDomainEvent(Id, OrganizationId, LeadId, ViewCount, viewedAt)
+        );
         return Result.Success();
     }
 
-    public Result RecordExchange(OfferInteractionType type, string summary,
-        string? metadataJson, UserId? actorUserId, DateTimeOffset nowUtc)
+    public Result RecordExchange(
+        OfferInteractionType type,
+        string summary,
+        string? metadataJson,
+        UserId? actorUserId,
+        DateTimeOffset nowUtc
+    )
     {
-        if (type is not (OfferInteractionType.QuestionReceived or OfferInteractionType.ModificationRequested or
-            OfferInteractionType.FollowUpCompleted) || string.IsNullOrWhiteSpace(summary) || summary.Trim().Length > 4000)
+        if (
+            type
+                is not (
+                    OfferInteractionType.QuestionReceived
+                    or OfferInteractionType.ModificationRequested
+                    or OfferInteractionType.FollowUpCompleted
+                )
+            || string.IsNullOrWhiteSpace(summary)
+            || summary.Trim().Length > 4000
+        )
             return Result.Failure(CommercialOfferErrors.InvalidInteraction);
-        if (Status is not (CommercialOfferStatus.Sent or CommercialOfferStatus.Viewed or CommercialOfferStatus.Negotiation))
+        if (
+            Status
+            is not (
+                CommercialOfferStatus.Sent
+                or CommercialOfferStatus.Viewed
+                or CommercialOfferStatus.Negotiation
+            )
+        )
             return Result.Failure(CommercialOfferErrors.InvalidTransition);
 
         Status = CommercialOfferStatus.Negotiation;
         LastContactAtUtc = nowUtc.ToUniversalTime();
-        OfferInteraction interaction = AddInteraction(type, LastContactAtUtc.Value, actorUserId,
-            summary.Trim(), Normalize(metadataJson));
+        OfferInteraction interaction = AddInteraction(
+            type,
+            LastContactAtUtc.Value,
+            actorUserId,
+            summary.Trim(),
+            Normalize(metadataJson)
+        );
         if (type == OfferInteractionType.ModificationRequested)
-            RaiseDomainEvent(new CommercialOfferModificationRequestedDomainEvent(Id, OrganizationId, LeadId, interaction.Id));
+            RaiseDomainEvent(
+                new CommercialOfferModificationRequestedDomainEvent(
+                    Id,
+                    OrganizationId,
+                    LeadId,
+                    interaction.Id
+                )
+            );
         return Result.Success();
     }
 
-    public Result ScheduleFollowUp(DateTimeOffset nextFollowUpAtUtc, string? note,
-        UserId? actorUserId, DateTimeOffset nowUtc)
+    public Result ScheduleFollowUp(
+        DateTimeOffset nextFollowUpAtUtc,
+        string? note,
+        UserId? actorUserId,
+        DateTimeOffset nowUtc
+    )
     {
-        if (nextFollowUpAtUtc <= nowUtc || Status is CommercialOfferStatus.Accepted or CommercialOfferStatus.Rejected or
-            CommercialOfferStatus.Withdrawn or CommercialOfferStatus.Expired or CommercialOfferStatus.Superseded)
+        if (
+            nextFollowUpAtUtc <= nowUtc
+            || Status
+                is CommercialOfferStatus.Accepted
+                    or CommercialOfferStatus.Rejected
+                    or CommercialOfferStatus.Withdrawn
+                    or CommercialOfferStatus.Expired
+                    or CommercialOfferStatus.Superseded
+        )
             return Result.Failure(CommercialOfferErrors.FollowUpDateRequired);
         NextFollowUpAtUtc = nextFollowUpAtUtc.ToUniversalTime();
-        AddInteraction(OfferInteractionType.FollowUpScheduled, nowUtc, actorUserId,
-            Normalize(note), $"{{\"nextFollowUpAtUtc\":\"{NextFollowUpAtUtc:O}\"}}");
+        AddInteraction(
+            OfferInteractionType.FollowUpScheduled,
+            nowUtc,
+            actorUserId,
+            Normalize(note),
+            $"{{\"nextFollowUpAtUtc\":\"{NextFollowUpAtUtc:O}\"}}"
+        );
         return Result.Success();
     }
 
     public Result Withdraw(string reason, UserId? actorUserId, DateTimeOffset nowUtc)
     {
-        if (Status is CommercialOfferStatus.Accepted or CommercialOfferStatus.Rejected or
-            CommercialOfferStatus.Withdrawn or CommercialOfferStatus.Expired or CommercialOfferStatus.Superseded ||
-            string.IsNullOrWhiteSpace(reason))
+        if (
+            Status
+                is CommercialOfferStatus.Accepted
+                    or CommercialOfferStatus.Rejected
+                    or CommercialOfferStatus.Withdrawn
+                    or CommercialOfferStatus.Expired
+                    or CommercialOfferStatus.Superseded
+            || string.IsNullOrWhiteSpace(reason)
+        )
             return Result.Failure(CommercialOfferErrors.InvalidTransition);
         Status = CommercialOfferStatus.Withdrawn;
         DecidedAtUtc = nowUtc.ToUniversalTime();
-        AddInteraction(OfferInteractionType.Withdrawn, DecidedAtUtc.Value, actorUserId, reason.Trim(), null);
-        RaiseDomainEvent(new CommercialOfferWithdrawnDomainEvent(Id, OrganizationId, LeadId, DecidedAtUtc.Value));
+        AddInteraction(
+            OfferInteractionType.Withdrawn,
+            DecidedAtUtc.Value,
+            actorUserId,
+            reason.Trim(),
+            null
+        );
+        RaiseDomainEvent(
+            new CommercialOfferWithdrawnDomainEvent(Id, OrganizationId, LeadId, DecidedAtUtc.Value)
+        );
         return Result.Success();
     }
 
     public Result Expire(DateTimeOffset nowUtc)
     {
-        if (ValidUntilUtc > nowUtc || Status is CommercialOfferStatus.Accepted or CommercialOfferStatus.Rejected or CommercialOfferStatus.Withdrawn)
+        if (
+            ValidUntilUtc > nowUtc
+            || Status
+                is CommercialOfferStatus.Accepted
+                    or CommercialOfferStatus.Rejected
+                    or CommercialOfferStatus.Withdrawn
+        )
             return Result.Failure(CommercialOfferErrors.InvalidTransition);
-        if (Status == CommercialOfferStatus.Expired) return Result.Failure(CommercialOfferErrors.OfferAlreadyExpired);
+        if (Status == CommercialOfferStatus.Expired)
+            return Result.Failure(CommercialOfferErrors.OfferAlreadyExpired);
         Status = CommercialOfferStatus.Expired;
         DecidedAtUtc = nowUtc.ToUniversalTime();
         AddInteraction(OfferInteractionType.Expired, DecidedAtUtc.Value, null, null, null);
         return Result.Success();
     }
-    private Result Transition(CommercialOfferStatus from, CommercialOfferStatus to) { if (Status != from) return Result.Failure(CommercialOfferErrors.InvalidTransition); Status = to; return Result.Success(); }
-    private Result Decide(CommercialOfferStatus target, DateTimeOffset nowUtc) { if (Status is not (CommercialOfferStatus.Sent or CommercialOfferStatus.Viewed or CommercialOfferStatus.Negotiation) || ValidUntilUtc < nowUtc) return Result.Failure(CommercialOfferErrors.InvalidTransition); Status = target; DecidedAtUtc = nowUtc.ToUniversalTime(); return Result.Success(); }
-    public void SetCreatedAudit(DateTimeOffset at, UserId? by) { if (CreatedAtUtc == default) { CreatedAtUtc = at; CreatedByUserId = by; } }
-    public void SetModifiedAudit(DateTimeOffset at, UserId? by) { LastModifiedAtUtc = at; LastModifiedByUserId = by; }
-    private static string? Normalize(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-    private static int CountRecipients(string snapshot) => snapshot.Count(x => x == '{');
-    private OfferInteraction AddInteraction(OfferInteractionType type, DateTimeOffset occurredAtUtc,
-        UserId? actorUserId, string? summary, string? metadataJson)
+
+    private Result Transition(CommercialOfferStatus from, CommercialOfferStatus to)
     {
-        var interaction = new OfferInteraction(OfferInteractionId.New(), Id, type,
-            occurredAtUtc, actorUserId, summary, metadataJson);
+        if (Status != from)
+            return Result.Failure(CommercialOfferErrors.InvalidTransition);
+        Status = to;
+        return Result.Success();
+    }
+
+    private Result Decide(CommercialOfferStatus target, DateTimeOffset nowUtc)
+    {
+        if (
+            Status
+                is not (
+                    CommercialOfferStatus.Sent
+                    or CommercialOfferStatus.Viewed
+                    or CommercialOfferStatus.Negotiation
+                )
+            || ValidUntilUtc < nowUtc
+        )
+            return Result.Failure(CommercialOfferErrors.InvalidTransition);
+        Status = target;
+        DecidedAtUtc = nowUtc.ToUniversalTime();
+        return Result.Success();
+    }
+
+    public void SetCreatedAudit(DateTimeOffset at, UserId? by)
+    {
+        if (CreatedAtUtc == default)
+        {
+            CreatedAtUtc = at;
+            CreatedByUserId = by;
+        }
+    }
+
+    public void SetModifiedAudit(DateTimeOffset at, UserId? by)
+    {
+        LastModifiedAtUtc = at;
+        LastModifiedByUserId = by;
+    }
+
+    private static string? Normalize(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static int CountRecipients(string snapshot) => snapshot.Count(x => x == '{');
+
+    private OfferInteraction AddInteraction(
+        OfferInteractionType type,
+        DateTimeOffset occurredAtUtc,
+        UserId? actorUserId,
+        string? summary,
+        string? metadataJson
+    )
+    {
+        var interaction = new OfferInteraction(
+            OfferInteractionId.New(),
+            Id,
+            type,
+            occurredAtUtc,
+            actorUserId,
+            summary,
+            metadataJson
+        );
         _interactions.Add(interaction);
         return interaction;
     }
 }
 
-public sealed record CommercialOfferLineDraft(OfferLineType Type, ServiceId? ServiceId,
-    string Description, decimal Quantity, string Unit, decimal UnitPrice,
-    decimal DiscountAmount, decimal TaxRate, bool Mandatory,
-    OfferPriceSource PriceSource, string? ManualOverrideReason);
+public sealed record CommercialOfferLineDraft(
+    OfferLineType Type,
+    ServiceId? ServiceId,
+    string Description,
+    decimal Quantity,
+    string Unit,
+    decimal UnitPrice,
+    decimal DiscountAmount,
+    decimal TaxRate,
+    bool Mandatory,
+    OfferPriceSource PriceSource,
+    string? ManualOverrideReason
+);

@@ -1,8 +1,7 @@
 ﻿using DriveOS.SharedKernel.Domain;
 using DriveOS.SharedKernel.Identifiers;
 
-namespace DriveOS.Modules.Organizations.Domain
-    .Branches.Events;
+namespace DriveOS.Modules.Organizations.Domain.Branches.Events;
 
 public sealed record BranchStatusChangedDomainEvent(
     BranchId BranchId,
@@ -11,5 +10,5 @@ public sealed record BranchStatusChangedDomainEvent(
     BranchStatus NewStatus,
     string Reason,
     Guid ChangedByUserId,
-    DateTimeOffset ChangedAtUtc)
-    : DomainEvent;
+    DateTimeOffset ChangedAtUtc
+) : DomainEvent;

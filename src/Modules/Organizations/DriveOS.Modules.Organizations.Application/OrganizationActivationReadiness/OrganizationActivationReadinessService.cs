@@ -5,15 +5,17 @@ using DriveOS.SharedKernel.Identifiers;
 namespace DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness;
 
 public sealed class OrganizationActivationReadinessService(
-    IEnumerable<IOrganizationActivationReadinessRule> rules)
-    : IOrganizationActivationReadinessService
+    IEnumerable<IOrganizationActivationReadinessRule> rules
+) : IOrganizationActivationReadinessService
 {
-    private readonly IReadOnlyCollection<IOrganizationActivationReadinessRule> _rules =
-        rules.OrderBy(x => x.Order).ToArray();
+    private readonly IReadOnlyCollection<IOrganizationActivationReadinessRule> _rules = rules
+        .OrderBy(x => x.Order)
+        .ToArray();
 
     public async Task<OrganizationActivationReadinessReport> EvaluateAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         List<OrganizationActivationRequirementResult> results = [];
 
@@ -23,7 +25,8 @@ public sealed class OrganizationActivationReadinessService(
         }
 
         bool isReady = results.All(x =>
-            x.IsSatisfied || x.Severity != OrganizationActivationRequirementSeverity.Blocking);
+            x.IsSatisfied || x.Severity != OrganizationActivationRequirementSeverity.Blocking
+        );
 
         return new OrganizationActivationReadinessReport(organizationId, isReady, results);
     }

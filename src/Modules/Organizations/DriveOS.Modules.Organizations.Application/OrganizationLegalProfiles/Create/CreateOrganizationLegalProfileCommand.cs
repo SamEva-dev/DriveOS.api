@@ -17,4 +17,5 @@ public sealed record CreateOrganizationLegalProfileCommand(
     string City,
     string? Region,
     string CountryCode,
-    bool ActivateImmediately) : ICommand<OrganizationLegalProfileId>;
+    bool ActivateImmediately
+) : ICommand<OrganizationLegalProfileId>;

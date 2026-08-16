@@ -29,12 +29,22 @@ public sealed class CommercialOfferTrackingTests
         CommercialOffer offer = CreateSentOffer();
         decimal amount = offer.Amount;
 
-        offer.RecordExchange(OfferInteractionType.ModificationRequested,
-            "Different payment schedule", null, UserId.New(), Now.AddHours(1)).IsSuccess.Should().BeTrue();
+        offer
+            .RecordExchange(
+                OfferInteractionType.ModificationRequested,
+                "Different payment schedule",
+                null,
+                UserId.New(),
+                Now.AddHours(1)
+            )
+            .IsSuccess.Should()
+            .BeTrue();
 
         offer.Status.Should().Be(CommercialOfferStatus.Negotiation);
         offer.Amount.Should().Be(amount);
-        offer.Interactions.Should().ContainSingle(x => x.Type == OfferInteractionType.ModificationRequested);
+        offer
+            .Interactions.Should()
+            .ContainSingle(x => x.Type == OfferInteractionType.ModificationRequested);
     }
 
     [Fact]
@@ -49,16 +59,54 @@ public sealed class CommercialOfferTrackingTests
 
     private static CommercialOffer CreateSentOffer()
     {
-        CommercialOffer offer = CommercialOffer.Generate(CommercialOfferId.New(), OrganizationId.New(),
-            LeadId.New(), AssessmentSessionId.New(), 1, null, 1, "B", "EUR",
-            Now.AddDays(10), Now, 0, null, null, null,
-            [new CommercialOfferLineDraft(OfferLineType.RegistrationFee, null, "Registration",
-                1, "unit", 100, 0, 20, true, OfferPriceSource.StandardCatalog, null)]).Value;
+        CommercialOffer offer = CommercialOffer
+            .Generate(
+                CommercialOfferId.New(),
+                OrganizationId.New(),
+                LeadId.New(),
+                AssessmentSessionId.New(),
+                1,
+                null,
+                1,
+                "B",
+                "EUR",
+                Now.AddDays(10),
+                Now,
+                0,
+                null,
+                null,
+                null,
+                [
+                    new CommercialOfferLineDraft(
+                        OfferLineType.RegistrationFee,
+                        null,
+                        "Registration",
+                        1,
+                        "unit",
+                        100,
+                        0,
+                        20,
+                        true,
+                        OfferPriceSource.StandardCatalog,
+                        null
+                    ),
+                ]
+            )
+            .Value;
         offer.SubmitForReview();
         offer.Approve();
-        offer.PrepareDelivery(OfferDeliveryChannel.SecureLink, "[{\"type\":\"Prospect\"}]",
-            "Subject", "Message", "fr", "offer.pdf", "[]", new string('a', 64),
-            Now.AddDays(2), Now);
+        offer.PrepareDelivery(
+            OfferDeliveryChannel.SecureLink,
+            "[{\"type\":\"Prospect\"}]",
+            "Subject",
+            "Message",
+            "fr",
+            "offer.pdf",
+            "[]",
+            new string('a', 64),
+            Now.AddDays(2),
+            Now
+        );
         offer.MarkSent(Now);
         return offer;
     }

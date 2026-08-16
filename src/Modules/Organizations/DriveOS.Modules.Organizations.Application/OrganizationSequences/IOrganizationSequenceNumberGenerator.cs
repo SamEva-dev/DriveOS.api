@@ -13,5 +13,6 @@ public interface IOrganizationSequenceNumberGenerator
         OrganizationId organizationId,
         BranchId? branchId,
         string code,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

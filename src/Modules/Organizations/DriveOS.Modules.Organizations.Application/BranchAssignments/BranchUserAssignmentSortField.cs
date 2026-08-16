@@ -1,5 +1,4 @@
-﻿namespace DriveOS.Modules.Organizations.Application
-    .BranchAssignments;
+﻿namespace DriveOS.Modules.Organizations.Application.BranchAssignments;
 
 public enum BranchUserAssignmentSortField
 {

@@ -5,4 +5,5 @@ namespace DriveOS.Modules.Organizations.Application.Networks.AddNetworkMember;
 
 public sealed record AddNetworkMemberCommand(
     OrganizationId NetworkOrganizationId,
-    OrganizationId MemberOrganizationId) : ICommand<NetworkOrganizationMembershipId>;
+    OrganizationId MemberOrganizationId
+) : ICommand<NetworkOrganizationMembershipId>;

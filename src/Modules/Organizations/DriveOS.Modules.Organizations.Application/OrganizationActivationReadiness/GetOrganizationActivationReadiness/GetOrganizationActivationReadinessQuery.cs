@@ -4,6 +4,5 @@ using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.GetOrganizationActivationReadiness;
 
-public sealed record GetOrganizationActivationReadinessQuery(
-    OrganizationId OrganizationId)
+public sealed record GetOrganizationActivationReadinessQuery(OrganizationId OrganizationId)
     : IQuery<OrganizationActivationReadinessReport>;

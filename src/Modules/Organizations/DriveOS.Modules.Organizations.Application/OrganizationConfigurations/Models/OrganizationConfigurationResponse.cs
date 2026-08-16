@@ -15,7 +15,8 @@ public sealed record OrganizationConfigurationResponse(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);
 
 public sealed record OrganizationConfigurationListItemResponse(
     Guid Id,
@@ -26,4 +27,5 @@ public sealed record OrganizationConfigurationListItemResponse(
     DateTimeOffset? EffectiveToUtc,
     DateTimeOffset? PublishedAtUtc,
     int Revision,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc
+);

@@ -9,10 +9,12 @@ public interface IOrganizationRepresentativeReadService
     Task<OrganizationRepresentativeResponse?> GetByIdAsync(
         OrganizationId organizationId,
         OrganizationRepresentativeId representativeId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<IReadOnlyCollection<OrganizationRepresentativeListItem>> GetListAsync(
         OrganizationId organizationId,
         OrganizationRepresentativeStatus? status,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

@@ -6,7 +6,8 @@ public interface IOrganizationActivationReadinessAuditSink
 {
     Task WriteAsync(
         OrganizationActivationReadinessAuditEntry entry,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }
 
 public sealed record OrganizationActivationReadinessAuditEntry(
@@ -15,4 +16,5 @@ public sealed record OrganizationActivationReadinessAuditEntry(
     string Action,
     bool IsReady,
     IReadOnlyCollection<string> BlockingRequirementCodes,
-    DateTimeOffset OccurredAtUtc);
+    DateTimeOffset OccurredAtUtc
+);

@@ -4,4 +4,5 @@ using DriveOS.Modules.Organizations.Domain.OrganizationClosures;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationClosures.GetReadiness;
 
-public sealed record GetOrganizationClosureReadinessQuery(OrganizationClosureId ClosureId) : IQuery<OrganizationClosureReadinessModel>;
+public sealed record GetOrganizationClosureReadinessQuery(OrganizationClosureId ClosureId)
+    : IQuery<OrganizationClosureReadinessModel>;

@@ -6,16 +6,11 @@ public abstract class AggregateRoot<TId> : Entity<TId>
     private readonly List<IDomainEvent> _domainEvents = [];
 
     protected AggregateRoot(TId id)
-        : base(id)
-    {
-    }
+        : base(id) { }
 
-    protected AggregateRoot()
-    {
-    }
+    protected AggregateRoot() { }
 
-    public IReadOnlyCollection<IDomainEvent> DomainEvents =>
-        _domainEvents.AsReadOnly();
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
     protected void RaiseDomainEvent(IDomainEvent domainEvent)
     {

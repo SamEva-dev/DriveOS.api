@@ -35,7 +35,14 @@ public sealed record LeadResponse(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);
 
-public sealed record LeadQualificationResponse(string Need, string LicenseCategory,
-    string Availability, DateOnly? TargetDate, FinancingOption Financing, string? Notes);
+public sealed record LeadQualificationResponse(
+    string Need,
+    string LicenseCategory,
+    string Availability,
+    DateOnly? TargetDate,
+    FinancingOption Financing,
+    string? Notes
+);

@@ -3,10 +3,11 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Co
 public sealed record OrganizationLegalProfileComplianceIssue(
     string Code,
     string Message,
-    OrganizationLegalProfileComplianceSeverity Severity);
+    OrganizationLegalProfileComplianceSeverity Severity
+);
 
 public enum OrganizationLegalProfileComplianceSeverity
 {
     Warning = 1,
-    Blocking = 2
+    Blocking = 2,
 }

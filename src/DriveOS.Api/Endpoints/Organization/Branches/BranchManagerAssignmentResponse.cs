@@ -10,4 +10,5 @@ public sealed record BranchManagerAssignmentResponse(
     Guid AssignedByUserId,
     DateTimeOffset AssignedAtUtc,
     Guid? EndedByUserId,
-    DateTimeOffset? EndedAtUtc);
+    DateTimeOffset? EndedAtUtc
+);

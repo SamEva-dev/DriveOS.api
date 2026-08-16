@@ -12,5 +12,5 @@ public enum LeadSourceType
     PartnerDrivingSchool = 8,
     FreelanceInstructor = 9,
     ExternalImport = 10,
-    Other = 99
+    Other = 99,
 }

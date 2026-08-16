@@ -13,37 +13,44 @@ namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationClosures;
 /// </summary>
 internal sealed class OrganizationAnonymizationService(
     OrganizationsDbContext dbContext,
-    ILogger<OrganizationAnonymizationService> logger)
-    : IOrganizationAnonymizationService
+    ILogger<OrganizationAnonymizationService> logger
+) : IOrganizationAnonymizationService
 {
     public Task<bool> HasIrreversibleAnonymizationStartedAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken) =>
-        dbContext.OrganizationClosures
-            .AsNoTracking()
+        CancellationToken cancellationToken
+    ) =>
+        dbContext
+            .OrganizationClosures.AsNoTracking()
             .AnyAsync(
-                x => x.OrganizationId == organizationId &&
-                     x.Status == OrganizationClosureStatus.Completed &&
-                     x.DataDisposition == OrganizationDataDisposition.AnonymizeAfterRetention &&
-                     x.RetentionUntilUtc != null &&
-                     x.RetentionUntilUtc <= DateTimeOffset.UtcNow,
-                cancellationToken);
+                x =>
+                    x.OrganizationId == organizationId
+                    && x.Status == OrganizationClosureStatus.Completed
+                    && x.DataDisposition == OrganizationDataDisposition.AnonymizeAfterRetention
+                    && x.RetentionUntilUtc != null
+                    && x.RetentionUntilUtc <= DateTimeOffset.UtcNow,
+                cancellationToken
+            );
 
     public Task AnonymizeAsync(
         OrganizationId organizationId,
         DateTimeOffset dueAtUtc,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         if (dueAtUtc > DateTimeOffset.UtcNow)
-            throw new InvalidOperationException("The anonymization retention date has not been reached.");
+            throw new InvalidOperationException(
+                "The anonymization retention date has not been reached."
+            );
 
         logger.LogWarning(
-            "Organization {OrganizationId} reached its anonymization date {DueAtUtc}. " +
-            "No destructive action was executed by Organization & Tenancy; owning bounded-context anonymizers must process their PII.",
+            "Organization {OrganizationId} reached its anonymization date {DueAtUtc}. "
+                + "No destructive action was executed by Organization & Tenancy; owning bounded-context anonymizers must process their PII.",
             organizationId,
-            dueAtUtc);
+            dueAtUtc
+        );
 
         return Task.CompletedTask;
     }

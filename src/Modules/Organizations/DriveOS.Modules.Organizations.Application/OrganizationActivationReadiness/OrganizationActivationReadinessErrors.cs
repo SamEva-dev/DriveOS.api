@@ -6,7 +6,8 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationActivationReadin
 public static class OrganizationActivationReadinessErrors
 {
     public static Error RequirementsNotMet(
-        IReadOnlyCollection<OrganizationActivationRequirementResult> blockingRequirements) =>
+        IReadOnlyCollection<OrganizationActivationRequirementResult> blockingRequirements
+    ) =>
         Error.Conflict(
             code: "Organizations.Activation.RequirementsNotMet",
             messageKey: "errors.organizations.activation.requirementsNotMet",
@@ -17,8 +18,9 @@ public static class OrganizationActivationReadinessErrors
                     {
                         x.Code,
                         x.MessageKey,
-                        x.Parameters
+                        x.Parameters,
                     })
-                    .ToArray()
-            });
+                    .ToArray(),
+            }
+        );
 }

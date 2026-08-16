@@ -13,22 +13,34 @@ public sealed class OrganizationConfigurationsApiMappingProfile : MappingProfile
 {
     public override void Configure(IMappingConfiguration configuration)
     {
-        configuration.CreateMap<OrganizationConfigurationResponse,
-            OrganizationConfigurationResponseContract>();
+        configuration.CreateMap<
+            OrganizationConfigurationResponse,
+            OrganizationConfigurationResponseContract
+        >();
 
-        configuration.CreateMap<OrganizationConfigurationListItemResponse,
-            OrganizationConfigurationListItemResponseContract>();
+        configuration.CreateMap<
+            OrganizationConfigurationListItemResponse,
+            OrganizationConfigurationListItemResponseContract
+        >();
 
-        configuration.CreateMap<CreateOrganizationConfigurationDraftApiModel,
-            CreateOrganizationConfigurationDraftCommand>();
+        configuration.CreateMap<
+            CreateOrganizationConfigurationDraftApiModel,
+            CreateOrganizationConfigurationDraftCommand
+        >();
 
-        configuration.CreateMap<UpdateOrganizationConfigurationDraftApiModel,
-            UpdateOrganizationConfigurationDraftCommand>();
+        configuration.CreateMap<
+            UpdateOrganizationConfigurationDraftApiModel,
+            UpdateOrganizationConfigurationDraftCommand
+        >();
 
-        configuration.CreateMap<PublishOrganizationConfigurationApiModel,
-            PublishOrganizationConfigurationCommand>();
+        configuration.CreateMap<
+            PublishOrganizationConfigurationApiModel,
+            PublishOrganizationConfigurationCommand
+        >();
 
-        configuration.CreateMap<ArchiveOrganizationConfigurationApiModel,
-            ArchiveOrganizationConfigurationCommand>();
+        configuration.CreateMap<
+            ArchiveOrganizationConfigurationApiModel,
+            ArchiveOrganizationConfigurationCommand
+        >();
     }
 }

@@ -29,19 +29,22 @@ public sealed record CreateOrganizationSettingsRequest(
     int DefaultCancellationDelayHours,
     bool AllowStudentSelfBooking,
     bool RequireBranchForOperations,
-    Guid? DefaultBranchId);
+    Guid? DefaultBranchId
+);
 
 public sealed record UpdateOrganizationProfileRequest(
     string? TradeName,
     string? RegistrationNumber,
     string? TaxNumber,
-    int ExpectedVersion);
+    int ExpectedVersion
+);
 
 public sealed record UpdateOrganizationContactRequest(
     string? Email,
     string? Phone,
     string? Website,
-    int ExpectedVersion);
+    int ExpectedVersion
+);
 
 public sealed record UpdateOrganizationAddressRequest(
     string? AddressLine1,
@@ -50,7 +53,8 @@ public sealed record UpdateOrganizationAddressRequest(
     string? City,
     string? Region,
     string AddressCountryCode,
-    int ExpectedVersion);
+    int ExpectedVersion
+);
 
 public sealed record UpdateOrganizationRegionalSettingsRequest(
     string DefaultLanguage,
@@ -61,7 +65,8 @@ public sealed record UpdateOrganizationRegionalSettingsRequest(
     string TimeFormat,
     DayOfWeek FirstDayOfWeek,
     MeasurementSystem MeasurementSystem,
-    int ExpectedVersion);
+    int ExpectedVersion
+);
 
 public sealed record UpdateOrganizationOperationalSettingsRequest(
     int DefaultSessionDurationMinutes,
@@ -70,7 +75,8 @@ public sealed record UpdateOrganizationOperationalSettingsRequest(
     bool AllowStudentSelfBooking,
     bool RequireBranchForOperations,
     Guid? DefaultBranchId,
-    int ExpectedVersion);
+    int ExpectedVersion
+);
 
 public sealed record OrganizationSettingsResponseContract(
     Guid Id,
@@ -103,7 +109,8 @@ public sealed record OrganizationSettingsResponseContract(
     Guid? DefaultBranchId,
     int Version,
     DateTimeOffset CreatedAtUtc,
-    DateTimeOffset? LastModifiedAtUtc);
+    DateTimeOffset? LastModifiedAtUtc
+);
 
 internal sealed record CreateOrganizationSettingsApiModel(
     OrganizationId OrganizationId,
@@ -132,21 +139,24 @@ internal sealed record CreateOrganizationSettingsApiModel(
     int DefaultCancellationDelayHours,
     bool AllowStudentSelfBooking,
     bool RequireBranchForOperations,
-    BranchId? DefaultBranchId);
+    BranchId? DefaultBranchId
+);
 
 internal sealed record UpdateOrganizationProfileApiModel(
     OrganizationId OrganizationId,
     string? TradeName,
     string? RegistrationNumber,
     string? TaxNumber,
-    int ExpectedVersion);
+    int ExpectedVersion
+);
 
 internal sealed record UpdateOrganizationContactApiModel(
     OrganizationId OrganizationId,
     string? Email,
     string? Phone,
     string? Website,
-    int ExpectedVersion);
+    int ExpectedVersion
+);
 
 internal sealed record UpdateOrganizationAddressApiModel(
     OrganizationId OrganizationId,
@@ -156,7 +166,8 @@ internal sealed record UpdateOrganizationAddressApiModel(
     string? City,
     string? Region,
     string AddressCountryCode,
-    int ExpectedVersion);
+    int ExpectedVersion
+);
 
 internal sealed record UpdateOrganizationRegionalSettingsApiModel(
     OrganizationId OrganizationId,
@@ -168,7 +179,8 @@ internal sealed record UpdateOrganizationRegionalSettingsApiModel(
     string TimeFormat,
     DayOfWeek FirstDayOfWeek,
     MeasurementSystem MeasurementSystem,
-    int ExpectedVersion);
+    int ExpectedVersion
+);
 
 internal sealed record UpdateOrganizationOperationalSettingsApiModel(
     OrganizationId OrganizationId,
@@ -178,4 +190,5 @@ internal sealed record UpdateOrganizationOperationalSettingsApiModel(
     bool AllowStudentSelfBooking,
     bool RequireBranchForOperations,
     BranchId? DefaultBranchId,
-    int ExpectedVersion);
+    int ExpectedVersion
+);

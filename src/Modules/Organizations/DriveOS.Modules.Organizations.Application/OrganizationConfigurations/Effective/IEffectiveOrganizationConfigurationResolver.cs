@@ -7,13 +7,15 @@ public interface IEffectiveOrganizationConfigurationResolver
     Task<EffectiveOrganizationConfiguration?> ResolveCurrentAsync(
         OrganizationId organizationId,
         BranchId? branchId = null,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<EffectiveOrganizationConfiguration?> ResolveAtAsync(
         OrganizationId organizationId,
         DateTimeOffset instantUtc,
         BranchId? branchId = null,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }
 
 public interface IOrganizationConfigurationCacheInvalidator

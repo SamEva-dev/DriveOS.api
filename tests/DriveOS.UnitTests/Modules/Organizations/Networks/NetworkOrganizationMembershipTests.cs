@@ -9,8 +9,12 @@ public sealed class NetworkOrganizationMembershipTests
     [Fact]
     public void Create_WithDifferentOrganizations_CreatesActiveMembership()
     {
-        var result = NetworkOrganizationMembership.Create(NetworkOrganizationMembershipId.New(),
-            OrganizationId.New(), OrganizationId.New(), DateTimeOffset.UtcNow);
+        var result = NetworkOrganizationMembership.Create(
+            NetworkOrganizationMembershipId.New(),
+            OrganizationId.New(),
+            OrganizationId.New(),
+            DateTimeOffset.UtcNow
+        );
 
         result.IsSuccess.Should().BeTrue();
         result.Value.IsActive.Should().BeTrue();
@@ -20,8 +24,12 @@ public sealed class NetworkOrganizationMembershipTests
     public void Create_WithSameOrganization_FailsWithStableKey()
     {
         OrganizationId id = OrganizationId.New();
-        var result = NetworkOrganizationMembership.Create(NetworkOrganizationMembershipId.New(), id, id,
-            DateTimeOffset.UtcNow);
+        var result = NetworkOrganizationMembership.Create(
+            NetworkOrganizationMembershipId.New(),
+            id,
+            id,
+            DateTimeOffset.UtcNow
+        );
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Organizations.NetworkMembership.SelfMembership");
@@ -30,11 +38,19 @@ public sealed class NetworkOrganizationMembershipTests
     [Fact]
     public void End_AlreadyEnded_Fails()
     {
-        var membership = NetworkOrganizationMembership.Create(NetworkOrganizationMembershipId.New(),
-            OrganizationId.New(), OrganizationId.New(), DateTimeOffset.UtcNow.AddDays(-1)).Value;
+        var membership = NetworkOrganizationMembership
+            .Create(
+                NetworkOrganizationMembershipId.New(),
+                OrganizationId.New(),
+                OrganizationId.New(),
+                DateTimeOffset.UtcNow.AddDays(-1)
+            )
+            .Value;
         membership.End(DateTimeOffset.UtcNow).IsSuccess.Should().BeTrue();
 
-        membership.End(DateTimeOffset.UtcNow).Error.Code.Should()
+        membership
+            .End(DateTimeOffset.UtcNow)
+            .Error.Code.Should()
             .Be("Organizations.NetworkMembership.AlreadyEnded");
     }
 }

@@ -5,10 +5,18 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationActivationReadin
 public sealed record OrganizationActivationReadinessReport(
     OrganizationId OrganizationId,
     bool IsReady,
-    IReadOnlyCollection<OrganizationActivationRequirementResult> Requirements)
+    IReadOnlyCollection<OrganizationActivationRequirementResult> Requirements
+)
 {
     public IReadOnlyCollection<OrganizationActivationRequirementResult> BlockingRequirements =>
         Requirements
-            .Where(x => !x.IsSatisfied && x.Severity == Domain.OrganizationActivationReadiness.OrganizationActivationRequirementSeverity.Blocking)
+            .Where(x =>
+                !x.IsSatisfied
+                && x.Severity
+                    == Domain
+                        .OrganizationActivationReadiness
+                        .OrganizationActivationRequirementSeverity
+                        .Blocking
+            )
             .ToArray();
 }

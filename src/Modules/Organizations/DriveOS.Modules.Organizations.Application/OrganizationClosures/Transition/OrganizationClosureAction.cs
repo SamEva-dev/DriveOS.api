@@ -7,5 +7,5 @@ public enum OrganizationClosureAction
     Reject = 3,
     Schedule = 4,
     Cancel = 5,
-    Complete = 6
+    Complete = 6,
 }

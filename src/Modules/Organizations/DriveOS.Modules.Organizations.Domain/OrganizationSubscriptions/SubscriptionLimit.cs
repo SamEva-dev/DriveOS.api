@@ -6,9 +6,7 @@ public sealed class SubscriptionLimit
 {
     public const int CodeMaximumLength = 150;
 
-    private SubscriptionLimit()
-    {
-    }
+    private SubscriptionLimit() { }
 
     private SubscriptionLimit(string code, long value)
     {
@@ -26,13 +24,15 @@ public sealed class SubscriptionLimit
         if (string.IsNullOrWhiteSpace(normalized) || normalized.Length > CodeMaximumLength)
         {
             return Result.Failure<SubscriptionLimit>(
-                OrganizationSubscriptionErrors.InvalidLimitCode);
+                OrganizationSubscriptionErrors.InvalidLimitCode
+            );
         }
 
         if (value < 0)
         {
             return Result.Failure<SubscriptionLimit>(
-                OrganizationSubscriptionErrors.InvalidLimitValue);
+                OrganizationSubscriptionErrors.InvalidLimitValue
+            );
         }
 
         return Result.Success(new SubscriptionLimit(normalized, value));

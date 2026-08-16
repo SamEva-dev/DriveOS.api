@@ -1,6 +1,9 @@
 using FluentValidation;
+
 namespace DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.CheckLimit;
-public sealed class CheckOrganizationLimitQueryValidator : AbstractValidator<CheckOrganizationLimitQuery>
+
+public sealed class CheckOrganizationLimitQueryValidator
+    : AbstractValidator<CheckOrganizationLimitQuery>
 {
     public CheckOrganizationLimitQueryValidator()
     {

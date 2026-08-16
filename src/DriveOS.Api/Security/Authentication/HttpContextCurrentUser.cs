@@ -1,59 +1,49 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text.Json;
 using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.SharedKernel.Identifiers;
+using Microsoft.AspNetCore.Authentication;
 
 namespace DriveOS.Api.Security.Authentication;
 
-internal sealed class HttpContextCurrentUser(
-    IHttpContextAccessor httpContextAccessor)
+internal sealed class HttpContextCurrentUser(IHttpContextAccessor httpContextAccessor)
     : ICurrentUser
 {
     private readonly ClaimsPrincipal _principal =
-        httpContextAccessor.HttpContext?.User
-        ?? new ClaimsPrincipal();
+        httpContextAccessor.HttpContext?.User ?? new ClaimsPrincipal();
 
     private IReadOnlySet<string>? _permissions;
 
-    public bool IsAuthenticated =>
-        _principal.Identity?.IsAuthenticated == true;
+    public bool IsAuthenticated => _principal.Identity?.IsAuthenticated == true;
 
     public UserId? UserId
     {
         get
         {
-            string? value = _principal.FindFirstValue(
-                ClaimTypes.NameIdentifier)
+            string? value =
+                _principal.FindFirstValue(ClaimTypes.NameIdentifier)
                 ?? _principal.FindFirstValue("sub");
 
-            return Guid.TryParse(value, out Guid userId)
-                ? new UserId(userId)
-                : null;
+            return Guid.TryParse(value, out Guid userId) ? new UserId(userId) : null;
         }
     }
 
     public string? Email =>
-        _principal.FindFirstValue(ClaimTypes.Email)
-        ?? _principal.FindFirstValue("email");
+        _principal.FindFirstValue(ClaimTypes.Email) ?? _principal.FindFirstValue("email");
 
-    public IReadOnlySet<string> Permissions =>
-        _permissions ??= ReadPermissions(_principal);
+    public IReadOnlySet<string> Permissions => _permissions ??= ReadPermissions(_principal);
 
     public bool HasPermission(string permission) =>
-        !string.IsNullOrWhiteSpace(permission)
-        && Permissions.Contains(permission);
+        !string.IsNullOrWhiteSpace(permission) && Permissions.Contains(permission);
 
-    private static IReadOnlySet<string> ReadPermissions(
-        ClaimsPrincipal principal)
+    private static IReadOnlySet<string> ReadPermissions(ClaimsPrincipal principal)
     {
-        var permissions = new HashSet<string>(
-            StringComparer.Ordinal);
+        var permissions = new HashSet<string>(StringComparer.Ordinal);
 
-        IEnumerable<Claim> claims = principal.Claims.Where(
-            claim =>
-                claim.Type == DriveOsClaimTypes.Permission
-                || claim.Type == DriveOsClaimTypes.Permissions);
+        IEnumerable<Claim> claims = principal.Claims.Where(claim =>
+            claim.Type == DriveOsClaimTypes.Permission
+            || claim.Type == DriveOsClaimTypes.Permissions
+        );
 
         foreach (Claim claim in claims)
         {
@@ -63,9 +53,7 @@ internal sealed class HttpContextCurrentUser(
         return permissions;
     }
 
-    private static void AddClaimValue(
-        ISet<string> permissions,
-        string value)
+    private static void AddClaimValue(ISet<string> permissions, string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -78,8 +66,7 @@ internal sealed class HttpContextCurrentUser(
         {
             try
             {
-                string[]? values = JsonSerializer.Deserialize<string[]>(
-                    trimmed);
+                string[]? values = JsonSerializer.Deserialize<string[]>(trimmed);
 
                 if (values is not null)
                 {

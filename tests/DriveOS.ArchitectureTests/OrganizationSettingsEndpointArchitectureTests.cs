@@ -10,25 +10,27 @@ public sealed class OrganizationSettingsEndpointArchitectureTests
     public void Endpoints_ShouldNotExposeAggregateOrRepositoryInMethodSignatures()
     {
         Type endpointType = typeof(OrganizationSettingsEndpoints);
-        Type aggregateType = typeof(DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationSettings);
+        Type aggregateType =
+            typeof(DriveOS.Modules.Organizations.Domain.OrganizationSettings.OrganizationSettings);
         Type repositoryType = typeof(IOrganizationSettingsRepository);
 
         MethodInfo[] methods = endpointType.GetMethods(
-            BindingFlags.Public |
-            BindingFlags.NonPublic |
-            BindingFlags.Static);
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static
+        );
 
         foreach (MethodInfo method in methods)
         {
             Assert.False(
                 ContainsForbiddenType(method.ReturnType, aggregateType, repositoryType),
-                $"{endpointType.FullName}.{method.Name} exposes a forbidden return type.");
+                $"{endpointType.FullName}.{method.Name} exposes a forbidden return type."
+            );
 
             foreach (ParameterInfo parameter in method.GetParameters())
             {
                 Assert.False(
                     ContainsForbiddenType(parameter.ParameterType, aggregateType, repositoryType),
-                    $"{endpointType.FullName}.{method.Name} exposes forbidden parameter '{parameter.Name}'.");
+                    $"{endpointType.FullName}.{method.Name} exposes forbidden parameter '{parameter.Name}'."
+                );
             }
         }
     }
@@ -36,7 +38,8 @@ public sealed class OrganizationSettingsEndpointArchitectureTests
     private static bool ContainsForbiddenType(
         Type candidate,
         Type aggregateType,
-        Type repositoryType)
+        Type repositoryType
+    )
     {
         if (candidate == aggregateType || candidate == repositoryType)
         {
@@ -45,7 +48,8 @@ public sealed class OrganizationSettingsEndpointArchitectureTests
 
         if (candidate.IsGenericType)
         {
-            return candidate.GetGenericArguments()
+            return candidate
+                .GetGenericArguments()
                 .Any(type => ContainsForbiddenType(type, aggregateType, repositoryType));
         }
 

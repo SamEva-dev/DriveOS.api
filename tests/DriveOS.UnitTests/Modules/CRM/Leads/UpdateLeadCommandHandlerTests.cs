@@ -20,7 +20,8 @@ public sealed class UpdateLeadCommandHandlerTests
 
         Result result = await handler.Handle(
             CreateCommand(organizationId, lead.Id),
-            CancellationToken.None);
+            CancellationToken.None
+        );
 
         result.IsSuccess.Should().BeTrue();
         repository.RequestedOrganizationId.Should().Be(organizationId);
@@ -43,16 +44,15 @@ public sealed class UpdateLeadCommandHandlerTests
 
         Result result = await handler.Handle(
             CreateCommand(OrganizationId.New(), LeadId.New()),
-            CancellationToken.None);
+            CancellationToken.None
+        );
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Crm.Leads.NotFound");
         unitOfWork.CommitCount.Should().Be(0);
     }
 
-    private static UpdateLeadCommand CreateCommand(
-        OrganizationId organizationId,
-        LeadId leadId) =>
+    private static UpdateLeadCommand CreateCommand(OrganizationId organizationId, LeadId leadId) =>
         new(
             organizationId,
             leadId,
@@ -65,16 +65,16 @@ public sealed class UpdateLeadCommandHandlerTests
             TransmissionPreference.Manual,
             "Nice Ouest",
             LeadSourceType.Referral,
-            "Ancien élève");
+            "Ancien élève"
+        );
 
     private static Lead CreateLead(OrganizationId organizationId)
     {
-        LeadIdentity identity = LeadIdentity.Create(
-            "Jane", "Doe", "jane@example.com", null).Value;
-        RequestedTraining training = RequestedTraining.Create(
-            "B", TransmissionPreference.Automatic, null).Value;
-        LeadSource source = LeadSource.Create(
-            LeadSourceType.Website).Value;
+        LeadIdentity identity = LeadIdentity.Create("Jane", "Doe", "jane@example.com", null).Value;
+        RequestedTraining training = RequestedTraining
+            .Create("B", TransmissionPreference.Automatic, null)
+            .Value;
+        LeadSource source = LeadSource.Create(LeadSourceType.Website).Value;
 
         return Lead.Create(
             LeadId.New(),
@@ -83,7 +83,8 @@ public sealed class UpdateLeadCommandHandlerTests
             identity,
             training,
             source,
-            UserId.New()).Value;
+            UserId.New()
+        ).Value;
     }
 
     private sealed class FakeLeadRepository(Lead? lead) : ILeadRepository
@@ -94,13 +95,14 @@ public sealed class UpdateLeadCommandHandlerTests
         public Task<Lead?> GetByIdAsync(
             OrganizationId organizationId,
             LeadId id,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<Lead?>(null);
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult<Lead?>(null);
 
         public Task<Lead?> GetByIdForUpdateAsync(
             OrganizationId organizationId,
             LeadId id,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default
+        )
         {
             RequestedOrganizationId = organizationId;
             RequestedLeadId = id;
@@ -110,12 +112,10 @@ public sealed class UpdateLeadCommandHandlerTests
         public Task<bool> ExistsByEmailAsync(
             OrganizationId organizationId,
             string email,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult(false);
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult(false);
 
-        public Task AddAsync(
-            Lead entity,
-            CancellationToken cancellationToken = default) =>
+        public Task AddAsync(Lead entity, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
     }
 
@@ -124,23 +124,19 @@ public sealed class UpdateLeadCommandHandlerTests
         public int CommitCount { get; private set; }
         public bool HasActiveTransaction => false;
 
-        public Task BeginTransactionAsync(
-            CancellationToken cancellationToken = default) =>
+        public Task BeginTransactionAsync(CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
 
-        public Task<int> CommitAsync(
-            CancellationToken cancellationToken = default)
+        public Task<int> CommitAsync(CancellationToken cancellationToken = default)
         {
             CommitCount++;
             return Task.FromResult(1);
         }
 
-        public Task CommitTransactionAsync(
-            CancellationToken cancellationToken = default) =>
+        public Task CommitTransactionAsync(CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
 
-        public Task RollbackTransactionAsync(
-            CancellationToken cancellationToken = default) =>
+        public Task RollbackTransactionAsync(CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
 
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -9,35 +9,42 @@ public sealed class GetLeadAssessmentsQueryHandler(IAssessmentAppointmentReposit
 {
     public async Task<Result<IReadOnlyList<AssessmentAppointmentResponse>>> Handle(
         GetLeadAssessmentsQuery query,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
-        IReadOnlyList<AssessmentAppointment> appointments =
-            await repository.GetByLeadAsync(query.OrganizationId, query.LeadId, ct);
+        IReadOnlyList<AssessmentAppointment> appointments = await repository.GetByLeadAsync(
+            query.OrganizationId,
+            query.LeadId,
+            ct
+        );
 
         return Result.Success<IReadOnlyList<AssessmentAppointmentResponse>>(
-            appointments.Select(Map).ToArray());
+            appointments.Select(Map).ToArray()
+        );
     }
 
-    internal static AssessmentAppointmentResponse Map(AssessmentAppointment appointment) => new(
-        appointment.Id.Value,
-        appointment.LeadId.Value,
-        appointment.BranchId?.Value,
-        appointment.StartsAtUtc,
-        appointment.EndsAtUtc,
-        appointment.Type.ToString(),
-        appointment.DeliveryMode.ToString(),
-        appointment.LocationKind.ToString(),
-        appointment.LocationDetails,
-        appointment.EvaluatorUserId?.Value,
-        appointment.VehicleId,
-        appointment.RoomId,
-        appointment.SimulatorId,
-        appointment.PriceAmount,
-        appointment.PriceCurrency,
-        appointment.Notes,
-        appointment.Status.ToString(),
-        appointment.ClosedAtUtc,
-        appointment.CreatedAtUtc);
+    internal static AssessmentAppointmentResponse Map(AssessmentAppointment appointment) =>
+        new(
+            appointment.Id.Value,
+            appointment.LeadId.Value,
+            appointment.BranchId?.Value,
+            appointment.StartsAtUtc,
+            appointment.EndsAtUtc,
+            appointment.Type.ToString(),
+            appointment.DeliveryMode.ToString(),
+            appointment.LocationKind.ToString(),
+            appointment.LocationDetails,
+            appointment.EvaluatorUserId?.Value,
+            appointment.VehicleId,
+            appointment.RoomId,
+            appointment.SimulatorId,
+            appointment.PriceAmount,
+            appointment.PriceCurrency,
+            appointment.Notes,
+            appointment.Status.ToString(),
+            appointment.ClosedAtUtc,
+            appointment.CreatedAtUtc
+        );
 }
 
 public sealed class GetAssessmentQueryHandler(IAssessmentAppointmentRepository repository)
@@ -45,10 +52,14 @@ public sealed class GetAssessmentQueryHandler(IAssessmentAppointmentRepository r
 {
     public async Task<Result<AssessmentAppointmentResponse>> Handle(
         GetAssessmentQuery query,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
-        AssessmentAppointment? appointment =
-            await repository.GetByIdAsync(query.OrganizationId, query.AppointmentId, ct);
+        AssessmentAppointment? appointment = await repository.GetByIdAsync(
+            query.OrganizationId,
+            query.AppointmentId,
+            ct
+        );
 
         return appointment is null
             ? Result.Failure<AssessmentAppointmentResponse>(AssessmentAppointmentErrors.NotFound)

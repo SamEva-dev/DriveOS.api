@@ -7,18 +7,20 @@ namespace DriveOS.Modules.CRM.Application.Leads.CreateLead;
 
 public sealed class CreateLeadCommandHandler(
     ILeadRepository leadRepository,
-    ICrmUnitOfWork unitOfWork)
-    : ICommandHandler<CreateLeadCommand, LeadId>
+    ICrmUnitOfWork unitOfWork
+) : ICommandHandler<CreateLeadCommand, LeadId>
 {
     public async Task<Result<LeadId>> Handle(
         CreateLeadCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         Result<LeadIdentity> identityResult = LeadIdentity.Create(
             command.FirstName,
             command.LastName,
             command.Email,
-            command.Phone);
+            command.Phone
+        );
 
         if (identityResult.IsFailure)
         {
@@ -28,7 +30,8 @@ public sealed class CreateLeadCommandHandler(
         Result<RequestedTraining> trainingResult = RequestedTraining.Create(
             command.LicenseCategory,
             command.Transmission,
-            command.PreferredLocation);
+            command.PreferredLocation
+        );
 
         if (trainingResult.IsFailure)
         {
@@ -37,7 +40,8 @@ public sealed class CreateLeadCommandHandler(
 
         Result<LeadSource> sourceResult = LeadSource.Create(
             command.SourceType,
-            command.SourceDetail);
+            command.SourceDetail
+        );
 
         if (sourceResult.IsFailure)
         {
@@ -51,7 +55,8 @@ public sealed class CreateLeadCommandHandler(
             identityResult.Value,
             trainingResult.Value,
             sourceResult.Value,
-            command.AssignedAdvisorId);
+            command.AssignedAdvisorId
+        );
 
         if (leadResult.IsFailure)
         {

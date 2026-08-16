@@ -20,7 +20,8 @@ public sealed class UpdateOrganizationOperationalSettingsCommandHandlerTests
         var handler = new UpdateOrganizationOperationalSettingsCommandHandler(
             repository,
             new MissingBranchReadService(),
-            unitOfWork);
+            unitOfWork
+        );
         int initialVersion = settings.Version;
 
         var result = await handler.Handle(
@@ -32,8 +33,10 @@ public sealed class UpdateOrganizationOperationalSettingsCommandHandlerTests
                 false,
                 true,
                 BranchId.New(),
-                initialVersion),
-            CancellationToken.None);
+                initialVersion
+            ),
+            CancellationToken.None
+        );
 
         Assert.True(result.IsFailure);
         Assert.Equal(OrganizationSettingsErrors.DefaultBranchNotOwned, result.Error);
@@ -51,7 +54,8 @@ public sealed class UpdateOrganizationOperationalSettingsCommandHandlerTests
         var handler = new UpdateOrganizationOperationalSettingsCommandHandler(
             repository,
             branchReadService,
-            unitOfWork);
+            unitOfWork
+        );
 
         var result = await handler.Handle(
             new UpdateOrganizationOperationalSettingsCommand(
@@ -62,8 +66,10 @@ public sealed class UpdateOrganizationOperationalSettingsCommandHandlerTests
                 false,
                 true,
                 BranchId.New(),
-                settings.Version + 1),
-            CancellationToken.None);
+                settings.Version + 1
+            ),
+            CancellationToken.None
+        );
 
         Assert.True(result.IsFailure);
         Assert.Equal(OrganizationSettingsErrors.ConcurrentUpdate, result.Error);
@@ -76,8 +82,8 @@ public sealed class UpdateOrganizationOperationalSettingsCommandHandlerTests
         public Task<BranchResponse?> GetByIdAsync(
             OrganizationId organizationId,
             BranchId branchId,
-            CancellationToken cancellationToken) =>
-            Task.FromResult<BranchResponse?>(null);
+            CancellationToken cancellationToken
+        ) => Task.FromResult<BranchResponse?>(null);
 
         public Task<PagedResult<BranchListItem>> GetPagedAsync(
             OrganizationId organizationId,
@@ -86,14 +92,14 @@ public sealed class UpdateOrganizationOperationalSettingsCommandHandlerTests
             string? search,
             BranchSortField sortBy,
             SortDirection sortDirection,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
 
         public Task<IReadOnlyList<BranchStatusHistoryItem>> GetStatusHistoryAsync(
             OrganizationId organizationId,
             BranchId branchId,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
     }
 
     private sealed class CountingBranchReadService : IBranchReadService
@@ -103,7 +109,8 @@ public sealed class UpdateOrganizationOperationalSettingsCommandHandlerTests
         public Task<BranchResponse?> GetByIdAsync(
             OrganizationId organizationId,
             BranchId branchId,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken
+        )
         {
             GetByIdCallCount++;
             return Task.FromResult<BranchResponse?>(null);
@@ -116,13 +123,13 @@ public sealed class UpdateOrganizationOperationalSettingsCommandHandlerTests
             string? search,
             BranchSortField sortBy,
             SortDirection sortDirection,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
 
         public Task<IReadOnlyList<BranchStatusHistoryItem>> GetStatusHistoryAsync(
             OrganizationId organizationId,
             BranchId branchId,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
     }
 }

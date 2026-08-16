@@ -7,20 +7,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationSequences;
 
-internal sealed class OrganizationSequenceReadService(
-    OrganizationsDbContext dbContext)
+internal sealed class OrganizationSequenceReadService(OrganizationsDbContext dbContext)
     : IOrganizationSequenceReadService
 {
     public Task<OrganizationSequenceResponse?> GetByIdAsync(
         OrganizationId organizationId,
         OrganizationSequenceId sequenceId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        return dbContext.Set<OrganizationSequence>()
+        return dbContext
+            .Set<OrganizationSequence>()
             .AsNoTracking()
             .Where(sequence =>
-                sequence.OrganizationId == organizationId &&
-                sequence.Id == sequenceId)
+                sequence.OrganizationId == organizationId && sequence.Id == sequenceId
+            )
             .Select(sequence => new OrganizationSequenceResponse(
                 sequence.Id.Value,
                 sequence.OrganizationId.Value,
@@ -38,20 +39,25 @@ internal sealed class OrganizationSequenceReadService(
                 sequence.CreatedAtUtc,
                 sequence.CreatedByUserId.HasValue ? sequence.CreatedByUserId.Value.Value : null,
                 sequence.LastModifiedAtUtc,
-                sequence.LastModifiedByUserId.HasValue ? sequence.LastModifiedByUserId.Value.Value : null))
+                sequence.LastModifiedByUserId.HasValue
+                    ? sequence.LastModifiedByUserId.Value.Value
+                    : null
+            ))
             .SingleOrDefaultAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<OrganizationSequenceListItem>> GetListAsync(
         OrganizationId organizationId,
         BranchId? branchId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        return await dbContext.Set<OrganizationSequence>()
+        return await dbContext
+            .Set<OrganizationSequence>()
             .AsNoTracking()
             .Where(sequence =>
-                sequence.OrganizationId == organizationId &&
-                sequence.BranchId == branchId)
+                sequence.OrganizationId == organizationId && sequence.BranchId == branchId
+            )
             .OrderBy(sequence => sequence.Code)
             .Select(sequence => new OrganizationSequenceListItem(
                 sequence.Id.Value,
@@ -63,7 +69,8 @@ internal sealed class OrganizationSequenceReadService(
                 sequence.NextValue,
                 sequence.ResetPolicy.ToString(),
                 sequence.Status.ToString(),
-                sequence.Revision))
+                sequence.Revision
+            ))
             .ToListAsync(cancellationToken);
     }
 }

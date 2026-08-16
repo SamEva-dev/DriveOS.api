@@ -10,12 +10,14 @@ public sealed class GetLeadQueryHandler(ILeadReadService leadReadService)
 {
     public async Task<Result<LeadResponse>> Handle(
         GetLeadQuery query,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         LeadResponse? lead = await leadReadService.GetByIdAsync(
             query.OrganizationId,
             query.LeadId,
-            cancellationToken);
+            cancellationToken
+        );
 
         return lead is null
             ? Result.Failure<LeadResponse>(LeadErrors.NotFound)

@@ -7,19 +7,31 @@ namespace DriveOS.Modules.Organizations.Application.BranchConfigurationOverrides
 
 public sealed class UpdateBranchConfigurationOverrideDraftCommandHandler(
     IBranchConfigurationOverrideRepository repository,
-    IUnitOfWork unitOfWork) : ICommandHandler<UpdateBranchConfigurationOverrideDraftCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<UpdateBranchConfigurationOverrideDraftCommand>
 {
-    public async Task<Result> Handle(UpdateBranchConfigurationOverrideDraftCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(
+        UpdateBranchConfigurationOverrideDraftCommand command,
+        CancellationToken cancellationToken
+    )
     {
         var branchOverride = await repository.GetForUpdateAsync(
-            command.OverrideId, command.OrganizationId, command.BranchId, cancellationToken);
-        if (branchOverride is null) return Result.Failure(BranchConfigurationOverrideErrors.NotFound);
-        if (branchOverride.Revision != command.ExpectedRevision) return Result.Failure(BranchConfigurationOverrideErrors.ConcurrentUpdate);
+            command.OverrideId,
+            command.OrganizationId,
+            command.BranchId,
+            cancellationToken
+        );
+        if (branchOverride is null)
+            return Result.Failure(BranchConfigurationOverrideErrors.NotFound);
+        if (branchOverride.Revision != command.ExpectedRevision)
+            return Result.Failure(BranchConfigurationOverrideErrors.ConcurrentUpdate);
 
         Result<BranchOverridePayload> payload = BranchOverridePayload.Create(command.PayloadJson);
-        if (payload.IsFailure) return Result.Failure(payload.Error);
+        if (payload.IsFailure)
+            return Result.Failure(payload.Error);
         Result result = branchOverride.UpdateDraft(payload.Value);
-        if (result.IsFailure) return result;
+        if (result.IsFailure)
+            return result;
         await unitOfWork.CommitAsync(cancellationToken);
         return Result.Success();
     }

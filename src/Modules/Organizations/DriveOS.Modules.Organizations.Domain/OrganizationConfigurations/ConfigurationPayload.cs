@@ -16,13 +16,15 @@ public sealed record ConfigurationPayload
         if (string.IsNullOrWhiteSpace(json))
         {
             return Result.Failure<ConfigurationPayload>(
-                OrganizationConfigurationErrors.EmptyPayload);
+                OrganizationConfigurationErrors.EmptyPayload
+            );
         }
 
         if (json.Length > MaximumLength)
         {
             return Result.Failure<ConfigurationPayload>(
-                OrganizationConfigurationErrors.PayloadTooLong(MaximumLength));
+                OrganizationConfigurationErrors.PayloadTooLong(MaximumLength)
+            );
         }
 
         try
@@ -32,7 +34,8 @@ public sealed record ConfigurationPayload
             if (document.RootElement.ValueKind != JsonValueKind.Object)
             {
                 return Result.Failure<ConfigurationPayload>(
-                    OrganizationConfigurationErrors.PayloadMustBeObject);
+                    OrganizationConfigurationErrors.PayloadMustBeObject
+                );
             }
 
             string normalized = JsonSerializer.Serialize(document.RootElement);
@@ -41,7 +44,8 @@ public sealed record ConfigurationPayload
         catch (JsonException)
         {
             return Result.Failure<ConfigurationPayload>(
-                OrganizationConfigurationErrors.InvalidPayload);
+                OrganizationConfigurationErrors.InvalidPayload
+            );
         }
     }
 }

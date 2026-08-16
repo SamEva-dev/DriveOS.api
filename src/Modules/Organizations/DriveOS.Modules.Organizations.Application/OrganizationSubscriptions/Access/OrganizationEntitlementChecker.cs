@@ -4,24 +4,27 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.Access;
 
-public sealed class OrganizationEntitlementChecker(
-    IOrganizationSubscriptionReadService readService) : IOrganizationEntitlementChecker
+public sealed class OrganizationEntitlementChecker(IOrganizationSubscriptionReadService readService)
+    : IOrganizationEntitlementChecker
 {
     public async Task<Result<OrganizationEntitlementCheckResult>> CheckAsync(
         OrganizationId organizationId,
         string entitlementCode,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(entitlementCode);
 
         var subscription = await readService.GetByOrganizationIdAsync(
             organizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (subscription is null)
         {
             return Result.Failure<OrganizationEntitlementCheckResult>(
-                OrganizationSubscriptionErrors.NotFound);
+                OrganizationSubscriptionErrors.NotFound
+            );
         }
 
         string normalizedCode = entitlementCode.Trim();
@@ -31,32 +34,36 @@ public sealed class OrganizationEntitlementChecker(
             return Result.Success(
                 new OrganizationEntitlementCheckResult(
                     OrganizationEntitlementAvailability.SubscriptionUnavailable,
-                    normalizedCode));
+                    normalizedCode
+                )
+            );
         }
 
-        bool included = subscription.Entitlements.Any(
-            entitlement => string.Equals(
-                entitlement.Code,
-                normalizedCode,
-                StringComparison.Ordinal));
+        bool included = subscription.Entitlements.Any(entitlement =>
+            string.Equals(entitlement.Code, normalizedCode, StringComparison.Ordinal)
+        );
 
         return Result.Success(
             new OrganizationEntitlementCheckResult(
                 included
                     ? OrganizationEntitlementAvailability.Available
                     : OrganizationEntitlementAvailability.NotIncluded,
-                normalizedCode));
+                normalizedCode
+            )
+        );
     }
 
     public async Task<Result> RequireAsync(
         OrganizationId organizationId,
         string entitlementCode,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         Result<OrganizationEntitlementCheckResult> check = await CheckAsync(
             organizationId,
             entitlementCode,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (check.IsFailure)
         {
@@ -67,14 +74,18 @@ public sealed class OrganizationEntitlementChecker(
         {
             OrganizationEntitlementAvailability.Available => Result.Success(),
             OrganizationEntitlementAvailability.NotIncluded => Result.Failure(
-                OrganizationSubscriptionAccessErrors.EntitlementNotIncluded(check.Value.EntitlementCode)),
-            _ => Result.Failure(OrganizationSubscriptionAccessErrors.SubscriptionUnavailable)
+                OrganizationSubscriptionAccessErrors.EntitlementNotIncluded(
+                    check.Value.EntitlementCode
+                )
+            ),
+            _ => Result.Failure(OrganizationSubscriptionAccessErrors.SubscriptionUnavailable),
         };
     }
 
     private static bool IsOperationalStatus(SubscriptionStatus status) =>
-        status is SubscriptionStatus.Trialing
-            or SubscriptionStatus.Active
-            or SubscriptionStatus.PastDue
-            or SubscriptionStatus.Restricted;
+        status
+            is SubscriptionStatus.Trialing
+                or SubscriptionStatus.Active
+                or SubscriptionStatus.PastDue
+                or SubscriptionStatus.Restricted;
 }

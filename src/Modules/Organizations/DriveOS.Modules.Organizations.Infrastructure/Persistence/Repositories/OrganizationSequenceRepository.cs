@@ -10,47 +10,55 @@ internal sealed class OrganizationSequenceRepository(OrganizationsDbContext dbCo
     public Task<OrganizationSequence?> GetForUpdateAsync(
         OrganizationSequenceId sequenceId,
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default
+    ) =>
         dbContext.OrganizationSequences.SingleOrDefaultAsync(
-            sequence => sequence.Id == sequenceId &&
-                        sequence.OrganizationId == organizationId,
-            cancellationToken);
+            sequence => sequence.Id == sequenceId && sequence.OrganizationId == organizationId,
+            cancellationToken
+        );
 
     public Task<OrganizationSequence?> GetByCodeForUpdateAsync(
         OrganizationId organizationId,
         BranchId? branchId,
         string code,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         string normalizedCode = code.Trim().ToUpperInvariant();
 
         return dbContext.OrganizationSequences.SingleOrDefaultAsync(
-            sequence => sequence.OrganizationId == organizationId &&
-                        sequence.BranchId == branchId &&
-                        sequence.Code == normalizedCode,
-            cancellationToken);
+            sequence =>
+                sequence.OrganizationId == organizationId
+                && sequence.BranchId == branchId
+                && sequence.Code == normalizedCode,
+            cancellationToken
+        );
     }
 
     public Task<bool> ExistsAsync(
         OrganizationId organizationId,
         BranchId? branchId,
         string code,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         string normalizedCode = code.Trim().ToUpperInvariant();
 
-        return dbContext.OrganizationSequences
-            .AsNoTracking()
+        return dbContext
+            .OrganizationSequences.AsNoTracking()
             .AnyAsync(
-                sequence => sequence.OrganizationId == organizationId &&
-                            sequence.BranchId == branchId &&
-                            sequence.Code == normalizedCode,
-                cancellationToken);
+                sequence =>
+                    sequence.OrganizationId == organizationId
+                    && sequence.BranchId == branchId
+                    && sequence.Code == normalizedCode,
+                cancellationToken
+            );
     }
 
     public async Task AddAsync(
         OrganizationSequence sequence,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentNullException.ThrowIfNull(sequence);
         await dbContext.OrganizationSequences.AddAsync(sequence, cancellationToken);

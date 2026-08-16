@@ -18,12 +18,25 @@ public sealed record OrganizationClosureModel(
     DateTimeOffset? ScheduledAtUtc,
     DateTimeOffset? CompletedAtUtc,
     DateTimeOffset? CancelledAtUtc,
-    string? DecisionComment)
+    string? DecisionComment
+)
 {
-    public static OrganizationClosureModel FromDomain(OrganizationClosure closure) => new(
-        closure.Id, closure.OrganizationId, closure.ReasonCode, closure.ReasonDetails,
-        closure.RequestedEffectiveAtUtc, closure.DataDisposition, closure.RetentionUntilUtc,
-        closure.Status, closure.Revision, closure.CreatedAtUtc, closure.ReviewedAtUtc,
-        closure.ScheduledAtUtc, closure.CompletedAtUtc, closure.CancelledAtUtc,
-        closure.DecisionComment);
+    public static OrganizationClosureModel FromDomain(OrganizationClosure closure) =>
+        new(
+            closure.Id,
+            closure.OrganizationId,
+            closure.ReasonCode,
+            closure.ReasonDetails,
+            closure.RequestedEffectiveAtUtc,
+            closure.DataDisposition,
+            closure.RetentionUntilUtc,
+            closure.Status,
+            closure.Revision,
+            closure.CreatedAtUtc,
+            closure.ReviewedAtUtc,
+            closure.ScheduledAtUtc,
+            closure.CompletedAtUtc,
+            closure.CancelledAtUtc,
+            closure.DecisionComment
+        );
 }

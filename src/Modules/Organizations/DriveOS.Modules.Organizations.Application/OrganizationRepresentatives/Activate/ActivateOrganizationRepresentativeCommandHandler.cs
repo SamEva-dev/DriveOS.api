@@ -9,15 +9,19 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.
 internal sealed class ActivateOrganizationRepresentativeCommandHandler(
     IOrganizationRepresentativeRepository repository,
     OrganizationRepresentativeAccessSynchronizationService accessSynchronizationService,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<ActivateOrganizationRepresentativeCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<ActivateOrganizationRepresentativeCommand>
 {
-    public async Task<Result> Handle(ActivateOrganizationRepresentativeCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(
+        ActivateOrganizationRepresentativeCommand command,
+        CancellationToken cancellationToken
+    )
     {
         OrganizationRepresentative? representative = await repository.GetForUpdateAsync(
             command.RepresentativeId,
             command.OrganizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (representative is null)
             return Result.Failure(OrganizationRepresentativeErrors.NotFound);

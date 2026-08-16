@@ -7,4 +7,5 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationConfigurations.A
 public sealed record ArchiveOrganizationConfigurationCommand(
     OrganizationId OrganizationId,
     OrganizationConfigurationId ConfigurationId,
-    int ExpectedRevision) : ICommand;
+    int ExpectedRevision
+) : ICommand;

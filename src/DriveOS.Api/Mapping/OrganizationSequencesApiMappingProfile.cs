@@ -14,12 +14,33 @@ public sealed class OrganizationSequencesApiMappingProfile : MappingProfile
 {
     public override void Configure(IMappingConfiguration configuration)
     {
-        configuration.CreateMap<OrganizationSequenceResponse, OrganizationSequenceResponseContract>();
-        configuration.CreateMap<OrganizationSequenceListItem, OrganizationSequenceListItemContract>();
-        configuration.CreateMap<CreateOrganizationSequenceApiModel, CreateOrganizationSequenceCommand>();
-        configuration.CreateMap<ReserveOrganizationSequenceNumberApiModel, ReserveOrganizationSequenceNumberCommand>();
-        configuration.CreateMap<ChangeOrganizationSequenceStatusApiModel, SuspendOrganizationSequenceCommand>();
-        configuration.CreateMap<ChangeOrganizationSequenceStatusApiModel, ReactivateOrganizationSequenceCommand>();
-        configuration.CreateMap<ChangeOrganizationSequenceStatusApiModel, ArchiveOrganizationSequenceCommand>();
+        configuration.CreateMap<
+            OrganizationSequenceResponse,
+            OrganizationSequenceResponseContract
+        >();
+        configuration.CreateMap<
+            OrganizationSequenceListItem,
+            OrganizationSequenceListItemContract
+        >();
+        configuration.CreateMap<
+            CreateOrganizationSequenceApiModel,
+            CreateOrganizationSequenceCommand
+        >();
+        configuration.CreateMap<
+            ReserveOrganizationSequenceNumberApiModel,
+            ReserveOrganizationSequenceNumberCommand
+        >();
+        configuration.CreateMap<
+            ChangeOrganizationSequenceStatusApiModel,
+            SuspendOrganizationSequenceCommand
+        >();
+        configuration.CreateMap<
+            ChangeOrganizationSequenceStatusApiModel,
+            ReactivateOrganizationSequenceCommand
+        >();
+        configuration.CreateMap<
+            ChangeOrganizationSequenceStatusApiModel,
+            ArchiveOrganizationSequenceCommand
+        >();
     }
 }

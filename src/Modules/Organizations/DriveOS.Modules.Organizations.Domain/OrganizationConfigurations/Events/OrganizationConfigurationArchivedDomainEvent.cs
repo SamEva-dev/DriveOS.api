@@ -6,4 +6,5 @@ namespace DriveOS.Modules.Organizations.Domain.OrganizationConfigurations.Events
 public sealed record OrganizationConfigurationArchivedDomainEvent(
     OrganizationConfigurationId ConfigurationId,
     OrganizationId OrganizationId,
-    int VersionNumber) : DomainEvent;
+    int VersionNumber
+) : DomainEvent;

@@ -13,13 +13,14 @@ internal sealed class EffectiveOrganizationConfigurationResolver(
     IClock clock,
     OrganizationConfigurationMemoryCache cache,
     IBranchConfigurationMergePolicy mergePolicy,
-    IJsonConfigurationMerger jsonMerger)
-    : IEffectiveOrganizationConfigurationResolver
+    IJsonConfigurationMerger jsonMerger
+) : IEffectiveOrganizationConfigurationResolver
 {
     public async Task<EffectiveOrganizationConfiguration?> ResolveCurrentAsync(
         OrganizationId organizationId,
         BranchId? branchId = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         if (cache.TryGet(organizationId, branchId, out EffectiveOrganizationConfiguration? cached))
             return cached;
@@ -28,7 +29,8 @@ internal sealed class EffectiveOrganizationConfigurationResolver(
             organizationId,
             clock.UtcNow,
             branchId,
-            cancellationToken);
+            cancellationToken
+        );
 
         cache.Set(organizationId, branchId, resolved);
         return resolved;
@@ -38,23 +40,28 @@ internal sealed class EffectiveOrganizationConfigurationResolver(
         OrganizationId organizationId,
         DateTimeOffset instantUtc,
         BranchId? branchId = null,
-        CancellationToken cancellationToken = default) =>
-        ResolveAtCoreAsync(organizationId, instantUtc, branchId, cancellationToken);
+        CancellationToken cancellationToken = default
+    ) => ResolveAtCoreAsync(organizationId, instantUtc, branchId, cancellationToken);
 
     private async Task<EffectiveOrganizationConfiguration?> ResolveAtCoreAsync(
         OrganizationId organizationId,
         DateTimeOffset instantUtc,
         BranchId? branchId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        OrganizationProjection? organizationConfiguration = await dbContext.OrganizationConfigurations
-            .AsNoTracking()
+        OrganizationProjection? organizationConfiguration = await dbContext
+            .OrganizationConfigurations.AsNoTracking()
             .Where(configuration =>
-                configuration.OrganizationId == organizationId &&
-                configuration.Status == OrganizationConfigurationStatus.Published &&
-                configuration.EffectiveFromUtc != null &&
-                configuration.EffectiveFromUtc <= instantUtc &&
-                (configuration.EffectiveToUtc == null || configuration.EffectiveToUtc > instantUtc))
+                configuration.OrganizationId == organizationId
+                && configuration.Status == OrganizationConfigurationStatus.Published
+                && configuration.EffectiveFromUtc != null
+                && configuration.EffectiveFromUtc <= instantUtc
+                && (
+                    configuration.EffectiveToUtc == null
+                    || configuration.EffectiveToUtc > instantUtc
+                )
+            )
             .OrderByDescending(configuration => configuration.EffectiveFromUtc)
             .ThenByDescending(configuration => configuration.VersionNumber)
             .Select(configuration => new OrganizationProjection(
@@ -64,7 +71,8 @@ internal sealed class EffectiveOrganizationConfigurationResolver(
                 configuration.CountryCode,
                 configuration.Payload.Json,
                 configuration.EffectiveFromUtc!.Value,
-                configuration.EffectiveToUtc))
+                configuration.EffectiveToUtc
+            ))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (organizationConfiguration is null)
@@ -73,16 +81,21 @@ internal sealed class EffectiveOrganizationConfigurationResolver(
         if (branchId is null)
             return ToOrganizationResult(organizationConfiguration, null);
 
-        BranchOverrideProjection? branchOverride = await dbContext.BranchConfigurationOverrides
-            .AsNoTracking()
+        BranchOverrideProjection? branchOverride = await dbContext
+            .BranchConfigurationOverrides.AsNoTracking()
             .Where(branchConfiguration =>
-                branchConfiguration.OrganizationId == organizationId &&
-                branchConfiguration.BranchId == branchId &&
-                branchConfiguration.BaseConfigurationId.Value == organizationConfiguration.ConfigurationId &&
-                branchConfiguration.Status == BranchConfigurationOverrideStatus.Published &&
-                branchConfiguration.EffectiveFromUtc != null &&
-                branchConfiguration.EffectiveFromUtc <= instantUtc &&
-                (branchConfiguration.EffectiveToUtc == null || branchConfiguration.EffectiveToUtc > instantUtc))
+                branchConfiguration.OrganizationId == organizationId
+                && branchConfiguration.BranchId == branchId
+                && branchConfiguration.BaseConfigurationId.Value
+                    == organizationConfiguration.ConfigurationId
+                && branchConfiguration.Status == BranchConfigurationOverrideStatus.Published
+                && branchConfiguration.EffectiveFromUtc != null
+                && branchConfiguration.EffectiveFromUtc <= instantUtc
+                && (
+                    branchConfiguration.EffectiveToUtc == null
+                    || branchConfiguration.EffectiveToUtc > instantUtc
+                )
+            )
             .OrderByDescending(branchConfiguration => branchConfiguration.EffectiveFromUtc)
             .ThenByDescending(branchConfiguration => branchConfiguration.VersionNumber)
             .Select(branchConfiguration => new BranchOverrideProjection(
@@ -90,13 +103,16 @@ internal sealed class EffectiveOrganizationConfigurationResolver(
                 branchConfiguration.VersionNumber,
                 branchConfiguration.Payload.Json,
                 branchConfiguration.EffectiveFromUtc!.Value,
-                branchConfiguration.EffectiveToUtc))
+                branchConfiguration.EffectiveToUtc
+            ))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (branchOverride is null)
             return ToOrganizationResult(organizationConfiguration, branchId);
 
-        BranchConfigurationMergePolicyResult policyResult = mergePolicy.Validate(branchOverride.OverrideJson);
+        BranchConfigurationMergePolicyResult policyResult = mergePolicy.Validate(
+            branchOverride.OverrideJson
+        );
         if (!policyResult.IsAllowed)
         {
             // Invalid historical data must not weaken the effective organization configuration.
@@ -106,7 +122,8 @@ internal sealed class EffectiveOrganizationConfigurationResolver(
 
         string mergedPayload = jsonMerger.Merge(
             organizationConfiguration.PayloadJson,
-            branchOverride.OverrideJson);
+            branchOverride.OverrideJson
+        );
 
         return new EffectiveOrganizationConfiguration(
             branchOverride.OverrideId,
@@ -119,12 +136,14 @@ internal sealed class EffectiveOrganizationConfigurationResolver(
             Min(organizationConfiguration.EffectiveToUtc, branchOverride.EffectiveToUtc),
             OrganizationConfigurationSource.BranchOverride,
             organizationConfiguration.ConfigurationId,
-            branchOverride.VersionNumber);
+            branchOverride.VersionNumber
+        );
     }
 
     private static EffectiveOrganizationConfiguration ToOrganizationResult(
         OrganizationProjection configuration,
-        BranchId? branchId) =>
+        BranchId? branchId
+    ) =>
         new(
             configuration.ConfigurationId,
             configuration.OrganizationId,
@@ -136,15 +155,18 @@ internal sealed class EffectiveOrganizationConfigurationResolver(
             configuration.EffectiveToUtc,
             OrganizationConfigurationSource.Organization,
             configuration.ConfigurationId,
-            null);
+            null
+        );
 
     private static DateTimeOffset Max(DateTimeOffset left, DateTimeOffset right) =>
         left >= right ? left : right;
 
     private static DateTimeOffset? Min(DateTimeOffset? left, DateTimeOffset? right)
     {
-        if (left is null) return right;
-        if (right is null) return left;
+        if (left is null)
+            return right;
+        if (right is null)
+            return left;
         return left <= right ? left : right;
     }
 
@@ -155,12 +177,14 @@ internal sealed class EffectiveOrganizationConfigurationResolver(
         string CountryCode,
         string PayloadJson,
         DateTimeOffset EffectiveFromUtc,
-        DateTimeOffset? EffectiveToUtc);
+        DateTimeOffset? EffectiveToUtc
+    );
 
     private sealed record BranchOverrideProjection(
         Guid OverrideId,
         int VersionNumber,
         string OverrideJson,
         DateTimeOffset EffectiveFromUtc,
-        DateTimeOffset? EffectiveToUtc);
+        DateTimeOffset? EffectiveToUtc
+    );
 }

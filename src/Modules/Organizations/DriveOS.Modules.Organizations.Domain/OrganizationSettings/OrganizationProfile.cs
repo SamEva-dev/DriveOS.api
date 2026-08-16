@@ -8,10 +8,7 @@ public sealed record OrganizationProfile
     public const int RegistrationNumberMaximumLength = 100;
     public const int TaxNumberMaximumLength = 100;
 
-    private OrganizationProfile(
-        string? tradeName,
-        string? registrationNumber,
-        string? taxNumber)
+    private OrganizationProfile(string? tradeName, string? registrationNumber, string? taxNumber)
     {
         TradeName = tradeName;
         RegistrationNumber = registrationNumber;
@@ -25,7 +22,8 @@ public sealed record OrganizationProfile
     public static Result<OrganizationProfile> Create(
         string? tradeName,
         string? registrationNumber,
-        string? taxNumber)
+        string? taxNumber
+    )
     {
         string? normalizedTradeName = NormalizeOptional(tradeName);
         string? normalizedRegistrationNumber = NormalizeOptional(registrationNumber);
@@ -33,27 +31,28 @@ public sealed record OrganizationProfile
 
         if (normalizedTradeName?.Length > TradeNameMaximumLength)
         {
-            return Result.Failure<OrganizationProfile>(
-                OrganizationSettingsErrors.InvalidTradeName);
+            return Result.Failure<OrganizationProfile>(OrganizationSettingsErrors.InvalidTradeName);
         }
 
         if (normalizedRegistrationNumber?.Length > RegistrationNumberMaximumLength)
         {
             return Result.Failure<OrganizationProfile>(
-                OrganizationSettingsErrors.InvalidRegistrationNumber);
+                OrganizationSettingsErrors.InvalidRegistrationNumber
+            );
         }
 
         if (normalizedTaxNumber?.Length > TaxNumberMaximumLength)
         {
-            return Result.Failure<OrganizationProfile>(
-                OrganizationSettingsErrors.InvalidTaxNumber);
+            return Result.Failure<OrganizationProfile>(OrganizationSettingsErrors.InvalidTaxNumber);
         }
 
         return Result.Success(
             new OrganizationProfile(
                 normalizedTradeName,
                 normalizedRegistrationNumber,
-                normalizedTaxNumber));
+                normalizedTaxNumber
+            )
+        );
     }
 
     private static string? NormalizeOptional(string? value) =>

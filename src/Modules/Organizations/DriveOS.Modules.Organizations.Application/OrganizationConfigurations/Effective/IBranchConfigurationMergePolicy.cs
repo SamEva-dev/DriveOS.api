@@ -7,7 +7,8 @@ public interface IBranchConfigurationMergePolicy
 
 public sealed record BranchConfigurationMergePolicyResult(
     bool IsAllowed,
-    IReadOnlyCollection<string> RejectedPaths)
+    IReadOnlyCollection<string> RejectedPaths
+)
 {
     public static BranchConfigurationMergePolicyResult Allowed { get; } =
         new(true, Array.Empty<string>());

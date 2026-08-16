@@ -7,7 +7,8 @@ public sealed record CreateOrganizationClosureRequest(
     string? ReasonDetails,
     DateTimeOffset RequestedEffectiveAtUtc,
     OrganizationDataDisposition DataDisposition,
-    DateTimeOffset? RetentionUntilUtc);
+    DateTimeOffset? RetentionUntilUtc
+);
 
 public sealed record OrganizationClosureActionRequest(string? Comment);
 
@@ -28,17 +29,20 @@ public sealed record OrganizationClosureResponse(
     DateTimeOffset? ScheduledAtUtc,
     DateTimeOffset? CompletedAtUtc,
     DateTimeOffset? CancelledAtUtc,
-    string? DecisionComment);
+    string? DecisionComment
+);
 
 public sealed record OrganizationClosureRequirementResponse(
     string Code,
     bool IsSatisfied,
     string Severity,
     string MessageKey,
-    IReadOnlyDictionary<string, object?> Parameters);
+    IReadOnlyDictionary<string, object?> Parameters
+);
 
 public sealed record OrganizationClosureReadinessResponse(
     Guid OrganizationId,
     bool CanClose,
     IReadOnlyList<OrganizationClosureRequirementResponse> Requirements,
-    IReadOnlyList<OrganizationClosureRequirementResponse> BlockingRequirements);
+    IReadOnlyList<OrganizationClosureRequirementResponse> BlockingRequirements
+);

@@ -5,82 +5,83 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Repositories;
 
-internal sealed class BranchRepository(
-    OrganizationsDbContext dbContext)
-    : IBranchRepository
+internal sealed class BranchRepository(OrganizationsDbContext dbContext) : IBranchRepository
 {
     public Task<bool> ExistsByNameAsync(
         OrganizationId organizationId,
         string normalizedName,
-        CancellationToken cancellationToken = default) =>
-        dbContext.Branches.AsNoTracking().AnyAsync(
-            branch =>
-                branch.OrganizationId == organizationId &&
-                branch.NormalizedName == normalizedName,
-            cancellationToken);
+        CancellationToken cancellationToken = default
+    ) =>
+        dbContext
+            .Branches.AsNoTracking()
+            .AnyAsync(
+                branch =>
+                    branch.OrganizationId == organizationId
+                    && branch.NormalizedName == normalizedName,
+                cancellationToken
+            );
 
     public Task<bool> ExistsByNameAsync(
         OrganizationId organizationId,
         string normalizedName,
         BranchId excludedBranchId,
-        CancellationToken cancellationToken = default) =>
-        dbContext.Branches.AsNoTracking().AnyAsync(
-            branch =>
-                branch.OrganizationId == organizationId &&
-                branch.NormalizedName == normalizedName &&
-                branch.Id != excludedBranchId,
-            cancellationToken);
+        CancellationToken cancellationToken = default
+    ) =>
+        dbContext
+            .Branches.AsNoTracking()
+            .AnyAsync(
+                branch =>
+                    branch.OrganizationId == organizationId
+                    && branch.NormalizedName == normalizedName
+                    && branch.Id != excludedBranchId,
+                cancellationToken
+            );
 
     public Task<bool> ExistsByCodeAsync(
         OrganizationId organizationId,
         BranchCode code,
-        CancellationToken cancellationToken = default) =>
-        dbContext.Branches.AsNoTracking().AnyAsync(
-            branch =>
-                branch.OrganizationId == organizationId &&
-                branch.Code == code,
-            cancellationToken);
+        CancellationToken cancellationToken = default
+    ) =>
+        dbContext
+            .Branches.AsNoTracking()
+            .AnyAsync(
+                branch => branch.OrganizationId == organizationId && branch.Code == code,
+                cancellationToken
+            );
 
     public Task<Branch?> GetPrimaryAsync(
         OrganizationId organizationId,
         bool asNoTracking = false,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default
+    ) =>
         ApplyTracking(dbContext.Branches, asNoTracking)
             .SingleOrDefaultAsync(
-                branch =>
-                    branch.OrganizationId == organizationId &&
-                    branch.IsPrimary,
-                cancellationToken);
+                branch => branch.OrganizationId == organizationId && branch.IsPrimary,
+                cancellationToken
+            );
 
     public Task<Branch?> GetByIdAsync(
-    BranchId id,
-    bool asNoTracking = false,
-    CancellationToken cancellationToken = default)
+        BranchId id,
+        bool asNoTracking = false,
+        CancellationToken cancellationToken = default
+    )
     {
-        IQueryable<Branch> query =
-            dbContext.Branches
-                .Include(branch =>
-                    branch.ManagerAssignments);
+        IQueryable<Branch> query = dbContext.Branches.Include(branch => branch.ManagerAssignments);
 
-        return ApplyTracking(
-                query,
-                asNoTracking)
-            .SingleOrDefaultAsync(
-                branch =>
-                    branch.Id == id,
-                cancellationToken);
+        return ApplyTracking(query, asNoTracking)
+            .SingleOrDefaultAsync(branch => branch.Id == id, cancellationToken);
     }
 
     public async Task<IReadOnlyCollection<Branch>> GetAllAsync(
         bool asNoTracking = false,
-        CancellationToken cancellationToken = default) =>
-        await ApplyTracking(dbContext.Branches, asNoTracking)
-            .ToListAsync(cancellationToken);
+        CancellationToken cancellationToken = default
+    ) => await ApplyTracking(dbContext.Branches, asNoTracking).ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyCollection<Branch>> FindAsync(
         Expression<Func<Branch, bool>> predicate,
         bool asNoTracking = false,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default
+    ) =>
         await ApplyTracking(dbContext.Branches, asNoTracking)
             .Where(predicate)
             .ToListAsync(cancellationToken);
@@ -88,13 +89,15 @@ internal sealed class BranchRepository(
     public Task<Branch?> FirstOrDefaultAsync(
         Expression<Func<Branch, bool>> predicate,
         bool asNoTracking = false,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default
+    ) =>
         ApplyTracking(dbContext.Branches, asNoTracking)
             .FirstOrDefaultAsync(predicate, cancellationToken);
 
     public Task<int> CountAsync(
         Expression<Func<Branch, bool>>? predicate = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         IQueryable<Branch> query = dbContext.Branches.AsNoTracking();
 
@@ -103,17 +106,13 @@ internal sealed class BranchRepository(
             : query.CountAsync(predicate, cancellationToken);
     }
 
-    public async Task AddAsync(
-        Branch entity,
-        CancellationToken cancellationToken = default) =>
+    public async Task AddAsync(Branch entity, CancellationToken cancellationToken = default) =>
         await dbContext.Branches.AddAsync(entity, cancellationToken);
 
     public void Update(Branch entity) => dbContext.Branches.Update(entity);
 
     public void Remove(Branch entity) => dbContext.Branches.Remove(entity);
 
-    private static IQueryable<Branch> ApplyTracking(
-        IQueryable<Branch> query,
-        bool asNoTracking) =>
+    private static IQueryable<Branch> ApplyTracking(IQueryable<Branch> query, bool asNoTracking) =>
         asNoTracking ? query.AsNoTracking() : query;
 }

@@ -6,21 +6,21 @@ using DriveOS.SharedKernel.Results;
 namespace DriveOS.Modules.Organizations.Application.OrganizationSettings.GetOrganizationSettings;
 
 public sealed class GetOrganizationSettingsQueryHandler(
-    IOrganizationSettingsReadService readService)
-    : IQueryHandler<GetOrganizationSettingsQuery, OrganizationSettingsResponse>
+    IOrganizationSettingsReadService readService
+) : IQueryHandler<GetOrganizationSettingsQuery, OrganizationSettingsResponse>
 {
     public async Task<Result<OrganizationSettingsResponse>> Handle(
         GetOrganizationSettingsQuery query,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        OrganizationSettingsResponse? response =
-            await readService.GetByOrganizationIdAsync(
-                query.OrganizationId,
-                cancellationToken);
+        OrganizationSettingsResponse? response = await readService.GetByOrganizationIdAsync(
+            query.OrganizationId,
+            cancellationToken
+        );
 
         return response is null
-            ? Result.Failure<OrganizationSettingsResponse>(
-                OrganizationSettingsErrors.NotFound)
+            ? Result.Failure<OrganizationSettingsResponse>(OrganizationSettingsErrors.NotFound)
             : Result.Success(response);
     }
 }

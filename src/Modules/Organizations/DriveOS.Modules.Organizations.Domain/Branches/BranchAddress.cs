@@ -13,7 +13,8 @@ public sealed record BranchAddress
         string? line2,
         string postalCode,
         string city,
-        string countryCode)
+        string countryCode
+    )
     {
         Line1 = line1;
         Line2 = line2;
@@ -33,34 +34,31 @@ public sealed record BranchAddress
         string? line2,
         string? postalCode,
         string? city,
-        string? countryCode)
+        string? countryCode
+    )
     {
         string normalizedLine1 = line1?.Trim() ?? string.Empty;
-        string? normalizedLine2 = string.IsNullOrWhiteSpace(line2)
-            ? null
-            : line2.Trim();
+        string? normalizedLine2 = string.IsNullOrWhiteSpace(line2) ? null : line2.Trim();
         string normalizedPostalCode = postalCode?.Trim() ?? string.Empty;
         string normalizedCity = city?.Trim() ?? string.Empty;
-        string normalizedCountryCode =
-            countryCode?.Trim().ToUpperInvariant() ?? string.Empty;
+        string normalizedCountryCode = countryCode?.Trim().ToUpperInvariant() ?? string.Empty;
 
-        if (string.IsNullOrWhiteSpace(normalizedLine1) ||
-            normalizedLine1.Length > AddressLineMaximumLength ||
-            normalizedLine2?.Length > AddressLineMaximumLength ||
-            string.IsNullOrWhiteSpace(normalizedPostalCode) ||
-            normalizedPostalCode.Length > PostalCodeMaximumLength ||
-            string.IsNullOrWhiteSpace(normalizedCity) ||
-            normalizedCity.Length > CityMaximumLength)
+        if (
+            string.IsNullOrWhiteSpace(normalizedLine1)
+            || normalizedLine1.Length > AddressLineMaximumLength
+            || normalizedLine2?.Length > AddressLineMaximumLength
+            || string.IsNullOrWhiteSpace(normalizedPostalCode)
+            || normalizedPostalCode.Length > PostalCodeMaximumLength
+            || string.IsNullOrWhiteSpace(normalizedCity)
+            || normalizedCity.Length > CityMaximumLength
+        )
         {
-            return Result.Failure<BranchAddress>(
-                BranchErrors.InvalidAddress);
+            return Result.Failure<BranchAddress>(BranchErrors.InvalidAddress);
         }
 
-        if (normalizedCountryCode.Length != 2 ||
-            !normalizedCountryCode.All(char.IsLetter))
+        if (normalizedCountryCode.Length != 2 || !normalizedCountryCode.All(char.IsLetter))
         {
-            return Result.Failure<BranchAddress>(
-                BranchErrors.InvalidCountryCode);
+            return Result.Failure<BranchAddress>(BranchErrors.InvalidCountryCode);
         }
 
         return Result.Success(
@@ -69,6 +67,8 @@ public sealed record BranchAddress
                 normalizedLine2,
                 normalizedPostalCode,
                 normalizedCity,
-                normalizedCountryCode));
+                normalizedCountryCode
+            )
+        );
     }
 }

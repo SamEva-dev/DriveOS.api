@@ -5,4 +5,5 @@ public sealed record GetBranchesRequest(
     int PageSize = 20,
     string? Search = null,
     string? SortBy = null,
-    string? SortDirection = null);
+    string? SortDirection = null
+);

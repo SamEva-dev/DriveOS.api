@@ -6,4 +6,5 @@ public sealed record OrganizationListItemResponse(
     string CountryCode,
     string Type,
     string Status,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc
+);

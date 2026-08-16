@@ -16,7 +16,8 @@ public sealed record OrganizationRegionalSettings
         string dateFormat,
         string timeFormat,
         DayOfWeek firstDayOfWeek,
-        MeasurementSystem measurementSystem)
+        MeasurementSystem measurementSystem
+    )
     {
         DefaultLanguage = defaultLanguage;
         SupportedLanguages = supportedLanguages;
@@ -38,7 +39,10 @@ public sealed record OrganizationRegionalSettings
     public MeasurementSystem MeasurementSystem { get; }
 
     public IReadOnlyCollection<string> SupportedLanguageCodes =>
-        SupportedLanguages.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        SupportedLanguages.Split(
+            ',',
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+        );
 
     public static Result<OrganizationRegionalSettings> Create(
         string? defaultLanguage,
@@ -48,7 +52,8 @@ public sealed record OrganizationRegionalSettings
         string? dateFormat,
         string? timeFormat,
         DayOfWeek firstDayOfWeek,
-        MeasurementSystem measurementSystem)
+        MeasurementSystem measurementSystem
+    )
     {
         string normalizedDefaultLanguage = NormalizeLanguage(defaultLanguage);
         string[] normalizedSupportedLanguages = (supportedLanguages ?? [])
@@ -58,53 +63,67 @@ public sealed record OrganizationRegionalSettings
             .OrderBy(language => language, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        if (!IsValidLanguageCode(normalizedDefaultLanguage) ||
-            normalizedSupportedLanguages.Length == 0 ||
-            normalizedSupportedLanguages.Any(language => !IsValidLanguageCode(language)))
+        if (
+            !IsValidLanguageCode(normalizedDefaultLanguage)
+            || normalizedSupportedLanguages.Length == 0
+            || normalizedSupportedLanguages.Any(language => !IsValidLanguageCode(language))
+        )
         {
             return Result.Failure<OrganizationRegionalSettings>(
-                OrganizationSettingsErrors.InvalidLanguages);
+                OrganizationSettingsErrors.InvalidLanguages
+            );
         }
 
-        if (!normalizedSupportedLanguages.Contains(
+        if (
+            !normalizedSupportedLanguages.Contains(
                 normalizedDefaultLanguage,
-                StringComparer.OrdinalIgnoreCase))
+                StringComparer.OrdinalIgnoreCase
+            )
+        )
         {
             return Result.Failure<OrganizationRegionalSettings>(
-                OrganizationSettingsErrors.DefaultLanguageNotSupported);
+                OrganizationSettingsErrors.DefaultLanguageNotSupported
+            );
         }
 
         string normalizedTimeZoneId = timeZoneId?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(normalizedTimeZoneId) ||
-            normalizedTimeZoneId.Length > TimeZoneMaximumLength)
+        if (
+            string.IsNullOrWhiteSpace(normalizedTimeZoneId)
+            || normalizedTimeZoneId.Length > TimeZoneMaximumLength
+        )
         {
             return Result.Failure<OrganizationRegionalSettings>(
-                OrganizationSettingsErrors.InvalidTimeZone);
+                OrganizationSettingsErrors.InvalidTimeZone
+            );
         }
 
         string normalizedCurrencyCode = currencyCode?.Trim().ToUpperInvariant() ?? string.Empty;
-        if (normalizedCurrencyCode.Length != 3 ||
-            !normalizedCurrencyCode.All(char.IsLetter))
+        if (normalizedCurrencyCode.Length != 3 || !normalizedCurrencyCode.All(char.IsLetter))
         {
             return Result.Failure<OrganizationRegionalSettings>(
-                OrganizationSettingsErrors.InvalidCurrency);
+                OrganizationSettingsErrors.InvalidCurrency
+            );
         }
 
         string normalizedDateFormat = dateFormat?.Trim() ?? string.Empty;
         string normalizedTimeFormat = timeFormat?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(normalizedDateFormat) ||
-            normalizedDateFormat.Length > FormatMaximumLength ||
-            string.IsNullOrWhiteSpace(normalizedTimeFormat) ||
-            normalizedTimeFormat.Length > FormatMaximumLength)
+        if (
+            string.IsNullOrWhiteSpace(normalizedDateFormat)
+            || normalizedDateFormat.Length > FormatMaximumLength
+            || string.IsNullOrWhiteSpace(normalizedTimeFormat)
+            || normalizedTimeFormat.Length > FormatMaximumLength
+        )
         {
             return Result.Failure<OrganizationRegionalSettings>(
-                OrganizationSettingsErrors.InvalidDateTimeFormat);
+                OrganizationSettingsErrors.InvalidDateTimeFormat
+            );
         }
 
         if (!Enum.IsDefined(firstDayOfWeek) || !Enum.IsDefined(measurementSystem))
         {
             return Result.Failure<OrganizationRegionalSettings>(
-                OrganizationSettingsErrors.InvalidRegionalConvention);
+                OrganizationSettingsErrors.InvalidRegionalConvention
+            );
         }
 
         return Result.Success(
@@ -116,7 +135,9 @@ public sealed record OrganizationRegionalSettings
                 normalizedDateFormat,
                 normalizedTimeFormat,
                 firstDayOfWeek,
-                measurementSystem));
+                measurementSystem
+            )
+        );
     }
 
     private static string NormalizeLanguage(string? value)
@@ -144,7 +165,6 @@ public sealed record OrganizationRegionalSettings
             return false;
         }
 
-        return languageCode.All(character =>
-            char.IsLetter(character) || character == '-');
+        return languageCode.All(character => char.IsLetter(character) || character == '-');
     }
 }

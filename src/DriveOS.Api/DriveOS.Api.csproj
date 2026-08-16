@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -21,7 +20,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FluentValidation" />
-     <PackageReference Include="DomainRelay" />
+    <PackageReference Include="DomainRelay" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="Serilog.Sinks.File" />
@@ -37,10 +36,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Modules\Organizations\DriveOS.Modules.Organizations.Infrastructure\DriveOS.Modules.Organizations.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\CRM\DriveOS.Modules.CRM.Infrastructure\DriveOS.Modules.CRM.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Students\DriveOS.Modules.Students.Infrastructure\DriveOS.Modules.Students.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers\" />
   </ItemGroup>
-
 </Project>

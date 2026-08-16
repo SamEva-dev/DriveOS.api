@@ -7,4 +7,5 @@ public sealed record LeadActivityCreatedDomainEvent(
     OrganizationId OrganizationId,
     LeadId LeadId,
     CrmActivityType Type,
-    DateTimeOffset ActivityOccurredAtUtc) : DomainEvent;
+    DateTimeOffset ActivityOccurredAtUtc
+) : DomainEvent;

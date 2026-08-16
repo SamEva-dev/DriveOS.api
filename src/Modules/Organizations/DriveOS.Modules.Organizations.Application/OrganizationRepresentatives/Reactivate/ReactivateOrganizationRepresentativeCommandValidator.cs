@@ -1,2 +1,15 @@
-using FluentValidation; namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.Reactivate;
-internal sealed class ReactivateOrganizationRepresentativeCommandValidator:AbstractValidator<ReactivateOrganizationRepresentativeCommand>{public ReactivateOrganizationRepresentativeCommandValidator(){RuleFor(x=>x.OrganizationId).NotEmpty();RuleFor(x=>x.RepresentativeId).NotEmpty();RuleFor(x=>x.Reason).NotEmpty().MaximumLength(500);RuleFor(x=>x.ExpectedRevision).GreaterThan(0);}}
+using FluentValidation;
+
+namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.Reactivate;
+
+internal sealed class ReactivateOrganizationRepresentativeCommandValidator
+    : AbstractValidator<ReactivateOrganizationRepresentativeCommand>
+{
+    public ReactivateOrganizationRepresentativeCommandValidator()
+    {
+        RuleFor(x => x.OrganizationId).NotEmpty();
+        RuleFor(x => x.RepresentativeId).NotEmpty();
+        RuleFor(x => x.Reason).NotEmpty().MaximumLength(500);
+        RuleFor(x => x.ExpectedRevision).GreaterThan(0);
+    }
+}

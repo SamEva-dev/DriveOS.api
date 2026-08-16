@@ -14,4 +14,5 @@ public sealed record OrganizationRepresentativeAccessSnapshot(
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
     OrganizationRepresentativeStatus Status,
-    int Revision);
+    int Revision
+);

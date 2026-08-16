@@ -1,6 +1,9 @@
 using FluentValidation;
+
 namespace DriveOS.Modules.Organizations.Application.BranchConfigurationOverrides.Archive;
-public sealed class ArchiveBranchConfigurationOverrideCommandValidator : AbstractValidator<ArchiveBranchConfigurationOverrideCommand>
+
+public sealed class ArchiveBranchConfigurationOverrideCommandValidator
+    : AbstractValidator<ArchiveBranchConfigurationOverrideCommand>
 {
     public ArchiveBranchConfigurationOverrideCommandValidator()
     {

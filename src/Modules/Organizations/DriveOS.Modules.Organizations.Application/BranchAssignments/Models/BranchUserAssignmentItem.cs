@@ -1,5 +1,4 @@
-﻿namespace DriveOS.Modules.Organizations.Application
-    .BranchAssignments.Models;
+﻿namespace DriveOS.Modules.Organizations.Application.BranchAssignments.Models;
 
 public sealed record BranchUserAssignmentItem(
     Guid Id,
@@ -21,4 +20,5 @@ public sealed record BranchUserAssignmentItem(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);

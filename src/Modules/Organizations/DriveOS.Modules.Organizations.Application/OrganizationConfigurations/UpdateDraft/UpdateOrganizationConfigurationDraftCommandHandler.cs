@@ -7,17 +7,19 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationConfigurations.U
 
 public sealed class UpdateOrganizationConfigurationDraftCommandHandler(
     IOrganizationConfigurationRepository repository,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<UpdateOrganizationConfigurationDraftCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<UpdateOrganizationConfigurationDraftCommand>
 {
     public async Task<Result> Handle(
         UpdateOrganizationConfigurationDraftCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         OrganizationConfiguration? configuration = await repository.GetForUpdateAsync(
             command.ConfigurationId,
             command.OrganizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (configuration is null)
             return Result.Failure(OrganizationConfigurationErrors.NotFound);
@@ -25,8 +27,9 @@ public sealed class UpdateOrganizationConfigurationDraftCommandHandler(
         if (configuration.Revision != command.ExpectedRevision)
             return Result.Failure(OrganizationConfigurationErrors.ConcurrentUpdate);
 
-        Result<ConfigurationPayload> payloadResult =
-            ConfigurationPayload.Create(command.PayloadJson);
+        Result<ConfigurationPayload> payloadResult = ConfigurationPayload.Create(
+            command.PayloadJson
+        );
 
         if (payloadResult.IsFailure)
             return Result.Failure(payloadResult.Error);

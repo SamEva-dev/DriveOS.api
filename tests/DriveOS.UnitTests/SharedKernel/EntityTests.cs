@@ -4,7 +4,5 @@ using System.Text;
 
 namespace DriveOS.UnitTests.SharedKernel
 {
-    internal class EntityTests
-    {
-    }
+    internal class EntityTests { }
 }

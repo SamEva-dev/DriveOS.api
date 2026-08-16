@@ -14,5 +14,5 @@ public sealed record UpdateOrganizationRegionalSettingsCommand(
     string TimeFormat,
     DayOfWeek FirstDayOfWeek,
     MeasurementSystem MeasurementSystem,
-    int ExpectedVersion)
-    : ICommand;
+    int ExpectedVersion
+) : ICommand;

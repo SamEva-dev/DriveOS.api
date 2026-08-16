@@ -10,4 +10,5 @@ public sealed record OrganizationLegalProfileComplianceInput(
     DateOnly? IncorporationDate,
     string AddressLine1,
     string PostalCode,
-    string City);
+    string City
+);

@@ -9,17 +9,20 @@ namespace DriveOS.Modules.Organizations.Application.BranchConfigurationOverrides
 public sealed class ArchiveBranchConfigurationOverrideCommandHandler(
     IBranchConfigurationOverrideRepository repository,
     IOrganizationConfigurationCacheInvalidator cacheInvalidator,
-    IUnitOfWork unitOfWork) : ICommandHandler<ArchiveBranchConfigurationOverrideCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<ArchiveBranchConfigurationOverrideCommand>
 {
     public async Task<Result> Handle(
         ArchiveBranchConfigurationOverrideCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         BranchConfigurationOverride? branchOverride = await repository.GetForUpdateAsync(
             command.OverrideId,
             command.OrganizationId,
             command.BranchId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (branchOverride is null)
             return Result.Failure(BranchConfigurationOverrideErrors.NotFound);

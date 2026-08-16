@@ -2,7 +2,8 @@ using FluentValidation;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Create;
 
-internal sealed class CreateOrganizationLegalProfileCommandValidator : AbstractValidator<CreateOrganizationLegalProfileCommand>
+internal sealed class CreateOrganizationLegalProfileCommandValidator
+    : AbstractValidator<CreateOrganizationLegalProfileCommand>
 {
     public CreateOrganizationLegalProfileCommandValidator()
     {

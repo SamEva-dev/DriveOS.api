@@ -3,16 +3,15 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DriveOS.Api.Security.Authorization;
 
-internal sealed class PermissionAuthorizationHandler(
-    ICurrentUser currentUser)
+internal sealed class PermissionAuthorizationHandler(ICurrentUser currentUser)
     : AuthorizationHandler<PermissionRequirement>
 {
     protected override Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
-        PermissionRequirement requirement)
+        PermissionRequirement requirement
+    )
     {
-        if (currentUser.IsAuthenticated
-            && currentUser.HasPermission(requirement.Permission))
+        if (currentUser.IsAuthenticated && currentUser.HasPermission(requirement.Permission))
         {
             context.Succeed(requirement);
         }

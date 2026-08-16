@@ -14,24 +14,41 @@ internal sealed class CreateOrganizationClosureCommandHandler(
     IOrganizationClosureRepository repository,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
-    IClock clock)
-    : ICommandHandler<CreateOrganizationClosureCommand, OrganizationClosureId>
+    IClock clock
+) : ICommandHandler<CreateOrganizationClosureCommand, OrganizationClosureId>
 {
-    public async Task<Result<OrganizationClosureId>> Handle(CreateOrganizationClosureCommand command, CancellationToken cancellationToken)
+    public async Task<Result<OrganizationClosureId>> Handle(
+        CreateOrganizationClosureCommand command,
+        CancellationToken cancellationToken
+    )
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Result.Failure<OrganizationClosureId>(OrganizationClosureErrors.CurrentUserRequired);
+            return Result.Failure<OrganizationClosureId>(
+                OrganizationClosureErrors.CurrentUserRequired
+            );
 
-        if (await organizationReadService.GetByIdAsync(command.OrganizationId, cancellationToken) is null)
+        if (
+            await organizationReadService.GetByIdAsync(command.OrganizationId, cancellationToken)
+            is null
+        )
             return Result.Failure<OrganizationClosureId>(OrganizationErrors.NotFound);
 
         if (await repository.HasOpenClosureAsync(command.OrganizationId, cancellationToken))
-            return Result.Failure<OrganizationClosureId>(OrganizationClosureErrors.ActiveClosureAlreadyExists);
+            return Result.Failure<OrganizationClosureId>(
+                OrganizationClosureErrors.ActiveClosureAlreadyExists
+            );
 
         Result<OrganizationClosure> result = OrganizationClosure.Create(
-            OrganizationClosureId.New(), command.OrganizationId, command.ReasonCode,
-            command.ReasonDetails, command.RequestedEffectiveAtUtc, command.DataDisposition,
-            command.RetentionUntilUtc, currentUser.UserId.Value, clock.UtcNow);
+            OrganizationClosureId.New(),
+            command.OrganizationId,
+            command.ReasonCode,
+            command.ReasonDetails,
+            command.RequestedEffectiveAtUtc,
+            command.DataDisposition,
+            command.RetentionUntilUtc,
+            currentUser.UserId.Value,
+            clock.UtcNow
+        );
 
         if (result.IsFailure)
             return Result.Failure<OrganizationClosureId>(result.Error);

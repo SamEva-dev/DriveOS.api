@@ -4,15 +4,16 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.Access;
 
-public sealed class OrganizationLimitChecker(
-    IOrganizationSubscriptionReadService readService) : IOrganizationLimitChecker
+public sealed class OrganizationLimitChecker(IOrganizationSubscriptionReadService readService)
+    : IOrganizationLimitChecker
 {
     public async Task<Result<OrganizationLimitCheckResult>> CheckAsync(
         OrganizationId organizationId,
         string limitCode,
         long currentUsage,
         long requestedIncrease,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(limitCode);
         ArgumentOutOfRangeException.ThrowIfNegative(currentUsage);
@@ -20,12 +21,14 @@ public sealed class OrganizationLimitChecker(
 
         var subscription = await readService.GetByOrganizationIdAsync(
             organizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (subscription is null)
         {
             return Result.Failure<OrganizationLimitCheckResult>(
-                OrganizationSubscriptionErrors.NotFound);
+                OrganizationSubscriptionErrors.NotFound
+            );
         }
 
         string normalizedCode = limitCode.Trim();
@@ -38,11 +41,15 @@ public sealed class OrganizationLimitChecker(
                     normalizedCode,
                     null,
                     currentUsage,
-                    requestedIncrease));
+                    requestedIncrease
+                )
+            );
         }
 
-        long? limit = subscription.Limits
-            .Where(item => string.Equals(item.Code, normalizedCode, StringComparison.Ordinal))
+        long? limit = subscription
+            .Limits.Where(item =>
+                string.Equals(item.Code, normalizedCode, StringComparison.Ordinal)
+            )
             .Select(item => (long?)item.Value)
             .SingleOrDefault();
 
@@ -67,9 +74,10 @@ public sealed class OrganizationLimitChecker(
                 requestedUsage = long.MaxValue;
             }
 
-            availability = requestedUsage <= limit.Value
-                ? OrganizationLimitAvailability.Available
-                : OrganizationLimitAvailability.Exceeded;
+            availability =
+                requestedUsage <= limit.Value
+                    ? OrganizationLimitAvailability.Available
+                    : OrganizationLimitAvailability.Exceeded;
         }
 
         return Result.Success(
@@ -78,7 +86,9 @@ public sealed class OrganizationLimitChecker(
                 normalizedCode,
                 limit,
                 currentUsage,
-                requestedIncrease));
+                requestedIncrease
+            )
+        );
     }
 
     public async Task<Result> RequireCapacityAsync(
@@ -86,14 +96,16 @@ public sealed class OrganizationLimitChecker(
         string limitCode,
         long currentUsage,
         long requestedIncrease,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         Result<OrganizationLimitCheckResult> check = await CheckAsync(
             organizationId,
             limitCode,
             currentUsage,
             requestedIncrease,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (check.IsFailure)
         {
@@ -102,26 +114,30 @@ public sealed class OrganizationLimitChecker(
 
         return check.Value.Availability switch
         {
-            OrganizationLimitAvailability.Unlimited or
-            OrganizationLimitAvailability.Available => Result.Success(),
+            OrganizationLimitAvailability.Unlimited or OrganizationLimitAvailability.Available =>
+                Result.Success(),
 
             OrganizationLimitAvailability.NotAllowed => Result.Failure(
-                OrganizationSubscriptionAccessErrors.LimitNotAllowed(check.Value.LimitCode)),
+                OrganizationSubscriptionAccessErrors.LimitNotAllowed(check.Value.LimitCode)
+            ),
 
             OrganizationLimitAvailability.Exceeded => Result.Failure(
                 OrganizationSubscriptionAccessErrors.LimitExceeded(
                     check.Value.LimitCode,
                     check.Value.Limit!.Value,
                     check.Value.CurrentUsage,
-                    check.Value.RequestedIncrease)),
+                    check.Value.RequestedIncrease
+                )
+            ),
 
-            _ => Result.Failure(OrganizationSubscriptionAccessErrors.SubscriptionUnavailable)
+            _ => Result.Failure(OrganizationSubscriptionAccessErrors.SubscriptionUnavailable),
         };
     }
 
     private static bool IsOperationalStatus(SubscriptionStatus status) =>
-        status is SubscriptionStatus.Trialing
-            or SubscriptionStatus.Active
-            or SubscriptionStatus.PastDue
-            or SubscriptionStatus.Restricted;
+        status
+            is SubscriptionStatus.Trialing
+                or SubscriptionStatus.Active
+                or SubscriptionStatus.PastDue
+                or SubscriptionStatus.Restricted;
 }

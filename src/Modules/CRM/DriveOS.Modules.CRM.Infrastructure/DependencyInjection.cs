@@ -1,22 +1,22 @@
 using DriveOS.Modules.CRM.Application.Abstractions.Persistence;
-using DriveOS.Modules.CRM.Domain.Activities;
-using DriveOS.Modules.CRM.Domain.Leads;
-using DriveOS.Modules.CRM.Domain.Conversions;
-using DriveOS.Modules.CRM.Domain.Tasks;
-using DriveOS.Modules.CRM.Domain.Assessments;
-using DriveOS.Modules.CRM.Domain.Offers;
-using DriveOS.Modules.CRM.Infrastructure.Persistence;
-using DriveOS.Modules.CRM.Infrastructure.Persistence.Repositories;
-using DriveOS.Modules.CRM.Infrastructure.Persistence.Interceptors;
-using DriveOS.Modules.CRM.Infrastructure.Persistence.Queries;
-using DriveOS.Modules.CRM.Application.Dashboard.GetDashboard;
+using DriveOS.Modules.CRM.Application.Activities.Attachments;
 using DriveOS.Modules.CRM.Application.Activities.GetActivities;
 using DriveOS.Modules.CRM.Application.Activities.ImportActivity;
 using DriveOS.Modules.CRM.Application.Activities.Manage;
-using DriveOS.Modules.CRM.Application.Activities.Attachments;
-using DriveOS.Modules.CRM.Infrastructure.Attachments;
-using DriveOS.Modules.CRM.Application.Leads.SavedViews;
+using DriveOS.Modules.CRM.Application.Dashboard.GetDashboard;
 using DriveOS.Modules.CRM.Application.Leads.BulkActions;
+using DriveOS.Modules.CRM.Application.Leads.SavedViews;
+using DriveOS.Modules.CRM.Domain.Activities;
+using DriveOS.Modules.CRM.Domain.Assessments;
+using DriveOS.Modules.CRM.Domain.Conversions;
+using DriveOS.Modules.CRM.Domain.Leads;
+using DriveOS.Modules.CRM.Domain.Offers;
+using DriveOS.Modules.CRM.Domain.Tasks;
+using DriveOS.Modules.CRM.Infrastructure.Attachments;
+using DriveOS.Modules.CRM.Infrastructure.Persistence;
+using DriveOS.Modules.CRM.Infrastructure.Persistence.Interceptors;
+using DriveOS.Modules.CRM.Infrastructure.Persistence.Queries;
+using DriveOS.Modules.CRM.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +27,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddCrmInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration
+    )
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -35,7 +36,8 @@ public static class DependencyInjection
         string connectionString =
             configuration.GetConnectionString("DriveOS")
             ?? throw new InvalidOperationException(
-                "The DriveOS database connection string is missing.");
+                "The DriveOS database connection string is missing."
+            );
 
         services.AddScoped<CrmAuditableEntityInterceptor>();
         services.AddScoped<IActivityReadService, ActivityReadService>();
@@ -45,26 +47,31 @@ public static class DependencyInjection
         services.AddScoped<ISavedLeadViewService, SavedLeadViewService>();
         services.AddScoped<ILeadBulkActionService, LeadBulkActionService>();
 
-        services.AddDbContext<CrmDbContext>((serviceProvider, options) =>
-        {
-            options.UseNpgsql(
-                connectionString,
-                npgsqlOptions =>
-                {
-                    npgsqlOptions.MigrationsHistoryTable(
-                        "__ef_migrations_history",
-                        CrmSchema.Name);
-                });
+        services.AddDbContext<CrmDbContext>(
+            (serviceProvider, options) =>
+            {
+                options.UseNpgsql(
+                    connectionString,
+                    npgsqlOptions =>
+                    {
+                        npgsqlOptions.MigrationsHistoryTable(
+                            "__ef_migrations_history",
+                            CrmSchema.Name
+                        );
+                    }
+                );
 
-            options.AddInterceptors(
-                serviceProvider.GetRequiredService<CrmAuditableEntityInterceptor>());
-        });
+                options.AddInterceptors(
+                    serviceProvider.GetRequiredService<CrmAuditableEntityInterceptor>()
+                );
+            }
+        );
 
         // Never register CRM as the global IUnitOfWork: Organizations already
         // owns that registration. Each module must resolve its own UoW port.
-        services.AddScoped<ICrmUnitOfWork>(
-            serviceProvider =>
-                serviceProvider.GetRequiredService<CrmDbContext>());
+        services.AddScoped<ICrmUnitOfWork>(serviceProvider =>
+            serviceProvider.GetRequiredService<CrmDbContext>()
+        );
 
         services.AddScoped<ILeadRepository, LeadRepository>();
         services.AddScoped<ILeadConversionRepository, LeadConversionRepository>();

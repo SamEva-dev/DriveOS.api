@@ -13,11 +13,14 @@ public sealed class CreateCrmActivityCommandValidator : AbstractValidator<Create
         RuleFor(x => x.Direction).IsInEnum();
         RuleFor(x => x.NextActionTitle).MaximumLength(200);
         RuleFor(x => x.NextActionType).IsInEnum();
-        RuleFor(x => x.NextActionDueAtUtc).NotNull()
+        RuleFor(x => x.NextActionDueAtUtc)
+            .NotNull()
             .When(x => !string.IsNullOrWhiteSpace(x.NextActionTitle));
-        RuleFor(x => x.NextActionTitle).NotEmpty()
-            .When(x => x.NextActionDueAtUtc.HasValue);
-        RuleFor(x => x.LeadId).NotNull()
-            .When(x => !string.IsNullOrWhiteSpace(x.NextActionTitle) || x.NextActionDueAtUtc.HasValue);
+        RuleFor(x => x.NextActionTitle).NotEmpty().When(x => x.NextActionDueAtUtc.HasValue);
+        RuleFor(x => x.LeadId)
+            .NotNull()
+            .When(x =>
+                !string.IsNullOrWhiteSpace(x.NextActionTitle) || x.NextActionDueAtUtc.HasValue
+            );
     }
 }

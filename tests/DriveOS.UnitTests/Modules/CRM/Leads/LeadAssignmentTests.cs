@@ -29,9 +29,18 @@ public sealed class LeadAssignmentTests
 
     private static Lead CreateLead()
     {
-        var identity = LeadIdentity.Create("Ada", "Lovelace", "ada@example.test", "+33123456789").Value;
+        var identity = LeadIdentity
+            .Create("Ada", "Lovelace", "ada@example.test", "+33123456789")
+            .Value;
         var training = RequestedTraining.Create("B", TransmissionPreference.Manual, null).Value;
         var source = LeadSource.Create(LeadSourceType.Website, null).Value;
-        return Lead.Create(LeadId.New(), OrganizationId.New(), null, identity, training, source).Value;
+        return Lead.Create(
+            LeadId.New(),
+            OrganizationId.New(),
+            null,
+            identity,
+            training,
+            source
+        ).Value;
     }
 }

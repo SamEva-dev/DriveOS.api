@@ -5,18 +5,19 @@ using DriveOS.SharedKernel.Results;
 namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.GetList;
 
 internal sealed class GetOrganizationSequencesQueryHandler(
-    IOrganizationSequenceReadService readService)
-    : IQueryHandler<GetOrganizationSequencesQuery, IReadOnlyList<OrganizationSequenceListItem>>
+    IOrganizationSequenceReadService readService
+) : IQueryHandler<GetOrganizationSequencesQuery, IReadOnlyList<OrganizationSequenceListItem>>
 {
     public async Task<Result<IReadOnlyList<OrganizationSequenceListItem>>> Handle(
         GetOrganizationSequencesQuery query,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        IReadOnlyList<OrganizationSequenceListItem> items =
-            await readService.GetListAsync(
-                query.OrganizationId,
-                query.BranchId,
-                cancellationToken);
+        IReadOnlyList<OrganizationSequenceListItem> items = await readService.GetListAsync(
+            query.OrganizationId,
+            query.BranchId,
+            cancellationToken
+        );
 
         return Result.Success(items);
     }

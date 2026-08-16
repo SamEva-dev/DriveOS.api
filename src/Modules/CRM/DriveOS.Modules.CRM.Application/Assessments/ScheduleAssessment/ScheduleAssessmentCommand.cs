@@ -21,4 +21,5 @@ public sealed record ScheduleAssessmentCommand(
     Guid? SimulatorId,
     decimal? PriceAmount,
     string? PriceCurrency,
-    string? Notes) : ICommand<Guid>;
+    string? Notes
+) : ICommand<Guid>;

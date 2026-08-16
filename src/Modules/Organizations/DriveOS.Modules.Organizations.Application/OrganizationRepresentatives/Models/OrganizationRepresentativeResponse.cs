@@ -18,4 +18,5 @@ public sealed record OrganizationRepresentativeResponse(
     DateTimeOffset CreatedAtUtc,
     UserId? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    UserId? LastModifiedByUserId);
+    UserId? LastModifiedByUserId
+);

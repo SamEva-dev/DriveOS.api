@@ -8,9 +8,7 @@ public sealed class GetOrganizationsRequest
 
     public string? Search { get; init; }
 
-    public string? SortBy { get; init; } =
-        "legalName";
+    public string? SortBy { get; init; } = "legalName";
 
-    public string? SortDirection { get; init; } =
-        "asc";
+    public string? SortDirection { get; init; } = "asc";
 }

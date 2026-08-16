@@ -11,5 +11,5 @@ public sealed record UpdateOrganizationAddressCommand(
     string? City,
     string? Region,
     string AddressCountryCode,
-    int ExpectedVersion)
-    : ICommand;
+    int ExpectedVersion
+) : ICommand;

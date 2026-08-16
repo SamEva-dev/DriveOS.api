@@ -13,22 +13,34 @@ public sealed class BranchConfigurationOverridesApiMappingProfile : MappingProfi
 {
     public override void Configure(IMappingConfiguration configuration)
     {
-        configuration.CreateMap<BranchConfigurationOverrideResponse,
-            BranchConfigurationOverrideResponseContract>();
+        configuration.CreateMap<
+            BranchConfigurationOverrideResponse,
+            BranchConfigurationOverrideResponseContract
+        >();
 
-        configuration.CreateMap<BranchConfigurationOverrideListItemResponse,
-            BranchConfigurationOverrideListItemResponseContract>();
+        configuration.CreateMap<
+            BranchConfigurationOverrideListItemResponse,
+            BranchConfigurationOverrideListItemResponseContract
+        >();
 
-        configuration.CreateMap<CreateBranchConfigurationOverrideDraftApiModel,
-            CreateBranchConfigurationOverrideDraftCommand>();
+        configuration.CreateMap<
+            CreateBranchConfigurationOverrideDraftApiModel,
+            CreateBranchConfigurationOverrideDraftCommand
+        >();
 
-        configuration.CreateMap<UpdateBranchConfigurationOverrideDraftApiModel,
-            UpdateBranchConfigurationOverrideDraftCommand>();
+        configuration.CreateMap<
+            UpdateBranchConfigurationOverrideDraftApiModel,
+            UpdateBranchConfigurationOverrideDraftCommand
+        >();
 
-        configuration.CreateMap<PublishBranchConfigurationOverrideApiModel,
-            PublishBranchConfigurationOverrideCommand>();
+        configuration.CreateMap<
+            PublishBranchConfigurationOverrideApiModel,
+            PublishBranchConfigurationOverrideCommand
+        >();
 
-        configuration.CreateMap<ArchiveBranchConfigurationOverrideApiModel,
-            ArchiveBranchConfigurationOverrideCommand>();
+        configuration.CreateMap<
+            ArchiveBranchConfigurationOverrideApiModel,
+            ArchiveBranchConfigurationOverrideCommand
+        >();
     }
 }

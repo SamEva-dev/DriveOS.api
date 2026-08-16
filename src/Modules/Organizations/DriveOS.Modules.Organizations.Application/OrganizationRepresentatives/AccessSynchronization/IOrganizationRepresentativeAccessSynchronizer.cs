@@ -4,10 +4,12 @@ public interface IOrganizationRepresentativeAccessSynchronizer
 {
     Task SynchronizeAsync(
         OrganizationRepresentativeAccessSnapshot representative,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task RevokeAsync(
         OrganizationRepresentativeAccessSnapshot representative,
         string reason,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

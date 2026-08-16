@@ -2,13 +2,12 @@
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
-using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.BranchAssignments;
+using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Results;
 
-namespace DriveOS.Modules.Organizations.Application
-    .Branches.Lifecycle;
+namespace DriveOS.Modules.Organizations.Application.Branches.Lifecycle;
 
 public sealed class ChangeBranchStatusCommandHandler(
     IBranchRepository branchRepository,
@@ -16,79 +15,62 @@ public sealed class ChangeBranchStatusCommandHandler(
     IBranchUserAssignmentRepository branchUserAssignmentRepository,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
-    IClock clock)
-    : ICommandHandler<ChangeBranchStatusCommand>
+    IClock clock
+) : ICommandHandler<ChangeBranchStatusCommand>
 {
     public async Task<Result> Handle(
         ChangeBranchStatusCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (
-            !currentUser.IsAuthenticated ||
-            currentUser.UserId is null)
+        if (!currentUser.IsAuthenticated || currentUser.UserId is null)
         {
-            return Result.Failure(
-                OrganizationErrors.CurrentUserRequired);
+            return Result.Failure(OrganizationErrors.CurrentUserRequired);
         }
 
-        Organization? organization =
-            await organizationRepository
-                .GetByIdAsync(
-                    command.OrganizationId,
-                    asNoTracking: true,
-                    cancellationToken);
+        Organization? organization = await organizationRepository.GetByIdAsync(
+            command.OrganizationId,
+            asNoTracking: true,
+            cancellationToken
+        );
 
         if (organization is null)
         {
-            return Result.Failure(
-                BranchErrors.OrganizationNotFound);
+            return Result.Failure(BranchErrors.OrganizationNotFound);
         }
 
-        Branch? branch =
-            await branchRepository
-                .GetByIdAsync(
-                    command.BranchId,
-                    asNoTracking: false,
-                    cancellationToken);
+        Branch? branch = await branchRepository.GetByIdAsync(
+            command.BranchId,
+            asNoTracking: false,
+            cancellationToken
+        );
 
-        if (
-            branch is null ||
-            branch.OrganizationId !=
-            command.OrganizationId)
+        if (branch is null || branch.OrganizationId != command.OrganizationId)
         {
-            return Result.Failure(
-                BranchErrors.NotFound);
+            return Result.Failure(BranchErrors.NotFound);
         }
 
-        BranchStatus currentStatus =
-            branch.Status;
+        BranchStatus currentStatus = branch.Status;
 
         if (
-            command.TargetStatus ==
-            BranchStatus.Active &&
-            organization.Status !=
-            OrganizationStatus.Active)
+            command.TargetStatus == BranchStatus.Active
+            && organization.Status != OrganizationStatus.Active
+        )
         {
-            return Result.Failure(
-                BranchErrors
-                    .OrganizationMustBeActive);
+            return Result.Failure(BranchErrors.OrganizationMustBeActive);
         }
 
         BranchStatusChangeReason reason;
 
         try
         {
-            reason =
-                BranchStatusChangeReason.Create(
-                    command.Reason);
+            reason = BranchStatusChangeReason.Create(command.Reason);
         }
-        catch (
-            ArgumentException)
+        catch (ArgumentException)
         {
             return Result.Failure(
-                BranchErrors.InvalidStatusTransition(
-                    currentStatus,
-                    command.TargetStatus));
+                BranchErrors.InvalidStatusTransition(currentStatus, command.TargetStatus)
+            );
         }
 
         DateTimeOffset now = clock.UtcNow;
@@ -99,25 +81,34 @@ public sealed class ChangeBranchStatusCommandHandler(
         // branch assignment. Activation, however, checks Branch.ManagerAssignments.
         // Keep the domain invariant and synchronize the aggregate before activation.
         if (
-            command.TargetStatus == BranchStatus.Active &&
-            currentStatus == BranchStatus.Draft &&
-            !branch.HasActiveManagerAt(now))
+            command.TargetStatus == BranchStatus.Active
+            && currentStatus == BranchStatus.Draft
+            && !branch.HasActiveManagerAt(now)
+        )
         {
             IReadOnlyCollection<BranchUserAssignment> assignments =
                 await branchUserAssignmentRepository.GetOpenAssignmentsByBranchAsync(
                     command.OrganizationId,
                     command.BranchId,
                     asNoTracking: true,
-                    cancellationToken);
+                    cancellationToken
+                );
 
             BranchUserAssignment? primaryAdministrativeManager = assignments
                 .Where(assignment =>
-                    assignment.Status == BranchUserAssignmentStatus.Active &&
-                    assignment.Role == BranchAssignmentRole.AdministrativeManager &&
-                    assignment.AssignmentType == BranchAssignmentType.Primary &&
-                    assignment.StartsAtUtc <= now &&
-                    (!assignment.PlannedEndAtUtc.HasValue || assignment.PlannedEndAtUtc.Value > now) &&
-                    (!assignment.EffectiveEndAtUtc.HasValue || assignment.EffectiveEndAtUtc.Value > now))
+                    assignment.Status == BranchUserAssignmentStatus.Active
+                    && assignment.Role == BranchAssignmentRole.AdministrativeManager
+                    && assignment.AssignmentType == BranchAssignmentType.Primary
+                    && assignment.StartsAtUtc <= now
+                    && (
+                        !assignment.PlannedEndAtUtc.HasValue
+                        || assignment.PlannedEndAtUtc.Value > now
+                    )
+                    && (
+                        !assignment.EffectiveEndAtUtc.HasValue
+                        || assignment.EffectiveEndAtUtc.Value > now
+                    )
+                )
                 .OrderByDescending(assignment => assignment.StartsAtUtc)
                 .FirstOrDefault();
 
@@ -127,7 +118,8 @@ public sealed class ChangeBranchStatusCommandHandler(
                     primaryAdministrativeManager.UserId,
                     now,
                     currentUser.UserId.Value,
-                    now);
+                    now
+                );
 
                 if (managerResult.IsFailure)
                 {
@@ -136,22 +128,21 @@ public sealed class ChangeBranchStatusCommandHandler(
             }
         }
 
-        Result transitionResult =
-            ApplyTransition(
-                branch,
-                command.TargetStatus,
-                reason,
-                currentUser.UserId.Value.Value,
-                now,
-                currentStatus);
+        Result transitionResult = ApplyTransition(
+            branch,
+            command.TargetStatus,
+            reason,
+            currentUser.UserId.Value.Value,
+            now,
+            currentStatus
+        );
 
         if (transitionResult.IsFailure)
         {
             return transitionResult;
         }
 
-        await unitOfWork.CommitAsync(
-            cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
 
         return Result.Success();
     }
@@ -162,72 +153,54 @@ public sealed class ChangeBranchStatusCommandHandler(
         BranchStatusChangeReason reason,
         Guid changedByUserId,
         DateTimeOffset changedAtUtc,
-        BranchStatus currentStatus)
+        BranchStatus currentStatus
+    )
     {
         try
         {
             switch (targetStatus)
             {
                 case BranchStatus.Active:
+                {
+                    if (currentStatus == BranchStatus.Draft)
                     {
-                        if (
-                            currentStatus ==
-                            BranchStatus.Draft)
-                        {
-                            branch.Activate(
-                                reason,
-                                changedByUserId,
-                                changedAtUtc);
-                        }
-                        else
-                        {
-                            branch.Reactivate(
-                                reason,
-                                changedByUserId,
-                                changedAtUtc);
-                        }
-
-                        break;
+                        branch.Activate(reason, changedByUserId, changedAtUtc);
                     }
+                    else
+                    {
+                        branch.Reactivate(reason, changedByUserId, changedAtUtc);
+                    }
+
+                    break;
+                }
 
                 case BranchStatus.Restricted:
-                    {
-                        branch.Restrict(
-                            reason,
-                            changedByUserId,
-                            changedAtUtc);
+                {
+                    branch.Restrict(reason, changedByUserId, changedAtUtc);
 
-                        break;
-                    }
+                    break;
+                }
 
                 case BranchStatus.Suspended:
-                    {
-                        branch.Suspend(
-                            reason,
-                            changedByUserId,
-                            changedAtUtc);
+                {
+                    branch.Suspend(reason, changedByUserId, changedAtUtc);
 
-                        break;
-                    }
+                    break;
+                }
 
                 case BranchStatus.Closed:
-                    {
-                        branch.Close(
-                            reason,
-                            changedByUserId,
-                            changedAtUtc);
+                {
+                    branch.Close(reason, changedByUserId, changedAtUtc);
 
-                        break;
-                    }
+                    break;
+                }
 
                 default:
-                    {
-                        return Result.Failure(
-                            BranchErrors
-                                .InvalidStatusTransition(
-                                    currentStatus,
-                                    targetStatus));
-                    }
+                {
+                    return Result.Failure(
+                        BranchErrors.InvalidStatusTransition(currentStatus, targetStatus)
+                    );
+                }
             }
 
             return Result.Success();
@@ -235,23 +208,17 @@ public sealed class ChangeBranchStatusCommandHandler(
         catch (InvalidOperationException exception)
         {
             if (
-                targetStatus ==
-                    BranchStatus.Active &&
-                currentStatus ==
-                    BranchStatus.Draft &&
-                exception.Message.Contains(
-                    "manager",
-                    StringComparison.OrdinalIgnoreCase))
+                targetStatus == BranchStatus.Active
+                && currentStatus == BranchStatus.Draft
+                && exception.Message.Contains("manager", StringComparison.OrdinalIgnoreCase)
+            )
             {
-                return Result.Failure(
-                    BranchErrors.ActiveManagerRequired);
+                return Result.Failure(BranchErrors.ActiveManagerRequired);
             }
 
             return Result.Failure(
-                BranchErrors
-                    .InvalidStatusTransition(
-                        currentStatus,
-                        targetStatus));
+                BranchErrors.InvalidStatusTransition(currentStatus, targetStatus)
+            );
         }
     }
 }

@@ -22,4 +22,5 @@ public sealed record OrganizationLegalProfileResponse(
     DateTimeOffset CreatedAtUtc,
     UserId? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    UserId? LastModifiedByUserId);
+    UserId? LastModifiedByUserId
+);

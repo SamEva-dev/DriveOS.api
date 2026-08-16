@@ -6,5 +6,5 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.Reserv
 public sealed record ReserveOrganizationSequenceNumberCommand(
     OrganizationId OrganizationId,
     BranchId? BranchId,
-    string Code)
-    : ICommand<string>;
+    string Code
+) : ICommand<string>;

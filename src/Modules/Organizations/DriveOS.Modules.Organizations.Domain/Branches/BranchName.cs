@@ -13,8 +13,7 @@ public sealed record BranchName
 
     public string Value { get; }
 
-    public string NormalizedValue =>
-        Value.ToUpperInvariant();
+    public string NormalizedValue => Value.ToUpperInvariant();
 
     public static Result<BranchName> Create(string? value)
     {
@@ -22,14 +21,12 @@ public sealed record BranchName
 
         if (string.IsNullOrWhiteSpace(normalized))
         {
-            return Result.Failure<BranchName>(
-                BranchErrors.EmptyName);
+            return Result.Failure<BranchName>(BranchErrors.EmptyName);
         }
 
         if (normalized.Length > MaximumLength)
         {
-            return Result.Failure<BranchName>(
-                BranchErrors.NameTooLong(MaximumLength));
+            return Result.Failure<BranchName>(BranchErrors.NameTooLong(MaximumLength));
         }
 
         return Result.Success(new BranchName(normalized));

@@ -10,7 +10,8 @@ public sealed record RegisteredAddress
         string postalCode,
         string city,
         string? region,
-        string countryCode)
+        string countryCode
+    )
     {
         Line1 = line1;
         Line2 = line2;
@@ -33,39 +34,49 @@ public sealed record RegisteredAddress
         string postalCode,
         string city,
         string? region,
-        string countryCode)
+        string countryCode
+    )
     {
         string normalizedLine1 = line1?.Trim() ?? string.Empty;
         string normalizedPostalCode = postalCode?.Trim() ?? string.Empty;
         string normalizedCity = city?.Trim() ?? string.Empty;
         string normalizedCountryCode = countryCode?.Trim().ToUpperInvariant() ?? string.Empty;
 
-        if (string.IsNullOrWhiteSpace(normalizedLine1) ||
-            string.IsNullOrWhiteSpace(normalizedPostalCode) ||
-            string.IsNullOrWhiteSpace(normalizedCity) ||
-            normalizedCountryCode.Length != 2 ||
-            !normalizedCountryCode.All(char.IsLetter))
+        if (
+            string.IsNullOrWhiteSpace(normalizedLine1)
+            || string.IsNullOrWhiteSpace(normalizedPostalCode)
+            || string.IsNullOrWhiteSpace(normalizedCity)
+            || normalizedCountryCode.Length != 2
+            || !normalizedCountryCode.All(char.IsLetter)
+        )
         {
             return Result.Failure<RegisteredAddress>(
-                OrganizationLegalProfileErrors.InvalidRegisteredAddress);
+                OrganizationLegalProfileErrors.InvalidRegisteredAddress
+            );
         }
 
-        if (normalizedLine1.Length > 200 ||
-            (line2?.Trim().Length ?? 0) > 200 ||
-            normalizedPostalCode.Length > 30 ||
-            normalizedCity.Length > 120 ||
-            (region?.Trim().Length ?? 0) > 120)
+        if (
+            normalizedLine1.Length > 200
+            || (line2?.Trim().Length ?? 0) > 200
+            || normalizedPostalCode.Length > 30
+            || normalizedCity.Length > 120
+            || (region?.Trim().Length ?? 0) > 120
+        )
         {
             return Result.Failure<RegisteredAddress>(
-                OrganizationLegalProfileErrors.InvalidRegisteredAddress);
+                OrganizationLegalProfileErrors.InvalidRegisteredAddress
+            );
         }
 
-        return Result.Success(new RegisteredAddress(
-            normalizedLine1,
-            string.IsNullOrWhiteSpace(line2) ? null : line2.Trim(),
-            normalizedPostalCode,
-            normalizedCity,
-            string.IsNullOrWhiteSpace(region) ? null : region.Trim(),
-            normalizedCountryCode));
+        return Result.Success(
+            new RegisteredAddress(
+                normalizedLine1,
+                string.IsNullOrWhiteSpace(line2) ? null : line2.Trim(),
+                normalizedPostalCode,
+                normalizedCity,
+                string.IsNullOrWhiteSpace(region) ? null : region.Trim(),
+                normalizedCountryCode
+            )
+        );
     }
 }

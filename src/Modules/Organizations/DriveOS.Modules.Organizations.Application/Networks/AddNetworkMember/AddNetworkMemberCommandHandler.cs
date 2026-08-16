@@ -12,35 +12,58 @@ internal sealed class AddNetworkMemberCommandHandler(
     IOrganizationRepository organizations,
     INetworkOrganizationMembershipRepository memberships,
     IUnitOfWork unitOfWork,
-    IClock clock) : ICommandHandler<AddNetworkMemberCommand, NetworkOrganizationMembershipId>
+    IClock clock
+) : ICommandHandler<AddNetworkMemberCommand, NetworkOrganizationMembershipId>
 {
     public async Task<Result<NetworkOrganizationMembershipId>> Handle(
-        AddNetworkMemberCommand command, CancellationToken cancellationToken)
+        AddNetworkMemberCommand command,
+        CancellationToken cancellationToken
+    )
     {
         Organization? network = await organizations.GetByIdAsync(
-            command.NetworkOrganizationId, true, cancellationToken);
+            command.NetworkOrganizationId,
+            true,
+            cancellationToken
+        );
         if (network?.Type != OrganizationType.DrivingSchoolNetwork)
             return Result.Failure<NetworkOrganizationMembershipId>(
-                NetworkOrganizationMembershipErrors.CurrentOrganizationMustBeNetwork);
+                NetworkOrganizationMembershipErrors.CurrentOrganizationMustBeNetwork
+            );
 
         Organization? member = await organizations.GetByIdAsync(
-            command.MemberOrganizationId, true, cancellationToken);
+            command.MemberOrganizationId,
+            true,
+            cancellationToken
+        );
         if (member is null)
             return Result.Failure<NetworkOrganizationMembershipId>(
-                NetworkOrganizationMembershipErrors.MemberOrganizationNotFound);
+                NetworkOrganizationMembershipErrors.MemberOrganizationNotFound
+            );
         if (member.Type != OrganizationType.DrivingSchool)
             return Result.Failure<NetworkOrganizationMembershipId>(
-                NetworkOrganizationMembershipErrors.MemberOrganizationMustBeDrivingSchool);
+                NetworkOrganizationMembershipErrors.MemberOrganizationMustBeDrivingSchool
+            );
         if (member.Status == OrganizationStatus.Closed)
             return Result.Failure<NetworkOrganizationMembershipId>(
-                NetworkOrganizationMembershipErrors.MemberOrganizationNotFound);
-        if (await memberships.HasActiveMembershipAsync(command.MemberOrganizationId, cancellationToken))
+                NetworkOrganizationMembershipErrors.MemberOrganizationNotFound
+            );
+        if (
+            await memberships.HasActiveMembershipAsync(
+                command.MemberOrganizationId,
+                cancellationToken
+            )
+        )
             return Result.Failure<NetworkOrganizationMembershipId>(
-                NetworkOrganizationMembershipErrors.ActiveMembershipAlreadyExists);
+                NetworkOrganizationMembershipErrors.ActiveMembershipAlreadyExists
+            );
 
         NetworkOrganizationMembershipId id = NetworkOrganizationMembershipId.New();
         Result<NetworkOrganizationMembership> created = NetworkOrganizationMembership.Create(
-            id, command.NetworkOrganizationId, command.MemberOrganizationId, clock.UtcNow);
+            id,
+            command.NetworkOrganizationId,
+            command.MemberOrganizationId,
+            clock.UtcNow
+        );
         if (created.IsFailure)
             return Result.Failure<NetworkOrganizationMembershipId>(created.Error);
 

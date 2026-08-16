@@ -5,5 +5,5 @@ public enum AssessmentSessionStatus
     InProgress = 0,
     Paused = 1,
     DraftCompleted = 2,
-    Submitted = 3
+    Submitted = 3,
 }

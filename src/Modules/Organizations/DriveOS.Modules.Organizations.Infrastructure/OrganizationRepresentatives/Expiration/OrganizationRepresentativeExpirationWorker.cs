@@ -11,8 +11,8 @@ internal sealed class OrganizationRepresentativeExpirationWorker(
     IServiceScopeFactory scopeFactory,
     IClock clock,
     IOptions<OrganizationRepresentativeExpirationOptions> options,
-    ILogger<OrganizationRepresentativeExpirationWorker> logger)
-    : BackgroundService
+    ILogger<OrganizationRepresentativeExpirationWorker> logger
+) : BackgroundService
 {
     private readonly OrganizationRepresentativeExpirationOptions _options = options.Value;
 
@@ -21,20 +21,27 @@ internal sealed class OrganizationRepresentativeExpirationWorker(
         if (!_options.Enabled)
             return;
 
-        using PeriodicTimer timer = new(TimeSpan.FromMinutes(Math.Max(1, _options.IntervalMinutes)));
+        using PeriodicTimer timer = new(
+            TimeSpan.FromMinutes(Math.Max(1, _options.IntervalMinutes))
+        );
         do
         {
             try
             {
                 using IServiceScope scope = scopeFactory.CreateScope();
-                var processor = scope.ServiceProvider.GetRequiredService<IOrganizationRepresentativeExpirationProcessor>();
+                var processor =
+                    scope.ServiceProvider.GetRequiredService<IOrganizationRepresentativeExpirationProcessor>();
                 int processed = await processor.ProcessAsync(
                     DateOnly.FromDateTime(clock.UtcNow.UtcDateTime),
                     Math.Clamp(_options.BatchSize, 1, 1000),
-                    stoppingToken);
+                    stoppingToken
+                );
 
                 if (processed > 0)
-                    logger.LogInformation("Expired {Count} organization representative relations.", processed);
+                    logger.LogInformation(
+                        "Expired {Count} organization representative relations.",
+                        processed
+                    );
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -42,9 +49,11 @@ internal sealed class OrganizationRepresentativeExpirationWorker(
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Organization representative expiration processing failed.");
+                logger.LogError(
+                    exception,
+                    "Organization representative expiration processing failed."
+                );
             }
-        }
-        while (await timer.WaitForNextTickAsync(stoppingToken));
+        } while (await timer.WaitForNextTickAsync(stoppingToken));
     }
 }

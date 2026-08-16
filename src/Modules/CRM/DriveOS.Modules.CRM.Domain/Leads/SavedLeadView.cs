@@ -6,14 +6,32 @@ public sealed class SavedLeadView
 {
     private SavedLeadView() { }
 
-    public SavedLeadView(Guid id, OrganizationId organizationId, UserId ownerUserId,
-        string name, string filtersJson, string sortJson, string columnsJson,
-        SavedLeadViewScope scope, Guid? branchId, bool isDefault, DateTimeOffset nowUtc)
+    public SavedLeadView(
+        Guid id,
+        OrganizationId organizationId,
+        UserId ownerUserId,
+        string name,
+        string filtersJson,
+        string sortJson,
+        string columnsJson,
+        SavedLeadViewScope scope,
+        Guid? branchId,
+        bool isDefault,
+        DateTimeOffset nowUtc
+    )
     {
-        Id = id; OrganizationId = organizationId; OwnerUserId = ownerUserId;
-        Name = name.Trim(); FiltersJson = filtersJson; SortJson = sortJson;
-        ColumnsJson = columnsJson; Scope = scope; BranchId = branchId;
-        IsDefault = isDefault; CreatedAtUtc = nowUtc; LastModifiedAtUtc = nowUtc;
+        Id = id;
+        OrganizationId = organizationId;
+        OwnerUserId = ownerUserId;
+        Name = name.Trim();
+        FiltersJson = filtersJson;
+        SortJson = sortJson;
+        ColumnsJson = columnsJson;
+        Scope = scope;
+        BranchId = branchId;
+        IsDefault = isDefault;
+        CreatedAtUtc = nowUtc;
+        LastModifiedAtUtc = nowUtc;
     }
 
     public Guid Id { get; private set; }
@@ -29,15 +47,33 @@ public sealed class SavedLeadView
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public DateTimeOffset LastModifiedAtUtc { get; private set; }
 
-    public void Update(string name, string filtersJson, string sortJson, string columnsJson,
-        SavedLeadViewScope scope, Guid? branchId, bool isDefault, DateTimeOffset nowUtc)
+    public void Update(
+        string name,
+        string filtersJson,
+        string sortJson,
+        string columnsJson,
+        SavedLeadViewScope scope,
+        Guid? branchId,
+        bool isDefault,
+        DateTimeOffset nowUtc
+    )
     {
-        Name = name.Trim(); FiltersJson = filtersJson; SortJson = sortJson;
-        ColumnsJson = columnsJson; Scope = scope; BranchId = branchId;
-        IsDefault = isDefault; LastModifiedAtUtc = nowUtc;
+        Name = name.Trim();
+        FiltersJson = filtersJson;
+        SortJson = sortJson;
+        ColumnsJson = columnsJson;
+        Scope = scope;
+        BranchId = branchId;
+        IsDefault = isDefault;
+        LastModifiedAtUtc = nowUtc;
     }
 
     public void ClearDefault() => IsDefault = false;
 }
 
-public enum SavedLeadViewScope { Private = 0, Branch = 1, Organization = 2 }
+public enum SavedLeadViewScope
+{
+    Private = 0,
+    Branch = 1,
+    Organization = 2,
+}

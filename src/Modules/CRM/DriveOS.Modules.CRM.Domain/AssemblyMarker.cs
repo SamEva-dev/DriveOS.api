@@ -6,7 +6,5 @@ namespace DriveOS.Modules.CRM.Domain;
 /// </summary>
 public sealed class AssemblyMarker
 {
-    private AssemblyMarker()
-    {
-    }
+    private AssemblyMarker() { }
 }

@@ -1,3 +1,13 @@
-using DriveOS.Application.Abstractions.Messaging; using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives; using DriveOS.SharedKernel.Identifiers;
+using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
+using DriveOS.SharedKernel.Identifiers;
+
 namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.End;
-public sealed record EndOrganizationRepresentativeCommand(OrganizationId OrganizationId,OrganizationRepresentativeId RepresentativeId,DateOnly EffectiveTo,string Reason,int ExpectedRevision):ICommand;
+
+public sealed record EndOrganizationRepresentativeCommand(
+    OrganizationId OrganizationId,
+    OrganizationRepresentativeId RepresentativeId,
+    DateOnly EffectiveTo,
+    string Reason,
+    int ExpectedRevision
+) : ICommand;

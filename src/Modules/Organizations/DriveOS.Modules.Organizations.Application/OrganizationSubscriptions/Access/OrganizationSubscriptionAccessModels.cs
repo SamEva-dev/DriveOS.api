@@ -4,12 +4,13 @@ public enum OrganizationEntitlementAvailability
 {
     Available = 1,
     NotIncluded = 2,
-    SubscriptionUnavailable = 3
+    SubscriptionUnavailable = 3,
 }
 
 public sealed record OrganizationEntitlementCheckResult(
     OrganizationEntitlementAvailability Availability,
-    string EntitlementCode)
+    string EntitlementCode
+)
 {
     public bool IsAvailable => Availability == OrganizationEntitlementAvailability.Available;
 }
@@ -20,7 +21,7 @@ public enum OrganizationLimitAvailability
     Available = 2,
     Exceeded = 3,
     NotAllowed = 4,
-    SubscriptionUnavailable = 5
+    SubscriptionUnavailable = 5,
 }
 
 public sealed record OrganizationLimitCheckResult(
@@ -28,8 +29,11 @@ public sealed record OrganizationLimitCheckResult(
     string LimitCode,
     long? Limit,
     long CurrentUsage,
-    long RequestedIncrease)
+    long RequestedIncrease
+)
 {
     public bool HasCapacity =>
-        Availability is OrganizationLimitAvailability.Unlimited or OrganizationLimitAvailability.Available;
+        Availability
+            is OrganizationLimitAvailability.Unlimited
+                or OrganizationLimitAvailability.Available;
 }

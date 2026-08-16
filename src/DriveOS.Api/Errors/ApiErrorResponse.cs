@@ -5,4 +5,5 @@ public sealed record ApiErrorResponse(
     string Code,
     string MessageKey,
     IReadOnlyDictionary<string, object?>? Parameters,
-    string? TraceId);
+    string? TraceId
+);

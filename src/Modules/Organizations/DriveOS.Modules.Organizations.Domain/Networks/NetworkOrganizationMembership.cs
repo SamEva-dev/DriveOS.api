@@ -9,8 +9,12 @@ public sealed class NetworkOrganizationMembership : AggregateRoot<NetworkOrganiz
 {
     private NetworkOrganizationMembership() { }
 
-    private NetworkOrganizationMembership(NetworkOrganizationMembershipId id, OrganizationId networkOrganizationId,
-        OrganizationId memberOrganizationId, DateTimeOffset joinedAtUtc)
+    private NetworkOrganizationMembership(
+        NetworkOrganizationMembershipId id,
+        OrganizationId networkOrganizationId,
+        OrganizationId memberOrganizationId,
+        DateTimeOffset joinedAtUtc
+    )
         : base(id)
     {
         NetworkOrganizationId = networkOrganizationId;
@@ -24,19 +28,36 @@ public sealed class NetworkOrganizationMembership : AggregateRoot<NetworkOrganiz
     public DateTimeOffset? EndedAtUtc { get; private set; }
     public bool IsActive => EndedAtUtc is null;
 
-    public static Result<NetworkOrganizationMembership> Create(NetworkOrganizationMembershipId id,
-        OrganizationId networkOrganizationId, OrganizationId memberOrganizationId,
-        DateTimeOffset joinedAtUtc)
+    public static Result<NetworkOrganizationMembership> Create(
+        NetworkOrganizationMembershipId id,
+        OrganizationId networkOrganizationId,
+        OrganizationId memberOrganizationId,
+        DateTimeOffset joinedAtUtc
+    )
     {
         if (id.IsEmpty || networkOrganizationId.IsEmpty || memberOrganizationId.IsEmpty)
-            return Result.Failure<NetworkOrganizationMembership>(NetworkOrganizationMembershipErrors.InvalidIdentifier);
+            return Result.Failure<NetworkOrganizationMembership>(
+                NetworkOrganizationMembershipErrors.InvalidIdentifier
+            );
         if (networkOrganizationId == memberOrganizationId)
-            return Result.Failure<NetworkOrganizationMembership>(NetworkOrganizationMembershipErrors.SelfMembership);
+            return Result.Failure<NetworkOrganizationMembership>(
+                NetworkOrganizationMembershipErrors.SelfMembership
+            );
 
-        var membership = new NetworkOrganizationMembership(id, networkOrganizationId,
-            memberOrganizationId, joinedAtUtc);
-        membership.RaiseDomainEvent(new NetworkOrganizationMemberAddedDomainEvent(
-            id, networkOrganizationId, memberOrganizationId, membership.JoinedAtUtc));
+        var membership = new NetworkOrganizationMembership(
+            id,
+            networkOrganizationId,
+            memberOrganizationId,
+            joinedAtUtc
+        );
+        membership.RaiseDomainEvent(
+            new NetworkOrganizationMemberAddedDomainEvent(
+                id,
+                networkOrganizationId,
+                memberOrganizationId,
+                membership.JoinedAtUtc
+            )
+        );
         return Result.Success(membership);
     }
 
@@ -48,8 +69,14 @@ public sealed class NetworkOrganizationMembership : AggregateRoot<NetworkOrganiz
             return Result.Failure(NetworkOrganizationMembershipErrors.InvalidEndDate);
 
         EndedAtUtc = endedAtUtc.ToUniversalTime();
-        RaiseDomainEvent(new NetworkOrganizationMemberRemovedDomainEvent(
-            Id, NetworkOrganizationId, MemberOrganizationId, EndedAtUtc.Value));
+        RaiseDomainEvent(
+            new NetworkOrganizationMemberRemovedDomainEvent(
+                Id,
+                NetworkOrganizationId,
+                MemberOrganizationId,
+                EndedAtUtc.Value
+            )
+        );
         return Result.Success();
     }
 }

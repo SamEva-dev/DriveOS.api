@@ -11,8 +11,10 @@ public sealed class UpdateOrganizationOperationalSettingsCommandValidator
         RuleFor(x => x.OrganizationId).Must(id => !id.IsEmpty);
         RuleFor(x => x.ExpectedVersion).GreaterThan(0);
         RuleFor(x => x.DefaultSessionDurationMinutes)
-            .InclusiveBetween(OrganizationOperationalSettings.MinimumSessionDurationMinutes,
-                OrganizationOperationalSettings.MaximumSessionDurationMinutes);
+            .InclusiveBetween(
+                OrganizationOperationalSettings.MinimumSessionDurationMinutes,
+                OrganizationOperationalSettings.MaximumSessionDurationMinutes
+            );
         RuleFor(x => x.DefaultBookingLeadTimeMinutes)
             .InclusiveBetween(0, OrganizationOperationalSettings.MaximumBookingLeadTimeMinutes);
         RuleFor(x => x.DefaultCancellationDelayHours)

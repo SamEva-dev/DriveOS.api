@@ -9,65 +9,51 @@ public class OrganizationLifecycleTests
     public void Activate_ShouldChangeStatus_WhenPendingActivation()
     {
         // Arrange
-        Organization organization =
-            OrganizationTestData.CreatePendingActivation();
+        Organization organization = OrganizationTestData.CreatePendingActivation();
 
-        DateTimeOffset changedAtUtc =
-            new(2026, 7, 29, 10, 0, 0, TimeSpan.Zero);
+        DateTimeOffset changedAtUtc = new(2026, 7, 29, 10, 0, 0, TimeSpan.Zero);
 
         Guid changedByUserId = Guid.NewGuid();
 
         // Act
         organization.Activate(
-            OrganizationStatusChangeReason.Create(
-                "Administrative checks completed."),
+            OrganizationStatusChangeReason.Create("Administrative checks completed."),
             changedByUserId,
-            changedAtUtc);
+            changedAtUtc
+        );
 
         // Assert
-        organization.Status.Should()
-            .Be(OrganizationStatus.Active);
+        organization.Status.Should().Be(OrganizationStatus.Active);
 
-        organization.StatusHistory.Should()
-            .HaveCount(2);
+        organization.StatusHistory.Should().HaveCount(2);
 
-        OrganizationStatusHistoryEntry entry =
-            organization.StatusHistory.Last();
+        OrganizationStatusHistoryEntry entry = organization.StatusHistory.Last();
 
-        entry.PreviousStatus.Should()
-            .Be(OrganizationStatus.PendingActivation);
+        entry.PreviousStatus.Should().Be(OrganizationStatus.PendingActivation);
 
-        entry.NewStatus.Should()
-            .Be(OrganizationStatus.Active);
+        entry.NewStatus.Should().Be(OrganizationStatus.Active);
 
-        entry.ChangedByUserId.Should()
-            .Be(changedByUserId);
+        entry.ChangedByUserId.Should().Be(changedByUserId);
 
-        entry.ChangedAtUtc.Should()
-            .Be(changedAtUtc);
+        entry.ChangedAtUtc.Should().Be(changedAtUtc);
     }
 
     [Fact]
     public void Suspend_ShouldThrow_WhenOrganizationIsDraft()
     {
-        Organization organization =
-            OrganizationTestData.CreateDraft();
+        Organization organization = OrganizationTestData.CreateDraft();
 
         Action action = () =>
             organization.Suspend(
-                OrganizationStatusChangeReason.Create(
-                    "Compliance issue."),
+                OrganizationStatusChangeReason.Create("Compliance issue."),
                 Guid.NewGuid(),
-                DateTimeOffset.UtcNow);
+                DateTimeOffset.UtcNow
+            );
 
-        action.Should()
-            .Throw<InvalidOperationException>();
+        action.Should().Throw<InvalidOperationException>();
 
-        organization.Status.Should()
-            .Be(OrganizationStatus.Draft);
+        organization.Status.Should().Be(OrganizationStatus.Draft);
 
-        organization.StatusHistory.Should()
-            .BeEmpty();
+        organization.StatusHistory.Should().BeEmpty();
     }
-
 }

@@ -7,5 +7,5 @@ public enum LeadSortField
     FirstName = 2,
     Status = 3,
     SourceType = 4,
-    LicenseCategory = 5
+    LicenseCategory = 5,
 }

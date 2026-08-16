@@ -5,23 +5,29 @@ using DriveOS.SharedKernel.Identifiers;
 namespace DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Rules;
 
 public sealed class OperationalSettingsActivationRule(
-    IOrganizationActivationReadinessDataSource dataSource)
-    : IOrganizationActivationReadinessRule
+    IOrganizationActivationReadinessDataSource dataSource
+) : IOrganizationActivationReadinessRule
 {
     public int Order => 40;
 
     public async Task<OrganizationActivationRequirementResult> EvaluateAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        bool exists = await dataSource.HasOperationalSettingsAsync(organizationId, cancellationToken);
+        bool exists = await dataSource.HasOperationalSettingsAsync(
+            organizationId,
+            cancellationToken
+        );
 
         return exists
             ? OrganizationActivationRequirementResult.Satisfied(
                 OrganizationActivationRequirementCode.OperationalSettings,
-                "organizations.activationReadiness.requirements.operationalSettings.satisfied")
+                "organizations.activationReadiness.requirements.operationalSettings.satisfied"
+            )
             : OrganizationActivationRequirementResult.Missing(
                 OrganizationActivationRequirementCode.OperationalSettings,
-                "organizations.activationReadiness.requirements.operationalSettings.missing");
+                "organizations.activationReadiness.requirements.operationalSettings.missing"
+            );
     }
 }

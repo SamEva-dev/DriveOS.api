@@ -10,4 +10,5 @@ public sealed record CreateOrganizationClosureCommand(
     string? ReasonDetails,
     DateTimeOffset RequestedEffectiveAtUtc,
     OrganizationDataDisposition DataDisposition,
-    DateTimeOffset? RetentionUntilUtc) : ICommand<OrganizationClosureId>;
+    DateTimeOffset? RetentionUntilUtc
+) : ICommand<OrganizationClosureId>;

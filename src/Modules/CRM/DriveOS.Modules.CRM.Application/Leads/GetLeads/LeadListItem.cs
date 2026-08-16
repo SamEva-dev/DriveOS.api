@@ -20,4 +20,5 @@ public sealed record LeadListItem(
     string? NextActionTitle,
     DateTimeOffset? NextActionDueAtUtc,
     bool IsNextActionOverdue,
-    bool HasPotentialDuplicate);
+    bool HasPotentialDuplicate
+);

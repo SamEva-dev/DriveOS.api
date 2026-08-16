@@ -8,4 +8,5 @@ public sealed record ProspectConvertedDomainEvent(
     OrganizationId OrganizationId,
     PersonId PersonId,
     DraftEnrollmentId DraftEnrollmentId,
-    DateTimeOffset ConvertedAtUtc) : DomainEvent;
+    DateTimeOffset ConvertedAtUtc
+) : DomainEvent;

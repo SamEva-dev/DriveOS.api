@@ -14,7 +14,8 @@ public sealed record SaveAssessmentResultCommand(
     string ResultJson,
     AssessmentResultConfidence Confidence,
     string? AiSuggestionJson,
-    DateTimeOffset SavedAtUtc) : ICommand;
+    DateTimeOffset SavedAtUtc
+) : ICommand;
 
 public sealed record RequestAssessmentResultCorrectionCommand(
     OrganizationId OrganizationId,
@@ -22,25 +23,29 @@ public sealed record RequestAssessmentResultCorrectionCommand(
     UserId RequestedByUserId,
     int ExpectedRevision,
     string Reason,
-    DateTimeOffset RequestedAtUtc) : ICommand;
+    DateTimeOffset RequestedAtUtc
+) : ICommand;
 
 public sealed record ValidateAssessmentResultCommand(
     OrganizationId OrganizationId,
     AssessmentAppointmentId AppointmentId,
     UserId ValidatedByUserId,
     int ExpectedRevision,
-    DateTimeOffset ValidatedAtUtc) : ICommand;
+    DateTimeOffset ValidatedAtUtc
+) : ICommand;
 
 public sealed record ShareAssessmentResultCommand(
     OrganizationId OrganizationId,
     AssessmentAppointmentId AppointmentId,
     UserId SharedByUserId,
     int ExpectedRevision,
-    DateTimeOffset SharedAtUtc) : ICommand;
+    DateTimeOffset SharedAtUtc
+) : ICommand;
 
 internal abstract class AssessmentResultCommandHandlerBase(
     IAssessmentSessionRepository sessions,
-    ICrmUnitOfWork unitOfWork)
+    ICrmUnitOfWork unitOfWork
+)
 {
     protected async Task<Result> ExecuteAsync(
         OrganizationId organizationId,
@@ -49,10 +54,14 @@ internal abstract class AssessmentResultCommandHandlerBase(
         int expectedRevision,
         DateTimeOffset occurredAtUtc,
         Func<AssessmentSession, Result> operation,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         AssessmentSession? session = await sessions.GetByAppointmentForUpdateAsync(
-            organizationId, appointmentId, cancellationToken);
+            organizationId,
+            appointmentId,
+            cancellationToken
+        );
         if (session is null)
             return Result.Failure(AssessmentSessionErrors.NotFound);
         if (session.Revision != expectedRevision)
@@ -62,8 +71,9 @@ internal abstract class AssessmentResultCommandHandlerBase(
         if (result.IsFailure)
             return result;
 
-        sessions.AddRevision(AssessmentSessionRevision.Capture(
-            session, actorUserId, occurredAtUtc));
+        sessions.AddRevision(
+            AssessmentSessionRevision.Capture(session, actorUserId, occurredAtUtc)
+        );
         await unitOfWork.CommitAsync(cancellationToken);
         return Result.Success();
     }
@@ -71,64 +81,100 @@ internal abstract class AssessmentResultCommandHandlerBase(
 
 internal sealed class SaveAssessmentResultCommandHandler(
     IAssessmentSessionRepository sessions,
-    ICrmUnitOfWork unitOfWork)
+    ICrmUnitOfWork unitOfWork
+)
     : AssessmentResultCommandHandlerBase(sessions, unitOfWork),
-      ICommandHandler<SaveAssessmentResultCommand>
+        ICommandHandler<SaveAssessmentResultCommand>
 {
     public Task<Result> Handle(
         SaveAssessmentResultCommand command,
-        CancellationToken cancellationToken) =>
-        ExecuteAsync(command.OrganizationId, command.AppointmentId,
-            command.SavedByUserId, command.ExpectedRevision, command.SavedAtUtc,
-            session => session.SaveResult(command.ResultJson, command.Confidence,
-                command.AiSuggestionJson, command.SavedByUserId, command.SavedAtUtc),
-            cancellationToken);
+        CancellationToken cancellationToken
+    ) =>
+        ExecuteAsync(
+            command.OrganizationId,
+            command.AppointmentId,
+            command.SavedByUserId,
+            command.ExpectedRevision,
+            command.SavedAtUtc,
+            session =>
+                session.SaveResult(
+                    command.ResultJson,
+                    command.Confidence,
+                    command.AiSuggestionJson,
+                    command.SavedByUserId,
+                    command.SavedAtUtc
+                ),
+            cancellationToken
+        );
 }
 
 internal sealed class RequestAssessmentResultCorrectionCommandHandler(
     IAssessmentSessionRepository sessions,
-    ICrmUnitOfWork unitOfWork)
+    ICrmUnitOfWork unitOfWork
+)
     : AssessmentResultCommandHandlerBase(sessions, unitOfWork),
-      ICommandHandler<RequestAssessmentResultCorrectionCommand>
+        ICommandHandler<RequestAssessmentResultCorrectionCommand>
 {
     public Task<Result> Handle(
         RequestAssessmentResultCorrectionCommand command,
-        CancellationToken cancellationToken) =>
-        ExecuteAsync(command.OrganizationId, command.AppointmentId,
-            command.RequestedByUserId, command.ExpectedRevision, command.RequestedAtUtc,
-            session => session.RequestResultCorrection(command.Reason,
-                command.RequestedByUserId, command.RequestedAtUtc),
-            cancellationToken);
+        CancellationToken cancellationToken
+    ) =>
+        ExecuteAsync(
+            command.OrganizationId,
+            command.AppointmentId,
+            command.RequestedByUserId,
+            command.ExpectedRevision,
+            command.RequestedAtUtc,
+            session =>
+                session.RequestResultCorrection(
+                    command.Reason,
+                    command.RequestedByUserId,
+                    command.RequestedAtUtc
+                ),
+            cancellationToken
+        );
 }
 
 internal sealed class ValidateAssessmentResultCommandHandler(
     IAssessmentSessionRepository sessions,
-    ICrmUnitOfWork unitOfWork)
+    ICrmUnitOfWork unitOfWork
+)
     : AssessmentResultCommandHandlerBase(sessions, unitOfWork),
-      ICommandHandler<ValidateAssessmentResultCommand>
+        ICommandHandler<ValidateAssessmentResultCommand>
 {
     public Task<Result> Handle(
         ValidateAssessmentResultCommand command,
-        CancellationToken cancellationToken) =>
-        ExecuteAsync(command.OrganizationId, command.AppointmentId,
-            command.ValidatedByUserId, command.ExpectedRevision, command.ValidatedAtUtc,
-            session => session.ValidateResult(command.ValidatedByUserId,
-                command.ValidatedAtUtc),
-            cancellationToken);
+        CancellationToken cancellationToken
+    ) =>
+        ExecuteAsync(
+            command.OrganizationId,
+            command.AppointmentId,
+            command.ValidatedByUserId,
+            command.ExpectedRevision,
+            command.ValidatedAtUtc,
+            session => session.ValidateResult(command.ValidatedByUserId, command.ValidatedAtUtc),
+            cancellationToken
+        );
 }
 
 internal sealed class ShareAssessmentResultCommandHandler(
     IAssessmentSessionRepository sessions,
-    ICrmUnitOfWork unitOfWork)
+    ICrmUnitOfWork unitOfWork
+)
     : AssessmentResultCommandHandlerBase(sessions, unitOfWork),
-      ICommandHandler<ShareAssessmentResultCommand>
+        ICommandHandler<ShareAssessmentResultCommand>
 {
     public Task<Result> Handle(
         ShareAssessmentResultCommand command,
-        CancellationToken cancellationToken) =>
-        ExecuteAsync(command.OrganizationId, command.AppointmentId,
-            command.SharedByUserId, command.ExpectedRevision, command.SharedAtUtc,
-            session => session.MarkResultShared(command.SharedByUserId,
-                command.SharedAtUtc),
-            cancellationToken);
+        CancellationToken cancellationToken
+    ) =>
+        ExecuteAsync(
+            command.OrganizationId,
+            command.AppointmentId,
+            command.SharedByUserId,
+            command.ExpectedRevision,
+            command.SharedAtUtc,
+            session => session.MarkResultShared(command.SharedByUserId, command.SharedAtUtc),
+            cancellationToken
+        );
 }

@@ -10,10 +10,12 @@ public interface IBranchConfigurationOverrideReadService
         OrganizationId organizationId,
         BranchId branchId,
         BranchConfigurationOverrideId overrideId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<IReadOnlyList<BranchConfigurationOverrideListItemResponse>> GetVersionsAsync(
         OrganizationId organizationId,
         BranchId branchId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

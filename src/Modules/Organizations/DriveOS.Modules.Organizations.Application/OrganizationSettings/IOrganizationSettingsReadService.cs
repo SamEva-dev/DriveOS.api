@@ -7,5 +7,6 @@ public interface IOrganizationSettingsReadService
 {
     Task<OrganizationSettingsResponse?> GetByOrganizationIdAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

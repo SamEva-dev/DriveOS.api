@@ -3,6 +3,7 @@ using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.SharedKernel.Auditing;
 using DriveOS.SharedKernel.Domain;
 using DriveOS.SharedKernel.Identifiers;
+using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.CRM.Domain.Conversions;
 
@@ -10,12 +11,23 @@ public sealed class LeadConversion : AggregateRoot<LeadConversionId>, IAuditable
 {
     private LeadConversion() { }
 
-    private LeadConversion(LeadConversionId id, OrganizationId organizationId, Lead lead,
-        CommercialOfferId acceptedOfferId, BranchId branchId, UserId responsibleUserId,
-        PersonId? personId, DraftEnrollmentId? draftEnrollmentId,
-        string trainingCode, bool identityVerified, bool consentsVerified,
-        bool duplicateCheckCompleted, string? guardianSummary, string? payerSummary,
-        string? requiredDocumentCodes)
+    private LeadConversion(
+        LeadConversionId id,
+        OrganizationId organizationId,
+        Lead lead,
+        CommercialOfferId acceptedOfferId,
+        BranchId branchId,
+        UserId responsibleUserId,
+        PersonId? personId,
+        DraftEnrollmentId? draftEnrollmentId,
+        string trainingCode,
+        bool identityVerified,
+        bool consentsVerified,
+        bool duplicateCheckCompleted,
+        string? guardianSummary,
+        string? payerSummary,
+        string? requiredDocumentCodes
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -64,43 +76,128 @@ public sealed class LeadConversion : AggregateRoot<LeadConversionId>, IAuditable
     public DateTimeOffset? LastModifiedAtUtc { get; private set; }
     public UserId? LastModifiedByUserId { get; private set; }
 
-    public static LeadConversion Request(OrganizationId organizationId, Lead lead,
-        CommercialOfferId acceptedOfferId, BranchId branchId, UserId responsibleUserId,
-        PersonId? personId, DraftEnrollmentId? draftEnrollmentId,
-        string trainingCode, bool identityVerified, bool consentsVerified,
-        bool duplicateCheckCompleted, string? guardianSummary, string? payerSummary,
-        string? requiredDocumentCodes)
+    public static LeadConversion Request(
+        OrganizationId organizationId,
+        Lead lead,
+        CommercialOfferId acceptedOfferId,
+        BranchId branchId,
+        UserId responsibleUserId,
+        PersonId? personId,
+        DraftEnrollmentId? draftEnrollmentId,
+        string trainingCode,
+        bool identityVerified,
+        bool consentsVerified,
+        bool duplicateCheckCompleted,
+        string? guardianSummary,
+        string? payerSummary,
+        string? requiredDocumentCodes
+    )
     {
-        var conversion = new LeadConversion(LeadConversionId.New(), organizationId, lead,
-            acceptedOfferId, branchId, responsibleUserId,personId, draftEnrollmentId, trainingCode.Trim(), identityVerified,
-            consentsVerified, duplicateCheckCompleted, guardianSummary, payerSummary,
-            requiredDocumentCodes);
-        conversion.RaiseDomainEvent(new LeadConversionRequestedDomainEvent(
-            conversion.Id, conversion.OrganizationId, conversion.LeadId,
-            conversion.AcceptedOfferId, conversion.BranchId, conversion.ResponsibleUserId));
+        var conversion = new LeadConversion(
+            LeadConversionId.New(),
+            organizationId,
+            lead,
+            acceptedOfferId,
+            branchId,
+            responsibleUserId,
+            personId,
+            draftEnrollmentId,
+            trainingCode.Trim(),
+            identityVerified,
+            consentsVerified,
+            duplicateCheckCompleted,
+            guardianSummary,
+            payerSummary,
+            requiredDocumentCodes
+        );
+        conversion.RaiseDomainEvent(
+            new LeadConversionRequestedDomainEvent(
+                conversion.Id,
+                conversion.OrganizationId,
+                conversion.LeadId,
+                conversion.AcceptedOfferId,
+                conversion.BranchId,
+                conversion.ResponsibleUserId
+            )
+        );
         return conversion;
     }
 
-    public static LeadConversion Request(OrganizationId organizationId, Lead lead,
-        CommercialOfferId acceptedOfferId, BranchId branchId, UserId responsibleUserId,
-        string trainingCode, bool identityVerified, bool consentsVerified,
-        bool duplicateCheckCompleted, string? guardianSummary, string? payerSummary,
-        string? requiredDocumentCodes) =>
-        Request(organizationId, lead, acceptedOfferId, branchId, responsibleUserId,
-            null, null, trainingCode, identityVerified, consentsVerified,
-            duplicateCheckCompleted, guardianSummary, payerSummary, requiredDocumentCodes);
+    public static LeadConversion Request(
+        OrganizationId organizationId,
+        Lead lead,
+        CommercialOfferId acceptedOfferId,
+        BranchId branchId,
+        UserId responsibleUserId,
+        string trainingCode,
+        bool identityVerified,
+        bool consentsVerified,
+        bool duplicateCheckCompleted,
+        string? guardianSummary,
+        string? payerSummary,
+        string? requiredDocumentCodes
+    ) =>
+        Request(
+            organizationId,
+            lead,
+            acceptedOfferId,
+            branchId,
+            responsibleUserId,
+            null,
+            null,
+            trainingCode,
+            identityVerified,
+            consentsVerified,
+            duplicateCheckCompleted,
+            guardianSummary,
+            payerSummary,
+            requiredDocumentCodes
+        );
 
-    public void Complete(PersonId personId, DraftEnrollmentId draftEnrollmentId, DateTimeOffset completedAtUtc)
+    public Result Complete(
+        PersonId personId,
+        DraftEnrollmentId draftEnrollmentId,
+        DateTimeOffset completedAtUtc
+    )
     {
+        if (personId.IsEmpty || draftEnrollmentId.IsEmpty || completedAtUtc == default)
+            return Result.Failure(LeadConversionErrors.InvalidCompletionTarget);
+        if (Status == LeadConversionStatus.Completed)
+            return StudentPersonId == personId && StudentEnrollmentId == draftEnrollmentId
+                ? Result.Success()
+                : Result.Failure(LeadConversionErrors.AlreadyCompleted);
         StudentPersonId = personId;
         StudentEnrollmentId = draftEnrollmentId;
         CompletedAtUtc = completedAtUtc.ToUniversalTime();
         Status = LeadConversionStatus.Completed;
+        RaiseDomainEvent(
+            new LeadConversionCompletedDomainEvent(
+                Id,
+                OrganizationId,
+                LeadId,
+                personId,
+                draftEnrollmentId,
+                CompletedAtUtc.Value
+            )
+        );
+        return Result.Success();
     }
 
     public void SetCreatedAudit(DateTimeOffset value, UserId? userId)
-    { if (CreatedAtUtc == default) { CreatedAtUtc = value; CreatedByUserId = userId; } }
+    {
+        if (CreatedAtUtc == default)
+        {
+            CreatedAtUtc = value;
+            CreatedByUserId = userId;
+        }
+    }
+
     public void SetModifiedAudit(DateTimeOffset value, UserId? userId)
-    { LastModifiedAtUtc = value; LastModifiedByUserId = userId; }
-    private static string? Normalize(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    {
+        LastModifiedAtUtc = value;
+        LastModifiedByUserId = userId;
+    }
+
+    private static string? Normalize(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

@@ -7,5 +7,6 @@ public interface IOrganizationActivationReadinessService
 {
     Task<OrganizationActivationReadinessReport> EvaluateAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

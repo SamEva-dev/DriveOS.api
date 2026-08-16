@@ -7,4 +7,5 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.Archiv
 public sealed record ArchiveOrganizationSequenceCommand(
     OrganizationId OrganizationId,
     OrganizationSequenceId SequenceId,
-    int ExpectedRevision) : ICommand;
+    int ExpectedRevision
+) : ICommand;

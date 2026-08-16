@@ -7,10 +7,12 @@ public sealed record NetworkOrganizationMemberAddedDomainEvent(
     NetworkOrganizationMembershipId MembershipId,
     OrganizationId NetworkOrganizationId,
     OrganizationId MemberOrganizationId,
-    DateTimeOffset JoinedAtUtc) : DomainEvent;
+    DateTimeOffset JoinedAtUtc
+) : DomainEvent;
 
 public sealed record NetworkOrganizationMemberRemovedDomainEvent(
     NetworkOrganizationMembershipId MembershipId,
     OrganizationId NetworkOrganizationId,
     OrganizationId MemberOrganizationId,
-    DateTimeOffset EndedAtUtc) : DomainEvent;
+    DateTimeOffset EndedAtUtc
+) : DomainEvent;

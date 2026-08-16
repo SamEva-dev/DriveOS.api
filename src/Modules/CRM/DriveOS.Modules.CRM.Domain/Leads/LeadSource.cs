@@ -10,17 +10,13 @@ public sealed record LeadSource
         Detail = detail;
     }
 
-    private LeadSource()
-    {
-    }
+    private LeadSource() { }
 
     public LeadSourceType Type { get; private init; }
 
     public string? Detail { get; private init; }
 
-    public static Result<LeadSource> Create(
-        LeadSourceType type,
-        string? detail = null)
+    public static Result<LeadSource> Create(LeadSourceType type, string? detail = null)
     {
         if (!Enum.IsDefined(type))
         {

@@ -12,9 +12,15 @@ public sealed class FranceOrganizationLegalProfileCountryRulesTests
     {
         var rules = new FranceOrganizationLegalProfileCountryRules();
         var input = new OrganizationLegalProfileComplianceInput(
-            "FR", OrganizationLegalForm.LimitedLiabilityCompany,
-            "123 456 789", "FR12123456789", new DateOnly(2024, 1, 1),
-            "10 rue de la République", "06000", "Nice");
+            "FR",
+            OrganizationLegalForm.LimitedLiabilityCompany,
+            "123 456 789",
+            "FR12123456789",
+            new DateOnly(2024, 1, 1),
+            "10 rue de la République",
+            "06000",
+            "Nice"
+        );
 
         OrganizationLegalProfileComplianceResult result = rules.Validate(input);
 
@@ -29,14 +35,23 @@ public sealed class FranceOrganizationLegalProfileCountryRulesTests
     {
         var rules = new FranceOrganizationLegalProfileCountryRules();
         var input = new OrganizationLegalProfileComplianceInput(
-            "FR", OrganizationLegalForm.LimitedLiabilityCompany,
-            value, null, new DateOnly(2024, 1, 1),
-            "10 rue de la République", "06000", "Nice");
+            "FR",
+            OrganizationLegalForm.LimitedLiabilityCompany,
+            value,
+            null,
+            new DateOnly(2024, 1, 1),
+            "10 rue de la République",
+            "06000",
+            "Nice"
+        );
 
         OrganizationLegalProfileComplianceResult result = rules.Validate(input);
 
-        Assert.Contains(result.Issues, x =>
-            x.Code == "OrganizationLegalProfiles.Compliance.FR.RegistrationNumber.Invalid" &&
-            x.Severity == OrganizationLegalProfileComplianceSeverity.Blocking);
+        Assert.Contains(
+            result.Issues,
+            x =>
+                x.Code == "OrganizationLegalProfiles.Compliance.FR.RegistrationNumber.Invalid"
+                && x.Severity == OrganizationLegalProfileComplianceSeverity.Blocking
+        );
     }
 }

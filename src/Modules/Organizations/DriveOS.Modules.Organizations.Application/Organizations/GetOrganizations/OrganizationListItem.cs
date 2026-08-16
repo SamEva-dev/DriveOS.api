@@ -1,5 +1,4 @@
-﻿namespace DriveOS.Modules.Organizations.Application
-    .Organizations.GetOrganizations;
+﻿namespace DriveOS.Modules.Organizations.Application.Organizations.GetOrganizations;
 
 public sealed record OrganizationListItem(
     Guid Id,
@@ -7,4 +6,5 @@ public sealed record OrganizationListItem(
     string CountryCode,
     string Type,
     string Status,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc
+);

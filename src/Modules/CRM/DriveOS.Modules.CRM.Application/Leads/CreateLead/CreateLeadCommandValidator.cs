@@ -24,7 +24,9 @@ public sealed class CreateLeadCommandValidator : AbstractValidator<CreateLeadCom
 
         RuleFor(command => command.FirstName).NotEmpty().MaximumLength(100);
         RuleFor(command => command.LastName).NotEmpty().MaximumLength(100);
-        RuleFor(command => command.Email).EmailAddress().MaximumLength(254)
+        RuleFor(command => command.Email)
+            .EmailAddress()
+            .MaximumLength(254)
             .When(command => !string.IsNullOrWhiteSpace(command.Email));
         RuleFor(command => command.Phone).MaximumLength(40);
         RuleFor(command => command.LicenseCategory).NotEmpty().MaximumLength(30);
@@ -32,7 +34,8 @@ public sealed class CreateLeadCommandValidator : AbstractValidator<CreateLeadCom
         RuleFor(command => command.PreferredLocation).MaximumLength(200);
         RuleFor(command => command.SourceType).IsInEnum();
         RuleFor(command => command.SourceDetail).MaximumLength(250);
-        RuleFor(command => command.SourceDetail).NotEmpty()
+        RuleFor(command => command.SourceDetail)
+            .NotEmpty()
             .When(command => command.SourceType == LeadSourceType.Other);
     }
 }

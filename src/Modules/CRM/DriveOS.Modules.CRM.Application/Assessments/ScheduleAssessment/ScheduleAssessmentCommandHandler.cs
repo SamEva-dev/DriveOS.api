@@ -9,14 +9,16 @@ namespace DriveOS.Modules.CRM.Application.Assessments.ScheduleAssessment;
 public sealed class ScheduleAssessmentCommandHandler(
     ILeadRepository leads,
     IAssessmentAppointmentRepository appointments,
-    ICrmUnitOfWork unitOfWork) : ICommandHandler<ScheduleAssessmentCommand, Guid>
+    ICrmUnitOfWork unitOfWork
+) : ICommandHandler<ScheduleAssessmentCommand, Guid>
 {
     public async Task<Result<Guid>> Handle(ScheduleAssessmentCommand command, CancellationToken ct)
     {
         if (await leads.GetByIdAsync(command.OrganizationId, command.LeadId, ct) is null)
             return Result.Failure<Guid>(LeadErrors.NotFound);
 
-        if (await appointments.HasSchedulingConflictAsync(
+        if (
+            await appointments.HasSchedulingConflictAsync(
                 command.OrganizationId,
                 command.LeadId,
                 command.StartsAtUtc,
@@ -25,7 +27,9 @@ public sealed class ScheduleAssessmentCommandHandler(
                 command.VehicleId,
                 command.RoomId,
                 command.SimulatorId,
-                cancellationToken: ct))
+                cancellationToken: ct
+            )
+        )
             return Result.Failure<Guid>(AssessmentAppointmentErrors.SchedulingConflict);
 
         Result<AssessmentAppointment> result = AssessmentAppointment.Schedule(
@@ -45,7 +49,8 @@ public sealed class ScheduleAssessmentCommandHandler(
             command.SimulatorId,
             command.PriceAmount,
             command.PriceCurrency,
-            command.Notes);
+            command.Notes
+        );
 
         if (result.IsFailure)
             return Result.Failure<Guid>(result.Error);

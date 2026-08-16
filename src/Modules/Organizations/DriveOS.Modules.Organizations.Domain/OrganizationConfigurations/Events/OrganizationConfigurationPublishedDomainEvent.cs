@@ -7,4 +7,5 @@ public sealed record OrganizationConfigurationPublishedDomainEvent(
     OrganizationConfigurationId ConfigurationId,
     OrganizationId OrganizationId,
     int VersionNumber,
-    DateTimeOffset EffectiveFromUtc) : DomainEvent;
+    DateTimeOffset EffectiveFromUtc
+) : DomainEvent;

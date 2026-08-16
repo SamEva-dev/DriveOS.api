@@ -15,7 +15,8 @@ public sealed record OrganizationAddress
         string? postalCode,
         string? city,
         string? region,
-        string countryCode)
+        string countryCode
+    )
     {
         Line1 = line1;
         Line2 = line2;
@@ -38,7 +39,8 @@ public sealed record OrganizationAddress
         string? postalCode,
         string? city,
         string? region,
-        string? countryCode)
+        string? countryCode
+    )
     {
         string? normalizedLine1 = NormalizeOptional(line1);
         string? normalizedLine2 = NormalizeOptional(line2);
@@ -50,31 +52,36 @@ public sealed record OrganizationAddress
         if (normalizedCountryCode.Length != 2 || !normalizedCountryCode.All(char.IsLetter))
         {
             return Result.Failure<OrganizationAddress>(
-                OrganizationSettingsErrors.InvalidAddressCountryCode);
+                OrganizationSettingsErrors.InvalidAddressCountryCode
+            );
         }
 
         bool anyAddressFieldProvided =
-            normalizedLine1 is not null ||
-            normalizedLine2 is not null ||
-            normalizedPostalCode is not null ||
-            normalizedCity is not null ||
-            normalizedRegion is not null;
+            normalizedLine1 is not null
+            || normalizedLine2 is not null
+            || normalizedPostalCode is not null
+            || normalizedCity is not null
+            || normalizedRegion is not null;
 
-        if (anyAddressFieldProvided &&
-            (normalizedLine1 is null || normalizedPostalCode is null || normalizedCity is null))
+        if (
+            anyAddressFieldProvided
+            && (normalizedLine1 is null || normalizedPostalCode is null || normalizedCity is null)
+        )
         {
             return Result.Failure<OrganizationAddress>(
-                OrganizationSettingsErrors.IncompleteAddress);
+                OrganizationSettingsErrors.IncompleteAddress
+            );
         }
 
-        if (normalizedLine1?.Length > AddressLineMaximumLength ||
-            normalizedLine2?.Length > AddressLineMaximumLength ||
-            normalizedPostalCode?.Length > PostalCodeMaximumLength ||
-            normalizedCity?.Length > CityMaximumLength ||
-            normalizedRegion?.Length > RegionMaximumLength)
+        if (
+            normalizedLine1?.Length > AddressLineMaximumLength
+            || normalizedLine2?.Length > AddressLineMaximumLength
+            || normalizedPostalCode?.Length > PostalCodeMaximumLength
+            || normalizedCity?.Length > CityMaximumLength
+            || normalizedRegion?.Length > RegionMaximumLength
+        )
         {
-            return Result.Failure<OrganizationAddress>(
-                OrganizationSettingsErrors.InvalidAddress);
+            return Result.Failure<OrganizationAddress>(OrganizationSettingsErrors.InvalidAddress);
         }
 
         return Result.Success(
@@ -84,7 +91,9 @@ public sealed record OrganizationAddress
                 normalizedPostalCode,
                 normalizedCity,
                 normalizedRegion,
-                normalizedCountryCode));
+                normalizedCountryCode
+            )
+        );
     }
 
     private static string? NormalizeOptional(string? value) =>

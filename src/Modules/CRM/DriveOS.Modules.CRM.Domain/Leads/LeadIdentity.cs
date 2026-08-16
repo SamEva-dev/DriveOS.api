@@ -4,11 +4,7 @@ namespace DriveOS.Modules.CRM.Domain.Leads;
 
 public sealed record LeadIdentity
 {
-    private LeadIdentity(
-        string firstName,
-        string lastName,
-        string? email,
-        string? phone)
+    private LeadIdentity(string firstName, string lastName, string? email, string? phone)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -16,9 +12,7 @@ public sealed record LeadIdentity
         Phone = phone;
     }
 
-    private LeadIdentity()
-    {
-    }
+    private LeadIdentity() { }
 
     public string FirstName { get; private init; } = string.Empty;
 
@@ -34,7 +28,8 @@ public sealed record LeadIdentity
         string firstName,
         string lastName,
         string? email,
-        string? phone)
+        string? phone
+    )
     {
         string normalizedFirstName = firstName?.Trim() ?? string.Empty;
         string normalizedLastName = lastName?.Trim() ?? string.Empty;
@@ -61,9 +56,10 @@ public sealed record LeadIdentity
             return Result.Failure<LeadIdentity>(LeadErrors.LastNameTooLong);
         }
 
-        if (normalizedEmail is not null &&
-            (normalizedEmail.Length > 254 ||
-             !normalizedEmail.Contains('@')))
+        if (
+            normalizedEmail is not null
+            && (normalizedEmail.Length > 254 || !normalizedEmail.Contains('@'))
+        )
         {
             return Result.Failure<LeadIdentity>(LeadErrors.InvalidEmail);
         }
@@ -78,7 +74,9 @@ public sealed record LeadIdentity
                 normalizedFirstName,
                 normalizedLastName,
                 normalizedEmail,
-                normalizedPhone));
+                normalizedPhone
+            )
+        );
     }
 
     private static string? NormalizeOptional(string? value)

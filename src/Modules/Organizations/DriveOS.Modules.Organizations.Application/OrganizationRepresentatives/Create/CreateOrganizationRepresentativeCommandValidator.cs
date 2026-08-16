@@ -16,6 +16,9 @@ internal sealed class CreateOrganizationRepresentativeCommandValidator
             .When(x => x.EffectiveTo.HasValue);
         RuleFor(x => x.IsPrimaryOwner)
             .Equal(false)
-            .When(x => x.RepresentativeType != Domain.OrganizationRepresentatives.OrganizationRepresentativeType.Owner);
+            .When(x =>
+                x.RepresentativeType
+                != Domain.OrganizationRepresentatives.OrganizationRepresentativeType.Owner
+            );
     }
 }

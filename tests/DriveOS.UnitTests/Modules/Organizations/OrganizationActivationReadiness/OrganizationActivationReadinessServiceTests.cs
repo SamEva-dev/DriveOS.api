@@ -14,8 +14,14 @@ public sealed class OrganizationActivationReadinessServiceTests
         OrganizationId organizationId = new(Guid.NewGuid());
         IOrganizationActivationReadinessRule[] rules =
         [
-            new StubRule(10, OrganizationActivationRequirementResult.Satisfied("owner", "owner.ok")),
-            new StubRule(20, OrganizationActivationRequirementResult.Satisfied("subscription", "subscription.ok"))
+            new StubRule(
+                10,
+                OrganizationActivationRequirementResult.Satisfied("owner", "owner.ok")
+            ),
+            new StubRule(
+                20,
+                OrganizationActivationRequirementResult.Satisfied("subscription", "subscription.ok")
+            ),
         ];
 
         var service = new OrganizationActivationReadinessService(rules);
@@ -32,10 +38,14 @@ public sealed class OrganizationActivationReadinessServiceTests
         OrganizationId organizationId = new(Guid.NewGuid());
         IOrganizationActivationReadinessRule[] rules =
         [
-            new StubRule(10, OrganizationActivationRequirementResult.Missing(
-                "primary-owner",
-                "primary-owner.missing",
-                OrganizationActivationRequirementSeverity.Blocking))
+            new StubRule(
+                10,
+                OrganizationActivationRequirementResult.Missing(
+                    "primary-owner",
+                    "primary-owner.missing",
+                    OrganizationActivationRequirementSeverity.Blocking
+                )
+            ),
         ];
 
         var service = new OrganizationActivationReadinessService(rules);
@@ -54,7 +64,7 @@ public sealed class OrganizationActivationReadinessServiceTests
         IOrganizationActivationReadinessRule[] rules =
         [
             new TrackingRule(20, executionOrder),
-            new TrackingRule(10, executionOrder)
+            new TrackingRule(10, executionOrder),
         ];
 
         var service = new OrganizationActivationReadinessService(rules);
@@ -64,17 +74,15 @@ public sealed class OrganizationActivationReadinessServiceTests
         executionOrder.Should().Equal(10, 20);
     }
 
-    private sealed class StubRule(
-        int order,
-        OrganizationActivationRequirementResult result)
+    private sealed class StubRule(int order, OrganizationActivationRequirementResult result)
         : IOrganizationActivationReadinessRule
     {
         public int Order => order;
 
         public Task<OrganizationActivationRequirementResult> EvaluateAsync(
             OrganizationId organizationId,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult(result);
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult(result);
     }
 
     private sealed class TrackingRule(int order, ICollection<int> executionOrder)
@@ -84,11 +92,13 @@ public sealed class OrganizationActivationReadinessServiceTests
 
         public Task<OrganizationActivationRequirementResult> EvaluateAsync(
             OrganizationId organizationId,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default
+        )
         {
             executionOrder.Add(order);
             return Task.FromResult(
-                OrganizationActivationRequirementResult.Satisfied(order.ToString(), "ok"));
+                OrganizationActivationRequirementResult.Satisfied(order.ToString(), "ok")
+            );
         }
     }
 }

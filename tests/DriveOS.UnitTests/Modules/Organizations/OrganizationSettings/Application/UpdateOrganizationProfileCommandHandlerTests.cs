@@ -19,7 +19,8 @@ public sealed class UpdateOrganizationProfileCommandHandlerTests
             "Nouvelle enseigne",
             "RCS-42",
             "FR42",
-            settings.Version);
+            settings.Version
+        );
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -42,7 +43,8 @@ public sealed class UpdateOrganizationProfileCommandHandlerTests
             "Nouvelle enseigne",
             null,
             null,
-            settings.Version + 1);
+            settings.Version + 1
+        );
 
         var result = await handler.Handle(command, CancellationToken.None);
 

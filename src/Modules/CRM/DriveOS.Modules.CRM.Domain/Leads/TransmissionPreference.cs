@@ -4,5 +4,5 @@ public enum TransmissionPreference
 {
     Unspecified = 0,
     Manual = 1,
-    Automatic = 2
+    Automatic = 2,
 }

@@ -5,4 +5,5 @@ namespace DriveOS.Modules.Organizations.Application.Networks.RemoveNetworkMember
 
 public sealed record RemoveNetworkMemberCommand(
     OrganizationId NetworkOrganizationId,
-    OrganizationId MemberOrganizationId) : ICommand;
+    OrganizationId MemberOrganizationId
+) : ICommand;

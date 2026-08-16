@@ -3,5 +3,5 @@
 public enum MeasurementSystem
 {
     Metric = 1,
-    Imperial = 2
+    Imperial = 2,
 }

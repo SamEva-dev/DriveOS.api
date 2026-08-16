@@ -9,4 +9,5 @@ public sealed record OrganizationClosureStatusChangedDomainEvent(
     OrganizationClosureStatus PreviousStatus,
     OrganizationClosureStatus NewStatus,
     UserId ActorUserId,
-    string? Comment) : DomainEvent;
+    string? Comment
+) : DomainEvent;

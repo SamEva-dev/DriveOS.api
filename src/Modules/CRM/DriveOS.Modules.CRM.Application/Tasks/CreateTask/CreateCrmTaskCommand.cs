@@ -5,6 +5,12 @@ using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Modules.CRM.Application.Tasks.CreateTask;
 
-public sealed record CreateCrmTaskCommand(OrganizationId OrganizationId, LeadId LeadId,
-    CrmTaskType Type, string Title, string? Notes, DateTimeOffset DueAtUtc,
-    UserId? AssignedToUserId) : ICommand<Guid>;
+public sealed record CreateCrmTaskCommand(
+    OrganizationId OrganizationId,
+    LeadId LeadId,
+    CrmTaskType Type,
+    string Title,
+    string? Notes,
+    DateTimeOffset DueAtUtc,
+    UserId? AssignedToUserId
+) : ICommand<Guid>;

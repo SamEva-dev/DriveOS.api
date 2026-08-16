@@ -7,5 +7,5 @@ public enum AssessmentAppointmentStatus
     Cancelled = 2,
     NoShow = 3,
     Confirmed = 4,
-    Rescheduled = 5
+    Rescheduled = 5,
 }

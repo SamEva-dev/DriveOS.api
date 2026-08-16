@@ -10,17 +10,20 @@ public interface IAssessmentAppointmentRepository
     Task<AssessmentAppointment?> GetByIdAsync(
         OrganizationId organizationId,
         AssessmentAppointmentId appointmentId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<AssessmentAppointment?> GetByIdForUpdateAsync(
         OrganizationId organizationId,
         AssessmentAppointmentId appointmentId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<IReadOnlyList<AssessmentAppointment>> GetByLeadAsync(
         OrganizationId organizationId,
         LeadId leadId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<bool> HasSchedulingConflictAsync(
         OrganizationId organizationId,
@@ -32,5 +35,6 @@ public interface IAssessmentAppointmentRepository
         Guid? roomId,
         Guid? simulatorId,
         AssessmentAppointmentId? excludedAppointmentId = null,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

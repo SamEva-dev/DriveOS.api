@@ -29,7 +29,11 @@ public sealed class LeadConversionTests
     {
         Lead lead = CreateQualifiedLead();
 
-        var result = lead.MarkConverted(PersonId.New(), DraftEnrollmentId.New(), DateTimeOffset.UtcNow);
+        var result = lead.MarkConverted(
+            PersonId.New(),
+            DraftEnrollmentId.New(),
+            DateTimeOffset.UtcNow
+        );
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Crm.Conversions.LeadMustBeWon");
@@ -37,13 +41,22 @@ public sealed class LeadConversionTests
 
     private static Lead CreateQualifiedLead()
     {
-        Lead lead = Lead.Create(LeadId.New(), OrganizationId.New(), null,
+        Lead lead = Lead.Create(
+            LeadId.New(),
+            OrganizationId.New(),
+            null,
             LeadIdentity.Create("John", "Doe", "john@example.com", null).Value,
             RequestedTraining.Create("B", TransmissionPreference.Manual, null).Value,
-            LeadSource.Create(LeadSourceType.Website).Value).Value;
+            LeadSource.Create(LeadSourceType.Website).Value
+        ).Value;
         lead.ChangeStatus(LeadStatus.Contacted).IsSuccess.Should().BeTrue();
-        lead.Qualify(LeadQualification.Create("Permis B", "B", "Semaine", null,
-            FinancingOption.SelfFunded, null).Value).IsSuccess.Should().BeTrue();
+        lead.Qualify(
+                LeadQualification
+                    .Create("Permis B", "B", "Semaine", null, FinancingOption.SelfFunded, null)
+                    .Value
+            )
+            .IsSuccess.Should()
+            .BeTrue();
         return lead;
     }
 }

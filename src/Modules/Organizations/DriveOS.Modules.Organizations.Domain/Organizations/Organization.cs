@@ -6,19 +6,16 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Domain.Organizations;
 
-public sealed class Organization :
-    AggregateRoot<OrganizationId>,
-    IAuditableEntity
+public sealed class Organization : AggregateRoot<OrganizationId>, IAuditableEntity
 {
-    private Organization()
-    {
-    }
+    private Organization() { }
 
     private Organization(
         OrganizationId id,
         string legalName,
         string countryCode,
-        OrganizationType type)
+        OrganizationType type
+    )
         : base(id)
     {
         LegalName = legalName;
@@ -43,31 +40,28 @@ public sealed class Organization :
 
     public UserId? LastModifiedByUserId { get; private set; }
 
-    private readonly List<OrganizationStatusHistoryEntry>
-    _statusHistory = [];
+    private readonly List<OrganizationStatusHistoryEntry> _statusHistory = [];
 
-    public IReadOnlyCollection<OrganizationStatusHistoryEntry>
-        StatusHistory => _statusHistory.AsReadOnly();
+    public IReadOnlyCollection<OrganizationStatusHistoryEntry> StatusHistory =>
+        _statusHistory.AsReadOnly();
 
     public static Result<Organization> Create(
-    OrganizationId id,
-    string legalName,
-    string countryCode,
-    OrganizationType type)
+        OrganizationId id,
+        string legalName,
+        string countryCode,
+        OrganizationType type
+    )
     {
         if (id.IsEmpty)
         {
-            return Result.Failure<Organization>(
-                OrganizationErrors.EmptyId);
+            return Result.Failure<Organization>(OrganizationErrors.EmptyId);
         }
 
-        string normalizedLegalName =
-            legalName?.Trim() ?? string.Empty;
+        string normalizedLegalName = legalName?.Trim() ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(normalizedLegalName))
         {
-            return Result.Failure<Organization>(
-                OrganizationErrors.EmptyLegalName);
+            return Result.Failure<Organization>(OrganizationErrors.EmptyLegalName);
         }
 
         const int maximumLegalNameLength = 200;
@@ -75,45 +69,37 @@ public sealed class Organization :
         if (normalizedLegalName.Length > maximumLegalNameLength)
         {
             return Result.Failure<Organization>(
-                OrganizationErrors.LegalNameTooLong(
-                    maximumLegalNameLength));
+                OrganizationErrors.LegalNameTooLong(maximumLegalNameLength)
+            );
         }
 
-        string normalizedCountryCode =
-            countryCode?.Trim().ToUpperInvariant()
-            ?? string.Empty;
+        string normalizedCountryCode = countryCode?.Trim().ToUpperInvariant() ?? string.Empty;
 
         if (!IsValidCountryCode(normalizedCountryCode))
         {
-            return Result.Failure<Organization>(
-                OrganizationErrors.InvalidCountryCode);
+            return Result.Failure<Organization>(OrganizationErrors.InvalidCountryCode);
         }
 
         if (!Enum.IsDefined(type))
         {
-            return Result.Failure<Organization>(
-                OrganizationErrors.InvalidOrganizationType);
+            return Result.Failure<Organization>(OrganizationErrors.InvalidOrganizationType);
         }
 
-        var organization = new Organization(
-            id,
-            normalizedLegalName,
-            normalizedCountryCode,
-            type);
+        var organization = new Organization(id, normalizedLegalName, normalizedCountryCode, type);
 
         organization.RaiseDomainEvent(
             new OrganizationCreatedDomainEvent(
                 organization.Id,
                 organization.LegalName,
                 organization.CountryCode,
-                organization.Type));
+                organization.Type
+            )
+        );
 
         return Result.Success(organization);
     }
 
-    public void SetCreatedAudit(
-    DateTimeOffset createdAtUtc,
-    UserId? createdByUserId)
+    public void SetCreatedAudit(DateTimeOffset createdAtUtc, UserId? createdByUserId)
     {
         if (CreatedAtUtc != default)
         {
@@ -124,116 +110,98 @@ public sealed class Organization :
         CreatedByUserId = createdByUserId;
     }
 
-    public void SetModifiedAudit(
-        DateTimeOffset modifiedAtUtc,
-        UserId? modifiedByUserId)
+    public void SetModifiedAudit(DateTimeOffset modifiedAtUtc, UserId? modifiedByUserId)
     {
         LastModifiedAtUtc = modifiedAtUtc;
         LastModifiedByUserId = modifiedByUserId;
     }
 
     public void SubmitForActivation(
-    OrganizationStatusChangeReason reason,
-    Guid changedByUserId,
-    DateTimeOffset changedAtUtc)
+        OrganizationStatusChangeReason reason,
+        Guid changedByUserId,
+        DateTimeOffset changedAtUtc
+    )
     {
         EnsureStatus(
             OrganizationStatus.Draft,
-            "Only a draft organization can be submitted for activation.");
+            "Only a draft organization can be submitted for activation."
+        );
 
-        ChangeStatus(
-            OrganizationStatus.PendingActivation,
-            reason,
-            changedByUserId,
-            changedAtUtc);
+        ChangeStatus(OrganizationStatus.PendingActivation, reason, changedByUserId, changedAtUtc);
     }
 
     public void Activate(
         OrganizationStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
         EnsureStatusIn(
             [
                 OrganizationStatus.PendingActivation,
-            OrganizationStatus.Restricted,
-            OrganizationStatus.Suspended,
-        ],
-            "The organization cannot be activated from its current status.");
+                OrganizationStatus.Restricted,
+                OrganizationStatus.Suspended,
+            ],
+            "The organization cannot be activated from its current status."
+        );
 
-        ChangeStatus(
-            OrganizationStatus.Active,
-            reason,
-            changedByUserId,
-            changedAtUtc);
+        ChangeStatus(OrganizationStatus.Active, reason, changedByUserId, changedAtUtc);
     }
 
     public void Restrict(
         OrganizationStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
-        EnsureStatus(
-            OrganizationStatus.Active,
-            "Only an active organization can be restricted.");
+        EnsureStatus(OrganizationStatus.Active, "Only an active organization can be restricted.");
 
-        ChangeStatus(
-            OrganizationStatus.Restricted,
-            reason,
-            changedByUserId,
-            changedAtUtc);
+        ChangeStatus(OrganizationStatus.Restricted, reason, changedByUserId, changedAtUtc);
     }
 
     public void Suspend(
         OrganizationStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
         EnsureStatusIn(
-            [
-                OrganizationStatus.Active,
-            OrganizationStatus.Restricted,
-        ],
-            "Only an active or restricted organization can be suspended.");
+            [OrganizationStatus.Active, OrganizationStatus.Restricted],
+            "Only an active or restricted organization can be suspended."
+        );
 
-        ChangeStatus(
-            OrganizationStatus.Suspended,
-            reason,
-            changedByUserId,
-            changedAtUtc);
+        ChangeStatus(OrganizationStatus.Suspended, reason, changedByUserId, changedAtUtc);
     }
 
     public void Close(
         OrganizationStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
         EnsureStatusIn(
             [
                 OrganizationStatus.Active,
-            OrganizationStatus.Restricted,
-            OrganizationStatus.Suspended,
-        ],
-            "The organization cannot be closed from its current status.");
+                OrganizationStatus.Restricted,
+                OrganizationStatus.Suspended,
+            ],
+            "The organization cannot be closed from its current status."
+        );
 
-        ChangeStatus(
-            OrganizationStatus.Closed,
-            reason,
-            changedByUserId,
-            changedAtUtc);
+        ChangeStatus(OrganizationStatus.Closed, reason, changedByUserId, changedAtUtc);
     }
 
     private static bool IsValidCountryCode(string countryCode)
     {
-        return countryCode.Length == 2
-            && countryCode.All(char.IsLetter);
+        return countryCode.Length == 2 && countryCode.All(char.IsLetter);
     }
 
     private void ChangeStatus(
-    OrganizationStatus newStatus,
-    OrganizationStatusChangeReason reason,
-    Guid changedByUserId,
-    DateTimeOffset changedAtUtc)
+        OrganizationStatus newStatus,
+        OrganizationStatusChangeReason reason,
+        Guid changedByUserId,
+        DateTimeOffset changedAtUtc
+    )
     {
         OrganizationStatus previousStatus = Status;
 
@@ -246,7 +214,9 @@ public sealed class Organization :
                 newStatus,
                 reason,
                 changedByUserId,
-                changedAtUtc));
+                changedAtUtc
+            )
+        );
 
         RaiseDomainEvent(
             new OrganizationStatusChangedDomainEvent(
@@ -255,12 +225,12 @@ public sealed class Organization :
                 newStatus,
                 reason.Value,
                 changedByUserId,
-                changedAtUtc));
+                changedAtUtc
+            )
+        );
     }
 
-    private void EnsureStatus(
-        OrganizationStatus expectedStatus,
-        string errorMessage)
+    private void EnsureStatus(OrganizationStatus expectedStatus, string errorMessage)
     {
         if (Status != expectedStatus)
         {
@@ -270,7 +240,8 @@ public sealed class Organization :
 
     private void EnsureStatusIn(
         IReadOnlyCollection<OrganizationStatus> allowedStatuses,
-        string errorMessage)
+        string errorMessage
+    )
     {
         if (!allowedStatuses.Contains(Status))
         {

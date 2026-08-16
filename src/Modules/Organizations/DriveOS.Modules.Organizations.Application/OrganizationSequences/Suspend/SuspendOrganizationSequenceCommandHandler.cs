@@ -7,18 +7,19 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.Suspen
 
 internal sealed class SuspendOrganizationSequenceCommandHandler(
     IOrganizationSequenceRepository sequenceRepository,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<SuspendOrganizationSequenceCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<SuspendOrganizationSequenceCommand>
 {
     public async Task<Result> Handle(
         SuspendOrganizationSequenceCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        OrganizationSequence? sequence =
-            await sequenceRepository.GetForUpdateAsync(
-                command.SequenceId,
-                command.OrganizationId,
-                cancellationToken);
+        OrganizationSequence? sequence = await sequenceRepository.GetForUpdateAsync(
+            command.SequenceId,
+            command.OrganizationId,
+            cancellationToken
+        );
 
         if (sequence is null)
         {

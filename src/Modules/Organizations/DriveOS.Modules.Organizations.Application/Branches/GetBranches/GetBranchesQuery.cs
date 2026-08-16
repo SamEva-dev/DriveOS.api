@@ -12,5 +12,5 @@ public sealed record GetBranchesQuery(
     int PageSize,
     string? Search,
     BranchSortField SortBy,
-    SortDirection SortDirection)
-    : IQuery<PagedResult<BranchListItem>>;
+    SortDirection SortDirection
+) : IQuery<PagedResult<BranchListItem>>;

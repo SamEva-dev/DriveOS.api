@@ -11,15 +11,9 @@ internal sealed class BranchConfigurationOverridePolicyOptions
         "openingHours",
         "training.sessionDefaults",
         "communication",
-        "localization"
+        "localization",
     ];
 
     public string[] LockedPaths { get; init; } =
-    [
-        "compliance",
-        "regulation",
-        "security",
-        "identity",
-        "billing.tax"
-    ];
+    ["compliance", "regulation", "security", "identity", "billing.tax"];
 }

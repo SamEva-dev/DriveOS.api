@@ -7,9 +7,9 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Domain.BranchConfigurationOverrides;
 
-public sealed class BranchConfigurationOverride :
-    AggregateRoot<BranchConfigurationOverrideId>,
-    IAuditableEntity
+public sealed class BranchConfigurationOverride
+    : AggregateRoot<BranchConfigurationOverrideId>,
+        IAuditableEntity
 {
     private BranchConfigurationOverride() { }
 
@@ -20,7 +20,8 @@ public sealed class BranchConfigurationOverride :
         OrganizationConfigurationId baseConfigurationId,
         int versionNumber,
         string countryCode,
-        BranchOverridePayload payload)
+        BranchOverridePayload payload
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -58,22 +59,38 @@ public sealed class BranchConfigurationOverride :
         OrganizationConfigurationId baseConfigurationId,
         int versionNumber,
         string? countryCode,
-        BranchOverridePayload payload)
+        BranchOverridePayload payload
+    )
     {
         if (id.IsEmpty)
-            return Result.Failure<BranchConfigurationOverride>(BranchConfigurationOverrideErrors.EmptyId);
+            return Result.Failure<BranchConfigurationOverride>(
+                BranchConfigurationOverrideErrors.EmptyId
+            );
         if (organizationId.IsEmpty)
-            return Result.Failure<BranchConfigurationOverride>(BranchConfigurationOverrideErrors.EmptyOrganizationId);
+            return Result.Failure<BranchConfigurationOverride>(
+                BranchConfigurationOverrideErrors.EmptyOrganizationId
+            );
         if (branchId.IsEmpty)
-            return Result.Failure<BranchConfigurationOverride>(BranchConfigurationOverrideErrors.EmptyBranchId);
+            return Result.Failure<BranchConfigurationOverride>(
+                BranchConfigurationOverrideErrors.EmptyBranchId
+            );
         if (baseConfigurationId.IsEmpty)
-            return Result.Failure<BranchConfigurationOverride>(BranchConfigurationOverrideErrors.EmptyBaseConfigurationId);
+            return Result.Failure<BranchConfigurationOverride>(
+                BranchConfigurationOverrideErrors.EmptyBaseConfigurationId
+            );
         if (versionNumber <= 0)
-            return Result.Failure<BranchConfigurationOverride>(BranchConfigurationOverrideErrors.InvalidVersion);
+            return Result.Failure<BranchConfigurationOverride>(
+                BranchConfigurationOverrideErrors.InvalidVersion
+            );
 
         string normalizedCountryCode = (countryCode ?? string.Empty).Trim().ToUpperInvariant();
-        if (normalizedCountryCode.Length != 2 || normalizedCountryCode.Any(character => !char.IsLetter(character)))
-            return Result.Failure<BranchConfigurationOverride>(BranchConfigurationOverrideErrors.InvalidCountryCode);
+        if (
+            normalizedCountryCode.Length != 2
+            || normalizedCountryCode.Any(character => !char.IsLetter(character))
+        )
+            return Result.Failure<BranchConfigurationOverride>(
+                BranchConfigurationOverrideErrors.InvalidCountryCode
+            );
 
         ArgumentNullException.ThrowIfNull(payload);
 
@@ -84,14 +101,18 @@ public sealed class BranchConfigurationOverride :
             baseConfigurationId,
             versionNumber,
             normalizedCountryCode,
-            payload);
+            payload
+        );
 
-        branchOverride.RaiseDomainEvent(new BranchConfigurationOverrideCreatedDomainEvent(
-            branchOverride.Id,
-            branchOverride.OrganizationId,
-            branchOverride.BranchId,
-            branchOverride.BaseConfigurationId,
-            branchOverride.VersionNumber));
+        branchOverride.RaiseDomainEvent(
+            new BranchConfigurationOverrideCreatedDomainEvent(
+                branchOverride.Id,
+                branchOverride.OrganizationId,
+                branchOverride.BranchId,
+                branchOverride.BaseConfigurationId,
+                branchOverride.VersionNumber
+            )
+        );
 
         return Result.Success(branchOverride);
     }
@@ -115,7 +136,8 @@ public sealed class BranchConfigurationOverride :
         DateTimeOffset effectiveFromUtc,
         DateTimeOffset? effectiveToUtc,
         DateTimeOffset publishedAtUtc,
-        UserId publishedByUserId)
+        UserId publishedByUserId
+    )
     {
         if (Status == BranchConfigurationOverrideStatus.Published)
             return Result.Failure(BranchConfigurationOverrideErrors.AlreadyPublished);
@@ -133,12 +155,15 @@ public sealed class BranchConfigurationOverride :
         Status = BranchConfigurationOverrideStatus.Published;
         Revision++;
 
-        RaiseDomainEvent(new BranchConfigurationOverridePublishedDomainEvent(
-            Id,
-            OrganizationId,
-            BranchId,
-            VersionNumber,
-            effectiveFromUtc));
+        RaiseDomainEvent(
+            new BranchConfigurationOverridePublishedDomainEvent(
+                Id,
+                OrganizationId,
+                BranchId,
+                VersionNumber,
+                effectiveFromUtc
+            )
+        );
 
         return Result.Success();
     }
@@ -151,24 +176,28 @@ public sealed class BranchConfigurationOverride :
         Status = BranchConfigurationOverrideStatus.Archived;
         Revision++;
 
-        RaiseDomainEvent(new BranchConfigurationOverrideArchivedDomainEvent(
-            Id,
-            OrganizationId,
-            BranchId,
-            VersionNumber));
+        RaiseDomainEvent(
+            new BranchConfigurationOverrideArchivedDomainEvent(
+                Id,
+                OrganizationId,
+                BranchId,
+                VersionNumber
+            )
+        );
 
         return Result.Success();
     }
 
     public bool IsEffectiveAt(DateTimeOffset instantUtc) =>
-        Status == BranchConfigurationOverrideStatus.Published &&
-        EffectiveFromUtc.HasValue &&
-        EffectiveFromUtc.Value <= instantUtc &&
-        (!EffectiveToUtc.HasValue || instantUtc < EffectiveToUtc.Value);
+        Status == BranchConfigurationOverrideStatus.Published
+        && EffectiveFromUtc.HasValue
+        && EffectiveFromUtc.Value <= instantUtc
+        && (!EffectiveToUtc.HasValue || instantUtc < EffectiveToUtc.Value);
 
     public void SetCreatedAudit(DateTimeOffset createdAtUtc, UserId? createdByUserId)
     {
-        if (CreatedAtUtc != default) return;
+        if (CreatedAtUtc != default)
+            return;
         CreatedAtUtc = createdAtUtc;
         CreatedByUserId = createdByUserId;
     }

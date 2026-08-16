@@ -9,10 +9,7 @@ public sealed record OrganizationContactInformation
     public const int PhoneMaximumLength = 40;
     public const int WebsiteMaximumLength = 500;
 
-    private OrganizationContactInformation(
-        string? email,
-        string? phone,
-        string? website)
+    private OrganizationContactInformation(string? email, string? phone, string? website)
     {
         Email = email;
         Phone = phone;
@@ -26,39 +23,47 @@ public sealed record OrganizationContactInformation
     public static Result<OrganizationContactInformation> Create(
         string? email,
         string? phone,
-        string? website)
+        string? website
+    )
     {
         string? normalizedEmail = NormalizeOptional(email)?.ToLowerInvariant();
         string? normalizedPhone = NormalizeOptional(phone);
         string? normalizedWebsite = NormalizeOptional(website);
 
-        if (normalizedEmail is not null &&
-            (normalizedEmail.Length > EmailMaximumLength || !IsValidEmail(normalizedEmail)))
+        if (
+            normalizedEmail is not null
+            && (normalizedEmail.Length > EmailMaximumLength || !IsValidEmail(normalizedEmail))
+        )
         {
             return Result.Failure<OrganizationContactInformation>(
-                OrganizationSettingsErrors.InvalidEmail);
+                OrganizationSettingsErrors.InvalidEmail
+            );
         }
 
         if (normalizedPhone?.Length > PhoneMaximumLength)
         {
             return Result.Failure<OrganizationContactInformation>(
-                OrganizationSettingsErrors.InvalidPhone);
+                OrganizationSettingsErrors.InvalidPhone
+            );
         }
 
-        if (normalizedWebsite is not null &&
-            (normalizedWebsite.Length > WebsiteMaximumLength ||
-             !Uri.TryCreate(normalizedWebsite, UriKind.Absolute, out Uri? uri) ||
-             (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)))
+        if (
+            normalizedWebsite is not null
+            && (
+                normalizedWebsite.Length > WebsiteMaximumLength
+                || !Uri.TryCreate(normalizedWebsite, UriKind.Absolute, out Uri? uri)
+                || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+            )
+        )
         {
             return Result.Failure<OrganizationContactInformation>(
-                OrganizationSettingsErrors.InvalidWebsite);
+                OrganizationSettingsErrors.InvalidWebsite
+            );
         }
 
         return Result.Success(
-            new OrganizationContactInformation(
-                normalizedEmail,
-                normalizedPhone,
-                normalizedWebsite));
+            new OrganizationContactInformation(normalizedEmail, normalizedPhone, normalizedWebsite)
+        );
     }
 
     private static bool IsValidEmail(string email)

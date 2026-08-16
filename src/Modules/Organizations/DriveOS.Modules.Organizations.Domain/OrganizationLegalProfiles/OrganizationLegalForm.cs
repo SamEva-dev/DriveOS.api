@@ -9,5 +9,5 @@ public enum OrganizationLegalForm
     NonProfit = 5,
     PublicBody = 6,
     Cooperative = 7,
-    Other = 99
+    Other = 99,
 }

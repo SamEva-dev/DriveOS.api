@@ -1,8 +1,7 @@
 ﻿using DriveOS.SharedKernel.Domain;
 using DriveOS.SharedKernel.Identifiers;
 
-namespace DriveOS.Modules.Organizations.Domain
-    .BranchAssignments.Events;
+namespace DriveOS.Modules.Organizations.Domain.BranchAssignments.Events;
 
 public sealed record BranchUserAssignedDomainEvent(
     BranchUserAssignmentId AssignmentId,
@@ -14,5 +13,5 @@ public sealed record BranchUserAssignedDomainEvent(
     DateTimeOffset StartsAtUtc,
     DateTimeOffset? PlannedEndAtUtc,
     UserId AssignedByUserId,
-    DateTimeOffset AssignedAtUtc)
-    : DomainEvent;
+    DateTimeOffset AssignedAtUtc
+) : DomainEvent;

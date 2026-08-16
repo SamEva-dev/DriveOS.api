@@ -1,5 +1,4 @@
-﻿namespace DriveOS.Modules.Organizations.Application
-    .Branches.StatusHistory;
+﻿namespace DriveOS.Modules.Organizations.Application.Branches.StatusHistory;
 
 public sealed record BranchStatusHistoryItem(
     Guid Id,
@@ -7,4 +6,5 @@ public sealed record BranchStatusHistoryItem(
     string NewStatus,
     string Reason,
     Guid ChangedByUserId,
-    DateTimeOffset ChangedAtUtc);
+    DateTimeOffset ChangedAtUtc
+);

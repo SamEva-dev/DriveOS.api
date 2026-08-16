@@ -6,4 +6,5 @@ public sealed record OrganizationStatusHistoryItem(
     string NewStatus,
     string Reason,
     Guid ChangedByUserId,
-    DateTimeOffset ChangedAtUtc);
+    DateTimeOffset ChangedAtUtc
+);

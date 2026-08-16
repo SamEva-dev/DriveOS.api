@@ -16,14 +16,41 @@ public sealed class OrganizationRepresentativesApiMappingProfile : MappingProfil
 {
     public override void Configure(IMappingConfiguration configuration)
     {
-        configuration.CreateMap<OrganizationRepresentativeResponse, OrganizationRepresentativeResponseContract>();
-        configuration.CreateMap<OrganizationRepresentativeListItem, OrganizationRepresentativeListItemContract>();
-        configuration.CreateMap<CreateOrganizationRepresentativeApiModel, CreateOrganizationRepresentativeCommand>();
-        configuration.CreateMap<UpdateOrganizationRepresentativeAuthorityApiModel, UpdateOrganizationRepresentativeAuthorityCommand>();
-        configuration.CreateMap<ChangeOrganizationRepresentativeStatusApiModel, ActivateOrganizationRepresentativeCommand>();
-        configuration.CreateMap<ChangeOrganizationRepresentativeStatusApiModel, SetPrimaryOrganizationOwnerCommand>();
-        configuration.CreateMap<ChangeOrganizationRepresentativeStatusWithReasonApiModel, SuspendOrganizationRepresentativeCommand>();
-        configuration.CreateMap<ChangeOrganizationRepresentativeStatusWithReasonApiModel, ReactivateOrganizationRepresentativeCommand>();
-        configuration.CreateMap<EndOrganizationRepresentativeApiModel, EndOrganizationRepresentativeCommand>();
+        configuration.CreateMap<
+            OrganizationRepresentativeResponse,
+            OrganizationRepresentativeResponseContract
+        >();
+        configuration.CreateMap<
+            OrganizationRepresentativeListItem,
+            OrganizationRepresentativeListItemContract
+        >();
+        configuration.CreateMap<
+            CreateOrganizationRepresentativeApiModel,
+            CreateOrganizationRepresentativeCommand
+        >();
+        configuration.CreateMap<
+            UpdateOrganizationRepresentativeAuthorityApiModel,
+            UpdateOrganizationRepresentativeAuthorityCommand
+        >();
+        configuration.CreateMap<
+            ChangeOrganizationRepresentativeStatusApiModel,
+            ActivateOrganizationRepresentativeCommand
+        >();
+        configuration.CreateMap<
+            ChangeOrganizationRepresentativeStatusApiModel,
+            SetPrimaryOrganizationOwnerCommand
+        >();
+        configuration.CreateMap<
+            ChangeOrganizationRepresentativeStatusWithReasonApiModel,
+            SuspendOrganizationRepresentativeCommand
+        >();
+        configuration.CreateMap<
+            ChangeOrganizationRepresentativeStatusWithReasonApiModel,
+            ReactivateOrganizationRepresentativeCommand
+        >();
+        configuration.CreateMap<
+            EndOrganizationRepresentativeApiModel,
+            EndOrganizationRepresentativeCommand
+        >();
     }
 }

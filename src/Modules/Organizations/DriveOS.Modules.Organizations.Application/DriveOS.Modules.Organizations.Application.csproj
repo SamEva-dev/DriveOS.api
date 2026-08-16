@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -7,13 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="DomainRelay.Abstractions" />
-	  <PackageReference Include="DomainRelay.DependencyInjection" />
-	  <PackageReference Include="DomainRelay.Mapping" />
-	  <PackageReference Include="DomainRelay.Mapping.Abstractions" />
-	  <PackageReference Include="DomainRelay.Validation" />
-	  <PackageReference Include="FluentValidation" />
-	  <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="DomainRelay.Abstractions" />
+    <PackageReference Include="DomainRelay.DependencyInjection" />
+    <PackageReference Include="DomainRelay.Mapping" />
+    <PackageReference Include="DomainRelay.Mapping.Abstractions" />
+    <PackageReference Include="DomainRelay.Validation" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,5 +25,4 @@
     <Folder Include="Mapping\" />
     <Folder Include="OrganizationSettings\" />
   </ItemGroup>
-
 </Project>

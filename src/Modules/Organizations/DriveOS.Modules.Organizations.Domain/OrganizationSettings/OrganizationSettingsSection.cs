@@ -6,5 +6,5 @@ public enum OrganizationSettingsSection
     Contact = 2,
     Address = 3,
     Regional = 4,
-    Operational = 5
+    Operational = 5,
 }

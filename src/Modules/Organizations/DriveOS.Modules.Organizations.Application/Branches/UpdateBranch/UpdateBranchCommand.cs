@@ -13,5 +13,5 @@ public sealed record UpdateBranchCommand(
     string? AddressLine2,
     string PostalCode,
     string City,
-    string TimeZoneId)
-    : ICommand;
+    string TimeZoneId
+) : ICommand;

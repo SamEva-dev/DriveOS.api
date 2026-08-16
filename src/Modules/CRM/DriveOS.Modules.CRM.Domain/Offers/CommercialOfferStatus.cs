@@ -12,5 +12,5 @@ public enum CommercialOfferStatus
     Rejected = 7,
     Expired = 8,
     Withdrawn = 9,
-    Superseded = 10
+    Superseded = 10,
 }

@@ -7,5 +7,5 @@ public sealed record OrganizationCreatedDomainEvent(
     OrganizationId OrganizationId,
     string LegalName,
     string CountryCode,
-    OrganizationType OrganizationType)
-    : DomainEvent;
+    OrganizationType OrganizationType
+) : DomainEvent;

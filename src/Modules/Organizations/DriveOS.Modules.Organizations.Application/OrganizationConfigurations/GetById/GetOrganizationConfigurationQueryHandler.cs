@@ -6,20 +6,24 @@ using DriveOS.SharedKernel.Results;
 namespace DriveOS.Modules.Organizations.Application.OrganizationConfigurations.GetById;
 
 public sealed class GetOrganizationConfigurationQueryHandler(
-    IOrganizationConfigurationReadService readService)
-    : IQueryHandler<GetOrganizationConfigurationQuery, OrganizationConfigurationResponse>
+    IOrganizationConfigurationReadService readService
+) : IQueryHandler<GetOrganizationConfigurationQuery, OrganizationConfigurationResponse>
 {
     public async Task<Result<OrganizationConfigurationResponse>> Handle(
         GetOrganizationConfigurationQuery query,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         OrganizationConfigurationResponse? response = await readService.GetByIdAsync(
             query.OrganizationId,
             query.ConfigurationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         return response is null
-            ? Result.Failure<OrganizationConfigurationResponse>(OrganizationConfigurationErrors.NotFound)
+            ? Result.Failure<OrganizationConfigurationResponse>(
+                OrganizationConfigurationErrors.NotFound
+            )
             : Result.Success(response);
     }
 }

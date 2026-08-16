@@ -12,9 +12,21 @@ public sealed class OrganizationLegalProfilesApiMappingProfile : MappingProfile
 {
     public override void Configure(IMappingConfiguration configuration)
     {
-        configuration.CreateMap<CreateOrganizationLegalProfileApiModel, CreateOrganizationLegalProfileCommand>();
-        configuration.CreateMap<UpdateOrganizationLegalProfileApiModel, UpdateOrganizationLegalProfileCommand>();
-        configuration.CreateMap<ChangeOrganizationLegalProfileStatusApiModel, ActivateOrganizationLegalProfileCommand>();
-        configuration.CreateMap<ChangeOrganizationLegalProfileStatusApiModel, ArchiveOrganizationLegalProfileCommand>();
+        configuration.CreateMap<
+            CreateOrganizationLegalProfileApiModel,
+            CreateOrganizationLegalProfileCommand
+        >();
+        configuration.CreateMap<
+            UpdateOrganizationLegalProfileApiModel,
+            UpdateOrganizationLegalProfileCommand
+        >();
+        configuration.CreateMap<
+            ChangeOrganizationLegalProfileStatusApiModel,
+            ActivateOrganizationLegalProfileCommand
+        >();
+        configuration.CreateMap<
+            ChangeOrganizationLegalProfileStatusApiModel,
+            ArchiveOrganizationLegalProfileCommand
+        >();
     }
 }

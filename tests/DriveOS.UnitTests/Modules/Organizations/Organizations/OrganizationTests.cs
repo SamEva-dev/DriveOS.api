@@ -14,7 +14,8 @@ public sealed class OrganizationTests
             id,
             "Auto-école Horizon",
             "fr",
-            OrganizationType.DrivingSchool);
+            OrganizationType.DrivingSchool
+        );
 
         Assert.True(result.IsSuccess);
 
@@ -23,12 +24,8 @@ public sealed class OrganizationTests
         Assert.Equal(id, organization.Id);
         Assert.Equal("Auto-école Horizon", organization.LegalName);
         Assert.Equal("FR", organization.CountryCode);
-        Assert.Equal(
-            OrganizationType.DrivingSchool,
-            organization.Type);
-        Assert.Equal(
-            OrganizationStatus.Draft,
-            organization.Status);
+        Assert.Equal(OrganizationType.DrivingSchool, organization.Type);
+        Assert.Equal(OrganizationStatus.Draft, organization.Status);
 
         Assert.Single(organization.DomainEvents);
     }
@@ -40,12 +37,11 @@ public sealed class OrganizationTests
             OrganizationId.New(),
             " ",
             "FR",
-            OrganizationType.DrivingSchool);
+            OrganizationType.DrivingSchool
+        );
 
         Assert.True(result.IsFailure);
-        Assert.Equal(
-            OrganizationErrors.EmptyLegalName,
-            result.Error);
+        Assert.Equal(OrganizationErrors.EmptyLegalName, result.Error);
     }
 
     [Theory]
@@ -53,18 +49,16 @@ public sealed class OrganizationTests
     [InlineData("F")]
     [InlineData("FRA")]
     [InlineData("F1")]
-    public void Create_WithInvalidCountryCode_ShouldFail(
-        string countryCode)
+    public void Create_WithInvalidCountryCode_ShouldFail(string countryCode)
     {
         var result = Organization.Create(
             OrganizationId.New(),
             "Auto-école Horizon",
             countryCode,
-            OrganizationType.DrivingSchool);
+            OrganizationType.DrivingSchool
+        );
 
         Assert.True(result.IsFailure);
-        Assert.Equal(
-            OrganizationErrors.InvalidCountryCode,
-            result.Error);
+        Assert.Equal(OrganizationErrors.InvalidCountryCode, result.Error);
     }
 }

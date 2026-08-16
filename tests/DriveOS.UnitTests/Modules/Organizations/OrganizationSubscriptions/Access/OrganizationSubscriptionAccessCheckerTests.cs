@@ -14,10 +14,8 @@ public sealed class OrganizationSubscriptionAccessCheckerTests
     public async Task Entitlement_Require_Should_Succeed_When_Included()
     {
         var checker = new OrganizationEntitlementChecker(
-            new FakeReadService(CreateResponse(
-                SubscriptionStatus.Active,
-                ["Fleet.Management"],
-                [])));
+            new FakeReadService(CreateResponse(SubscriptionStatus.Active, ["Fleet.Management"], []))
+        );
 
         var result = await checker.RequireAsync(OrganizationId, "Fleet.Management");
 
@@ -28,27 +26,23 @@ public sealed class OrganizationSubscriptionAccessCheckerTests
     public async Task Entitlement_Require_Should_Fail_When_Not_Included()
     {
         var checker = new OrganizationEntitlementChecker(
-            new FakeReadService(CreateResponse(SubscriptionStatus.Active, [], [])));
+            new FakeReadService(CreateResponse(SubscriptionStatus.Active, [], []))
+        );
 
         var result = await checker.RequireAsync(OrganizationId, "Fleet.Management");
 
         Assert.True(result.IsFailure);
-        Assert.Equal(
-            "OrganizationSubscriptions.Access.EntitlementNotIncluded",
-            result.Error.Code);
+        Assert.Equal("OrganizationSubscriptions.Access.EntitlementNotIncluded", result.Error.Code);
     }
 
     [Fact]
     public async Task Limit_Check_Should_Return_Unlimited_When_Code_Is_Absent()
     {
         var checker = new OrganizationLimitChecker(
-            new FakeReadService(CreateResponse(SubscriptionStatus.Active, [], [])));
+            new FakeReadService(CreateResponse(SubscriptionStatus.Active, [], []))
+        );
 
-        var result = await checker.CheckAsync(
-            OrganizationId,
-            "Vehicles.Maximum",
-            500,
-            500);
+        var result = await checker.CheckAsync(OrganizationId, "Vehicles.Maximum", 500, 500);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(OrganizationLimitAvailability.Unlimited, result.Value.Availability);
@@ -58,16 +52,16 @@ public sealed class OrganizationSubscriptionAccessCheckerTests
     public async Task Limit_Require_Should_Fail_When_Exceeded()
     {
         var checker = new OrganizationLimitChecker(
-            new FakeReadService(CreateResponse(
-                SubscriptionStatus.Active,
-                [],
-                [new SubscriptionLimitResponse("Vehicles.Maximum", 5)])));
+            new FakeReadService(
+                CreateResponse(
+                    SubscriptionStatus.Active,
+                    [],
+                    [new SubscriptionLimitResponse("Vehicles.Maximum", 5)]
+                )
+            )
+        );
 
-        var result = await checker.RequireCapacityAsync(
-            OrganizationId,
-            "Vehicles.Maximum",
-            5,
-            1);
+        var result = await checker.RequireCapacityAsync(OrganizationId, "Vehicles.Maximum", 5, 1);
 
         Assert.True(result.IsFailure);
         Assert.Equal("OrganizationSubscriptions.Access.LimitExceeded", result.Error.Code);
@@ -79,22 +73,32 @@ public sealed class OrganizationSubscriptionAccessCheckerTests
         var response = CreateResponse(
             SubscriptionStatus.Suspended,
             ["Fleet.Management"],
-            [new SubscriptionLimitResponse("Vehicles.Maximum", 100)]);
+            [new SubscriptionLimitResponse("Vehicles.Maximum", 100)]
+        );
 
         var entitlementChecker = new OrganizationEntitlementChecker(new FakeReadService(response));
         var limitChecker = new OrganizationLimitChecker(new FakeReadService(response));
 
         var entitlement = await entitlementChecker.RequireAsync(OrganizationId, "Fleet.Management");
-        var limit = await limitChecker.RequireCapacityAsync(OrganizationId, "Vehicles.Maximum", 0, 1);
+        var limit = await limitChecker.RequireCapacityAsync(
+            OrganizationId,
+            "Vehicles.Maximum",
+            0,
+            1
+        );
 
-        Assert.Equal("OrganizationSubscriptions.Access.SubscriptionUnavailable", entitlement.Error.Code);
+        Assert.Equal(
+            "OrganizationSubscriptions.Access.SubscriptionUnavailable",
+            entitlement.Error.Code
+        );
         Assert.Equal("OrganizationSubscriptions.Access.SubscriptionUnavailable", limit.Error.Code);
     }
 
     private static OrganizationSubscriptionResponse CreateResponse(
         SubscriptionStatus status,
         IReadOnlyCollection<string> entitlements,
-        IReadOnlyCollection<SubscriptionLimitResponse> limits) =>
+        IReadOnlyCollection<SubscriptionLimitResponse> limits
+    ) =>
         new(
             Guid.NewGuid(),
             OrganizationId.Value,
@@ -110,23 +114,27 @@ public sealed class OrganizationSubscriptionAccessCheckerTests
             limits,
             1,
             DateTimeOffset.UtcNow,
-            null);
+            null
+        );
 
-    private sealed class FakeReadService(
-        OrganizationSubscriptionResponse? response) : IOrganizationSubscriptionReadService
+    private sealed class FakeReadService(OrganizationSubscriptionResponse? response)
+        : IOrganizationSubscriptionReadService
     {
         public Task<OrganizationSubscriptionResponse?> GetByOrganizationIdAsync(
             OrganizationId organizationId,
-            CancellationToken cancellationToken = default) => Task.FromResult(response);
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult(response);
 
         public Task<bool> HasEntitlementAsync(
             OrganizationId organizationId,
             string entitlementCode,
-            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+            CancellationToken cancellationToken = default
+        ) => throw new NotSupportedException();
 
         public Task<long?> GetLimitAsync(
             OrganizationId organizationId,
             string limitCode,
-            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+            CancellationToken cancellationToken = default
+        ) => throw new NotSupportedException();
     }
 }

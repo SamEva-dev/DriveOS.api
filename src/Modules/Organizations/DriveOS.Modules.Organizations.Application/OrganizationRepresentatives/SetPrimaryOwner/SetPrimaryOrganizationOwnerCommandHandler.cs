@@ -9,15 +9,19 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.
 internal sealed class SetPrimaryOrganizationOwnerCommandHandler(
     IOrganizationRepresentativeRepository repository,
     OrganizationRepresentativeAccessSynchronizationService accessSynchronizationService,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<SetPrimaryOrganizationOwnerCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<SetPrimaryOrganizationOwnerCommand>
 {
-    public async Task<Result> Handle(SetPrimaryOrganizationOwnerCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(
+        SetPrimaryOrganizationOwnerCommand command,
+        CancellationToken cancellationToken
+    )
     {
         OrganizationRepresentative? target = await repository.GetForUpdateAsync(
             command.RepresentativeId,
             command.OrganizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (target is null)
             return Result.Failure(OrganizationRepresentativeErrors.NotFound);
@@ -26,7 +30,8 @@ internal sealed class SetPrimaryOrganizationOwnerCommandHandler(
 
         OrganizationRepresentative? current = await repository.GetPrimaryOwnerForUpdateAsync(
             command.OrganizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (current is not null && current.Id != target.Id)
             current.ClearPrimaryOwner();

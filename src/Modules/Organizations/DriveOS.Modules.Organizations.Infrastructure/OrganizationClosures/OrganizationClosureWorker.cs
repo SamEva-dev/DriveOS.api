@@ -10,23 +10,32 @@ public interface IOrganizationClosureScheduler
     Task<int> ProcessDueAnonymizationsAsync(CancellationToken cancellationToken);
 }
 
-public sealed class OrganizationClosureWorker(IServiceScopeFactory scopeFactory, ILogger<OrganizationClosureWorker> logger)
-    : BackgroundService
+public sealed class OrganizationClosureWorker(
+    IServiceScopeFactory scopeFactory,
+    ILogger<OrganizationClosureWorker> logger
+) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var timer = new PeriodicTimer(TimeSpan.FromMinutes(15));
-        while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken))
+        while (
+            !stoppingToken.IsCancellationRequested
+            && await timer.WaitForNextTickAsync(stoppingToken)
+        )
         {
             try
             {
                 await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
-                var scheduler = scope.ServiceProvider.GetRequiredService<IOrganizationClosureScheduler>();
+                var scheduler =
+                    scope.ServiceProvider.GetRequiredService<IOrganizationClosureScheduler>();
                 await scheduler.ProcessDueClosuresAsync(stoppingToken);
                 await scheduler.ProcessDueAnonymizationsAsync(stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { }
-            catch (Exception ex) { logger.LogError(ex, "Organization closure worker iteration failed."); }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Organization closure worker iteration failed.");
+            }
         }
     }
 }

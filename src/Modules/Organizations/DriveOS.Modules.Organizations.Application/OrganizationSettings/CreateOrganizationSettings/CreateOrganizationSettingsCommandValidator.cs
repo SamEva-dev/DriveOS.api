@@ -31,9 +31,7 @@ public sealed class CreateOrganizationSettingsCommandValidator
         RuleFor(command => command.Website)
             .MaximumLength(OrganizationContactInformation.WebsiteMaximumLength);
 
-        RuleFor(command => command.AddressCountryCode)
-            .NotEmpty()
-            .Length(2);
+        RuleFor(command => command.AddressCountryCode).NotEmpty().Length(2);
 
         RuleFor(command => command.DefaultLanguage).NotEmpty();
         RuleFor(command => command.SupportedLanguages).NotEmpty();

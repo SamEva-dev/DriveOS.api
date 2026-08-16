@@ -6,9 +6,9 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
 
-public sealed class OrganizationConfiguration :
-    AggregateRoot<OrganizationConfigurationId>,
-    IAuditableEntity
+public sealed class OrganizationConfiguration
+    : AggregateRoot<OrganizationConfigurationId>,
+        IAuditableEntity
 {
     private OrganizationConfiguration() { }
 
@@ -17,7 +17,8 @@ public sealed class OrganizationConfiguration :
         OrganizationId organizationId,
         int versionNumber,
         string countryCode,
-        ConfigurationPayload payload)
+        ConfigurationPayload payload
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -49,20 +50,32 @@ public sealed class OrganizationConfiguration :
         OrganizationId organizationId,
         int versionNumber,
         string? countryCode,
-        ConfigurationPayload payload)
+        ConfigurationPayload payload
+    )
     {
         if (id.IsEmpty)
-            return Result.Failure<OrganizationConfiguration>(OrganizationConfigurationErrors.EmptyId);
+            return Result.Failure<OrganizationConfiguration>(
+                OrganizationConfigurationErrors.EmptyId
+            );
 
         if (organizationId.IsEmpty)
-            return Result.Failure<OrganizationConfiguration>(OrganizationConfigurationErrors.EmptyOrganizationId);
+            return Result.Failure<OrganizationConfiguration>(
+                OrganizationConfigurationErrors.EmptyOrganizationId
+            );
 
         if (versionNumber <= 0)
-            return Result.Failure<OrganizationConfiguration>(OrganizationConfigurationErrors.InvalidVersion);
+            return Result.Failure<OrganizationConfiguration>(
+                OrganizationConfigurationErrors.InvalidVersion
+            );
 
         string normalizedCountryCode = (countryCode ?? string.Empty).Trim().ToUpperInvariant();
-        if (normalizedCountryCode.Length != 2 || normalizedCountryCode.Any(character => !char.IsLetter(character)))
-            return Result.Failure<OrganizationConfiguration>(OrganizationConfigurationErrors.InvalidCountryCode);
+        if (
+            normalizedCountryCode.Length != 2
+            || normalizedCountryCode.Any(character => !char.IsLetter(character))
+        )
+            return Result.Failure<OrganizationConfiguration>(
+                OrganizationConfigurationErrors.InvalidCountryCode
+            );
 
         ArgumentNullException.ThrowIfNull(payload);
 
@@ -71,12 +84,16 @@ public sealed class OrganizationConfiguration :
             organizationId,
             versionNumber,
             normalizedCountryCode,
-            payload);
+            payload
+        );
 
-        configuration.RaiseDomainEvent(new OrganizationConfigurationCreatedDomainEvent(
-            configuration.Id,
-            configuration.OrganizationId,
-            configuration.VersionNumber));
+        configuration.RaiseDomainEvent(
+            new OrganizationConfigurationCreatedDomainEvent(
+                configuration.Id,
+                configuration.OrganizationId,
+                configuration.VersionNumber
+            )
+        );
 
         return Result.Success(configuration);
     }
@@ -100,7 +117,8 @@ public sealed class OrganizationConfiguration :
         DateTimeOffset effectiveFromUtc,
         DateTimeOffset? effectiveToUtc,
         DateTimeOffset publishedAtUtc,
-        UserId publishedByUserId)
+        UserId publishedByUserId
+    )
     {
         if (Status == OrganizationConfigurationStatus.Published)
             return Result.Failure(OrganizationConfigurationErrors.AlreadyPublished);
@@ -121,11 +139,14 @@ public sealed class OrganizationConfiguration :
         Status = OrganizationConfigurationStatus.Published;
         Revision++;
 
-        RaiseDomainEvent(new OrganizationConfigurationPublishedDomainEvent(
-            Id,
-            OrganizationId,
-            VersionNumber,
-            effectiveFromUtc));
+        RaiseDomainEvent(
+            new OrganizationConfigurationPublishedDomainEvent(
+                Id,
+                OrganizationId,
+                VersionNumber,
+                effectiveFromUtc
+            )
+        );
 
         return Result.Success();
     }
@@ -138,23 +159,23 @@ public sealed class OrganizationConfiguration :
         Status = OrganizationConfigurationStatus.Archived;
         Revision++;
 
-        RaiseDomainEvent(new OrganizationConfigurationArchivedDomainEvent(
-            Id,
-            OrganizationId,
-            VersionNumber));
+        RaiseDomainEvent(
+            new OrganizationConfigurationArchivedDomainEvent(Id, OrganizationId, VersionNumber)
+        );
 
         return Result.Success();
     }
 
     public bool IsEffectiveAt(DateTimeOffset instantUtc) =>
-        Status == OrganizationConfigurationStatus.Published &&
-        EffectiveFromUtc.HasValue &&
-        EffectiveFromUtc.Value <= instantUtc &&
-        (!EffectiveToUtc.HasValue || instantUtc < EffectiveToUtc.Value);
+        Status == OrganizationConfigurationStatus.Published
+        && EffectiveFromUtc.HasValue
+        && EffectiveFromUtc.Value <= instantUtc
+        && (!EffectiveToUtc.HasValue || instantUtc < EffectiveToUtc.Value);
 
     public void SetCreatedAudit(DateTimeOffset createdAtUtc, UserId? createdByUserId)
     {
-        if (CreatedAtUtc != default) return;
+        if (CreatedAtUtc != default)
+            return;
         CreatedAtUtc = createdAtUtc;
         CreatedByUserId = createdByUserId;
     }

@@ -17,4 +17,5 @@ public sealed record UpdateOrganizationLegalProfileCommand(
     string City,
     string? Region,
     string CountryCode,
-    int ExpectedRevision) : ICommand;
+    int ExpectedRevision
+) : ICommand;

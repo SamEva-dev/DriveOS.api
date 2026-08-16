@@ -10,27 +10,18 @@ public sealed class OrganizationsApiMappingProfileTests
     [Fact]
     public void MappingConfiguration_ShouldBeValid()
     {
-        var services =
-            new ServiceCollection();
+        var services = new ServiceCollection();
 
-        services.AddDomainRelayMapping(
-            builder =>
-            {
-                builder
-                    .AddProfile<
-                        OrganizationsApiMappingProfile>()
-                    .ValidateConfigurationOnBuild();
-            });
+        services.AddDomainRelayMapping(builder =>
+        {
+            builder.AddProfile<OrganizationsApiMappingProfile>().ValidateConfigurationOnBuild();
+        });
 
-        using ServiceProvider provider =
-            services.BuildServiceProvider();
+        using ServiceProvider provider = services.BuildServiceProvider();
 
-        IMapperConfigurationProvider
-            configurationProvider =
-                provider.GetRequiredService<
-                    IMapperConfigurationProvider>();
+        IMapperConfigurationProvider configurationProvider =
+            provider.GetRequiredService<IMapperConfigurationProvider>();
 
-        configurationProvider
-            .AssertConfigurationIsValid();
+        configurationProvider.AssertConfigurationIsValid();
     }
 }

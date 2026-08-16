@@ -10,9 +10,16 @@ public sealed class CrmTaskTests
     [Fact]
     public void Create_ShouldNormalizeContentAndKeepTaskPending()
     {
-        var result = CrmTask.Create(CrmTaskId.New(), OrganizationId.New(), LeadId.New(),
-            CrmTaskType.Call, "  Rappeler le prospect  ", "  Après 18 h  ",
-            DateTimeOffset.UtcNow.AddDays(1), null);
+        var result = CrmTask.Create(
+            CrmTaskId.New(),
+            OrganizationId.New(),
+            LeadId.New(),
+            CrmTaskType.Call,
+            "  Rappeler le prospect  ",
+            "  Après 18 h  ",
+            DateTimeOffset.UtcNow.AddDays(1),
+            null
+        );
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Title.Should().Be("Rappeler le prospect");
@@ -23,8 +30,18 @@ public sealed class CrmTaskTests
     [Fact]
     public void Complete_ShouldRejectAlreadyClosedTask()
     {
-        CrmTask task = CrmTask.Create(CrmTaskId.New(), OrganizationId.New(), LeadId.New(),
-            CrmTaskType.Email, "Envoyer le dossier", null, DateTimeOffset.UtcNow.AddDays(1), null).Value;
+        CrmTask task = CrmTask
+            .Create(
+                CrmTaskId.New(),
+                OrganizationId.New(),
+                LeadId.New(),
+                CrmTaskType.Email,
+                "Envoyer le dossier",
+                null,
+                DateTimeOffset.UtcNow.AddDays(1),
+                null
+            )
+            .Value;
 
         task.Complete(DateTimeOffset.UtcNow).IsSuccess.Should().BeTrue();
         var second = task.Cancel(DateTimeOffset.UtcNow);

@@ -6,17 +6,19 @@ using DriveOS.SharedKernel.Results;
 namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.GetById;
 
 internal sealed class GetOrganizationSequenceByIdQueryHandler(
-    IOrganizationSequenceReadService readService)
-    : IQueryHandler<GetOrganizationSequenceByIdQuery, OrganizationSequenceResponse>
+    IOrganizationSequenceReadService readService
+) : IQueryHandler<GetOrganizationSequenceByIdQuery, OrganizationSequenceResponse>
 {
     public async Task<Result<OrganizationSequenceResponse>> Handle(
         GetOrganizationSequenceByIdQuery query,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         OrganizationSequenceResponse? sequence = await readService.GetByIdAsync(
             query.OrganizationId,
             query.SequenceId,
-            cancellationToken);
+            cancellationToken
+        );
 
         return sequence is null
             ? Result.Failure<OrganizationSequenceResponse>(OrganizationSequenceErrors.NotFound)

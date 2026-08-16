@@ -7,4 +7,5 @@ namespace DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles.Events;
 public sealed record OrganizationLegalProfileActivatedDomainEvent(
     OrganizationLegalProfileId LegalProfileId,
     OrganizationId OrganizationId,
-    int Revision) : DomainEvent;
+    int Revision
+) : DomainEvent;

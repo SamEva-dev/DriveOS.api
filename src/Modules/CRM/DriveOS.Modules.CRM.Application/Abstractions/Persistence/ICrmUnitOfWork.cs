@@ -7,6 +7,4 @@ namespace DriveOS.Modules.CRM.Application.Abstractions.Persistence;
 /// This prevents the CRM DbContext from replacing another module's IUnitOfWork
 /// registration in the application service provider.
 /// </summary>
-public interface ICrmUnitOfWork : IUnitOfWork
-{
-}
+public interface ICrmUnitOfWork : IUnitOfWork { }

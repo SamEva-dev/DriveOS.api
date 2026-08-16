@@ -13,11 +13,9 @@ public sealed class OrganizationActivationReadinessMemoryCacheTests
     public async Task GetOrCreateAsync_ShouldReuseReport_UntilInvalidated()
     {
         using var memoryCache = new MemoryCache(new MemoryCacheOptions());
-        var options = Options.Create(new OrganizationActivationReadinessCacheOptions
-        {
-            Enabled = true,
-            DurationSeconds = 60
-        });
+        var options = Options.Create(
+            new OrganizationActivationReadinessCacheOptions { Enabled = true, DurationSeconds = 60 }
+        );
         var cache = new OrganizationActivationReadinessMemoryCache(memoryCache, options);
         OrganizationId organizationId = new(Guid.NewGuid());
         int factoryCalls = 0;
@@ -25,10 +23,9 @@ public sealed class OrganizationActivationReadinessMemoryCacheTests
         Task<OrganizationActivationReadinessReport> Factory(CancellationToken _)
         {
             factoryCalls++;
-            return Task.FromResult(new OrganizationActivationReadinessReport(
-                organizationId,
-                true,
-                []));
+            return Task.FromResult(
+                new OrganizationActivationReadinessReport(organizationId, true, [])
+            );
         }
 
         await cache.GetOrCreateAsync(organizationId, Factory);

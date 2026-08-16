@@ -6,5 +6,5 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSequences.GetLis
 
 public sealed record GetOrganizationSequencesQuery(
     OrganizationId OrganizationId,
-    BranchId? BranchId)
-    : IQuery<IReadOnlyList<OrganizationSequenceListItem>>;
+    BranchId? BranchId
+) : IQuery<IReadOnlyList<OrganizationSequenceListItem>>;

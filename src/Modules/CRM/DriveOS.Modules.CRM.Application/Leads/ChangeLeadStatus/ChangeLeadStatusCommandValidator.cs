@@ -1,5 +1,5 @@
-using FluentValidation;
 using DriveOS.Modules.CRM.Domain.Leads;
+using FluentValidation;
 
 namespace DriveOS.Modules.CRM.Application.Leads.ChangeLeadStatus;
 

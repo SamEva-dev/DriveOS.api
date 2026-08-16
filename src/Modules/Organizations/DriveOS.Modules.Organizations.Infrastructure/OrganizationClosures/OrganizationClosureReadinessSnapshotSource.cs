@@ -13,45 +13,51 @@ namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationClosures;
 /// External bounded-context counters are deliberately left at zero until their
 /// adapters are connected; see README for the required integration points.
 /// </summary>
-internal sealed class OrganizationClosureReadinessSnapshotSource(
-    OrganizationsDbContext dbContext)
+internal sealed class OrganizationClosureReadinessSnapshotSource(OrganizationsDbContext dbContext)
     : IOrganizationClosureReadinessSnapshotSource
 {
     public async Task<OrganizationClosureReadinessSnapshot> GetAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        bool organizationExists = await dbContext.Organizations
-            .AsNoTracking()
+        bool organizationExists = await dbContext
+            .Organizations.AsNoTracking()
             .AnyAsync(x => x.Id == organizationId, cancellationToken);
 
-        int activeBranches = await dbContext.Branches
-            .AsNoTracking()
+        int activeBranches = await dbContext
+            .Branches.AsNoTracking()
             .CountAsync(
-                x => x.OrganizationId == organizationId &&
-                     x.Status != BranchStatus.Closed,
-                cancellationToken);
+                x => x.OrganizationId == organizationId && x.Status != BranchStatus.Closed,
+                cancellationToken
+            );
 
-        int activePrivilegedMemberships = await dbContext.OrganizationRepresentatives
-            .AsNoTracking()
+        int activePrivilegedMemberships = await dbContext
+            .OrganizationRepresentatives.AsNoTracking()
             .CountAsync(
-                x => x.OrganizationId == organizationId &&
-                     x.Status == OrganizationRepresentativeStatus.Active,
-                cancellationToken);
+                x =>
+                    x.OrganizationId == organizationId
+                    && x.Status == OrganizationRepresentativeStatus.Active,
+                cancellationToken
+            );
 
-        bool hasActiveSubscription = await dbContext.OrganizationSubscriptions
-            .AsNoTracking()
+        bool hasActiveSubscription = await dbContext
+            .OrganizationSubscriptions.AsNoTracking()
             .AnyAsync(
-                x => x.OrganizationId == organizationId &&
-                     (x.Status == SubscriptionStatus.Active ||
-                      x.Status == SubscriptionStatus.Trialing ||
-                      x.Status == SubscriptionStatus.PastDue ||
-                      x.Status == SubscriptionStatus.Restricted ||
-                      x.Status == SubscriptionStatus.Suspended),
-                cancellationToken);
+                x =>
+                    x.OrganizationId == organizationId
+                    && (
+                        x.Status == SubscriptionStatus.Active
+                        || x.Status == SubscriptionStatus.Trialing
+                        || x.Status == SubscriptionStatus.PastDue
+                        || x.Status == SubscriptionStatus.Restricted
+                        || x.Status == SubscriptionStatus.Suspended
+                    ),
+                cancellationToken
+            );
 
-        bool retentionPolicyConfigured = await dbContext.OrganizationSettings
-            .AsNoTracking()
+        bool retentionPolicyConfigured = await dbContext
+            .OrganizationSettings.AsNoTracking()
             .AnyAsync(x => x.OrganizationId == organizationId, cancellationToken);
 
         return new OrganizationClosureReadinessSnapshot(
@@ -62,6 +68,7 @@ internal sealed class OrganizationClosureReadinessSnapshotSource(
             OpenOperations: 0,
             BlockingFinancialItems: 0,
             ActiveIntegrations: 0,
-            RetentionPolicyConfigured: retentionPolicyConfigured);
+            RetentionPolicyConfigured: retentionPolicyConfigured
+        );
     }
 }

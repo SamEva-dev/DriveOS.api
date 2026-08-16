@@ -16,4 +16,5 @@ public sealed record UpdateLeadCommand(
     TransmissionPreference Transmission,
     string? PreferredLocation,
     LeadSourceType SourceType,
-    string? SourceDetail) : ICommand;
+    string? SourceDetail
+) : ICommand;

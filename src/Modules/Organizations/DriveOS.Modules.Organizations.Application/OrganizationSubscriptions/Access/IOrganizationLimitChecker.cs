@@ -10,12 +10,14 @@ public interface IOrganizationLimitChecker
         string limitCode,
         long currentUsage,
         long requestedIncrease,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<Result> RequireCapacityAsync(
         OrganizationId organizationId,
         string limitCode,
         long currentUsage,
         long requestedIncrease,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

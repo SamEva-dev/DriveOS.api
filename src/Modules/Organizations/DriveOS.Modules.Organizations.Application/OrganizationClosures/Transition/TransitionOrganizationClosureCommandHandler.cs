@@ -16,15 +16,21 @@ internal sealed class TransitionOrganizationClosureCommandHandler(
     IOrganizationClosureAuditSink auditSink,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
-    IClock clock)
-    : ICommandHandler<TransitionOrganizationClosureCommand>
+    IClock clock
+) : ICommandHandler<TransitionOrganizationClosureCommand>
 {
-    public async Task<Result> Handle(TransitionOrganizationClosureCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(
+        TransitionOrganizationClosureCommand command,
+        CancellationToken cancellationToken
+    )
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
             return Result.Failure(OrganizationClosureErrors.CurrentUserRequired);
 
-        OrganizationClosure? closure = await repository.GetForUpdateAsync(command.ClosureId, cancellationToken);
+        OrganizationClosure? closure = await repository.GetForUpdateAsync(
+            command.ClosureId,
+            cancellationToken
+        );
         if (closure is null)
             return Result.Failure(OrganizationClosureErrors.NotFound);
 
@@ -43,17 +49,27 @@ internal sealed class TransitionOrganizationClosureCommandHandler(
                 transition = closure.Reject(actor, command.Comment, clock.UtcNow);
                 break;
             case OrganizationClosureAction.Schedule:
-                transition = closure.Schedule(actor, command.ScheduledAtUtc ?? closure.RequestedEffectiveAtUtc);
+                transition = closure.Schedule(
+                    actor,
+                    command.ScheduledAtUtc ?? closure.RequestedEffectiveAtUtc
+                );
                 break;
             case OrganizationClosureAction.Cancel:
                 transition = closure.Cancel(actor, command.Comment, clock.UtcNow);
                 break;
             case OrganizationClosureAction.Complete:
-                OrganizationClosureReadinessReport readiness = await readinessService.EvaluateAsync(closure.OrganizationId, cancellationToken);
+                OrganizationClosureReadinessReport readiness = await readinessService.EvaluateAsync(
+                    closure.OrganizationId,
+                    cancellationToken
+                );
                 if (!readiness.CanClose)
                     return Result.Failure(OrganizationClosureErrors.ReadinessBlocked);
 
-                OrganizationClosureExecutionResult execution = await orchestrator.ExecuteAsync(closure, actor, cancellationToken);
+                OrganizationClosureExecutionResult execution = await orchestrator.ExecuteAsync(
+                    closure,
+                    actor,
+                    cancellationToken
+                );
                 if (!execution.Succeeded)
                     return Result.Failure(OrganizationClosureErrors.OrchestrationFailed);
 
@@ -68,9 +84,17 @@ internal sealed class TransitionOrganizationClosureCommandHandler(
 
         await unitOfWork.CommitAsync(cancellationToken);
         await auditSink.WriteAsync(
-            $"OrganizationClosure{command.Action}", closure.OrganizationId, closure.Id, actor,
-            new Dictionary<string, object?> { ["status"] = closure.Status.ToString(), ["revision"] = closure.Revision },
-            cancellationToken);
+            $"OrganizationClosure{command.Action}",
+            closure.OrganizationId,
+            closure.Id,
+            actor,
+            new Dictionary<string, object?>
+            {
+                ["status"] = closure.Status.ToString(),
+                ["revision"] = closure.Revision,
+            },
+            cancellationToken
+        );
         return Result.Success();
     }
 }

@@ -3,7 +3,6 @@ using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Api.Endpoints.Organization.OrganizationSequences;
 
-
 public sealed record CreateOrganizationSequenceRequest(
     Guid? BranchId,
     OrganizationSequenceScope Scope,
@@ -11,11 +10,10 @@ public sealed record CreateOrganizationSequenceRequest(
     string Pattern,
     int Padding,
     long InitialValue,
-    OrganizationSequenceResetPolicy ResetPolicy);
+    OrganizationSequenceResetPolicy ResetPolicy
+);
 
-public sealed record ReserveOrganizationSequenceNumberRequest(
-    Guid? BranchId,
-    string Code);
+public sealed record ReserveOrganizationSequenceNumberRequest(Guid? BranchId, string Code);
 
 public sealed record ChangeOrganizationSequenceStatusRequest(int ExpectedRevision);
 
@@ -38,7 +36,8 @@ public sealed record OrganizationSequenceResponseContract(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);
 
 public sealed record OrganizationSequenceListItemContract(
     Guid Id,
@@ -50,7 +49,8 @@ public sealed record OrganizationSequenceListItemContract(
     long NextValue,
     string ResetPolicy,
     string Status,
-    int Revision);
+    int Revision
+);
 
 internal sealed record CreateOrganizationSequenceApiModel(
     OrganizationId OrganizationId,
@@ -60,14 +60,17 @@ internal sealed record CreateOrganizationSequenceApiModel(
     string Pattern,
     int Padding,
     long InitialValue,
-    OrganizationSequenceResetPolicy ResetPolicy);
+    OrganizationSequenceResetPolicy ResetPolicy
+);
 
 internal sealed record ReserveOrganizationSequenceNumberApiModel(
     OrganizationId OrganizationId,
     BranchId? BranchId,
-    string Code);
+    string Code
+);
 
 internal sealed record ChangeOrganizationSequenceStatusApiModel(
     OrganizationId OrganizationId,
     OrganizationSequenceId SequenceId,
-    int ExpectedRevision);
+    int ExpectedRevision
+);

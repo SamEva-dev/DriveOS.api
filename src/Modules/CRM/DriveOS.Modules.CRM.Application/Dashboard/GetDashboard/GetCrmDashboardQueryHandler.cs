@@ -4,12 +4,13 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.CRM.Application.Dashboard.GetDashboard;
 
-public sealed class GetCrmDashboardQueryHandler(
-    ICrmDashboardReadService readService,
-    IClock clock) : IQueryHandler<GetCrmDashboardQuery, CrmDashboardResponse>
+public sealed class GetCrmDashboardQueryHandler(ICrmDashboardReadService readService, IClock clock)
+    : IQueryHandler<GetCrmDashboardQuery, CrmDashboardResponse>
 {
     public async Task<Result<CrmDashboardResponse>> Handle(
-        GetCrmDashboardQuery query, CancellationToken cancellationToken)
+        GetCrmDashboardQuery query,
+        CancellationToken cancellationToken
+    )
     {
         CrmDashboardResponse response = await readService.GetAsync(
             query.OrganizationIds,
@@ -18,7 +19,8 @@ public sealed class GetCrmDashboardQueryHandler(
                 : null,
             query.Filters,
             clock.UtcNow,
-            cancellationToken);
+            cancellationToken
+        );
 
         return Result.Success(response);
     }

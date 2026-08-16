@@ -1,6 +1,9 @@
 using FluentValidation;
+
 namespace DriveOS.Modules.Organizations.Application.BranchConfigurationOverrides.UpdateDraft;
-public sealed class UpdateBranchConfigurationOverrideDraftCommandValidator : AbstractValidator<UpdateBranchConfigurationOverrideDraftCommand>
+
+public sealed class UpdateBranchConfigurationOverrideDraftCommandValidator
+    : AbstractValidator<UpdateBranchConfigurationOverrideDraftCommand>
 {
     public UpdateBranchConfigurationOverrideDraftCommandValidator()
     {

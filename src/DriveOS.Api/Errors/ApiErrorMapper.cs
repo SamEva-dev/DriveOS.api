@@ -4,29 +4,21 @@ namespace DriveOS.Api.Errors;
 
 public static class ApiErrorMapper
 {
-    public static IResult ToHttpResult(
-        this Error error,
-        HttpContext httpContext)
+    public static IResult ToHttpResult(this Error error, HttpContext httpContext)
     {
         int statusCode = error.Type switch
         {
-            ErrorType.Validation =>
-                StatusCodes.Status400BadRequest,
+            ErrorType.Validation => StatusCodes.Status400BadRequest,
 
-            ErrorType.Unauthorized =>
-                StatusCodes.Status401Unauthorized,
+            ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
 
-            ErrorType.Forbidden =>
-                StatusCodes.Status403Forbidden,
+            ErrorType.Forbidden => StatusCodes.Status403Forbidden,
 
-            ErrorType.NotFound =>
-                StatusCodes.Status404NotFound,
+            ErrorType.NotFound => StatusCodes.Status404NotFound,
 
-            ErrorType.Conflict =>
-                StatusCodes.Status409Conflict,
+            ErrorType.Conflict => StatusCodes.Status409Conflict,
 
-            _ =>
-                StatusCodes.Status500InternalServerError
+            _ => StatusCodes.Status500InternalServerError,
         };
 
         var response = new ApiErrorResponse(
@@ -34,10 +26,9 @@ public static class ApiErrorMapper
             Code: error.Code,
             MessageKey: error.MessageKey,
             Parameters: error.Parameters,
-            TraceId: httpContext.TraceIdentifier);
+            TraceId: httpContext.TraceIdentifier
+        );
 
-        return Results.Json(
-            response,
-            statusCode: statusCode);
+        return Results.Json(response, statusCode: statusCode);
     }
 }

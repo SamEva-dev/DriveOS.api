@@ -8,5 +8,5 @@ public sealed record UpdateOrganizationContactCommand(
     string? Email,
     string? Phone,
     string? Website,
-    int ExpectedVersion)
-    : ICommand;
+    int ExpectedVersion
+) : ICommand;

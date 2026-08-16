@@ -8,9 +8,7 @@ namespace DriveOS.Modules.CRM.Domain.Leads;
 
 public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
 {
-    private Lead()
-    {
-    }
+    private Lead() { }
 
     private Lead(
         LeadId id,
@@ -19,7 +17,8 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         LeadIdentity identity,
         RequestedTraining requestedTraining,
         LeadSource source,
-        UserId? assignedAdvisorId)
+        UserId? assignedAdvisorId
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -81,7 +80,8 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         LeadIdentity identity,
         RequestedTraining requestedTraining,
         LeadSource source,
-        UserId? assignedAdvisorId = null)
+        UserId? assignedAdvisorId = null
+    )
     {
         if (id.IsEmpty)
         {
@@ -104,7 +104,8 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
             identity,
             requestedTraining,
             source,
-            assignedAdvisorId);
+            assignedAdvisorId
+        );
 
         lead.RaiseDomainEvent(
             new LeadCreatedDomainEvent(
@@ -114,7 +115,9 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
                 lead.Identity.FirstName,
                 lead.Identity.LastName,
                 lead.RequestedTraining.LicenseCategory,
-                lead.Source.Type));
+                lead.Source.Type
+            )
+        );
 
         return Result.Success(lead);
     }
@@ -123,7 +126,8 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         BranchId? branchId,
         LeadIdentity identity,
         RequestedTraining requestedTraining,
-        LeadSource source)
+        LeadSource source
+    )
     {
         ArgumentNullException.ThrowIfNull(identity);
         ArgumentNullException.ThrowIfNull(requestedTraining);
@@ -134,11 +138,7 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         RequestedTraining = requestedTraining;
         Source = source;
 
-        RaiseDomainEvent(
-            new LeadInformationUpdatedDomainEvent(
-                Id,
-                OrganizationId,
-                BranchId));
+        RaiseDomainEvent(new LeadInformationUpdatedDomainEvent(Id, OrganizationId, BranchId));
 
         return Result.Success();
     }
@@ -169,9 +169,7 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
             return Result.Failure(LeadErrors.InvalidStatusTransition);
         }
 
-        string? normalizedReason = string.IsNullOrWhiteSpace(reason)
-            ? null
-            : reason.Trim();
+        string? normalizedReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
 
         if (targetStatus == LeadStatus.Lost && normalizedReason is null)
         {
@@ -185,12 +183,15 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
 
         LeadStatus previousStatus = Status;
         Status = targetStatus;
-        RaiseDomainEvent(new LeadStatusChangedDomainEvent(
-            Id,
-            OrganizationId,
-            previousStatus,
-            targetStatus,
-            normalizedReason));
+        RaiseDomainEvent(
+            new LeadStatusChangedDomainEvent(
+                Id,
+                OrganizationId,
+                previousStatus,
+                targetStatus,
+                normalizedReason
+            )
+        );
 
         return Result.Success();
     }
@@ -213,8 +214,12 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         return Result.Success();
     }
 
-    public Result Close(LeadStatus decision, LeadClosureReason reason, string? comment,
-        DateTimeOffset closedAtUtc)
+    public Result Close(
+        LeadStatus decision,
+        LeadClosureReason reason,
+        string? comment,
+        DateTimeOffset closedAtUtc
+    )
     {
         if (!IsClosureDecision(decision) || !Enum.IsDefined(reason))
             return Result.Failure(LeadErrors.InvalidClosureDecision);
@@ -230,19 +235,32 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         ClosedAtUtc = closedAtUtc.ToUniversalTime();
         AutomaticFollowUpsEnabled = false;
         ClearDormancy();
-        RaiseDomainEvent(new LeadStatusChangedDomainEvent(Id, OrganizationId, previous, decision, ClosureComment));
-        RaiseDomainEvent(new LeadMarkedLostDomainEvent(Id, OrganizationId, decision, reason, ClosureComment));
+        RaiseDomainEvent(
+            new LeadStatusChangedDomainEvent(Id, OrganizationId, previous, decision, ClosureComment)
+        );
+        RaiseDomainEvent(
+            new LeadMarkedLostDomainEvent(Id, OrganizationId, decision, reason, ClosureComment)
+        );
         return Result.Success();
     }
 
-    public Result SetDormant(LeadClosureReason reason, DateTimeOffset resumeAtUtc,
-        UserId responsibleUserId, string? campaignCode, string? comment, DateTimeOffset nowUtc)
+    public Result SetDormant(
+        LeadClosureReason reason,
+        DateTimeOffset resumeAtUtc,
+        UserId responsibleUserId,
+        string? campaignCode,
+        string? comment,
+        DateTimeOffset nowUtc
+    )
     {
-        if (!Enum.IsDefined(reason)) return Result.Failure(LeadErrors.InvalidClosureReason);
-        if (responsibleUserId.IsEmpty) return Result.Failure(LeadErrors.DormancyResponsibleRequired);
+        if (!Enum.IsDefined(reason))
+            return Result.Failure(LeadErrors.InvalidClosureReason);
+        if (responsibleUserId.IsEmpty)
+            return Result.Failure(LeadErrors.DormancyResponsibleRequired);
         if (resumeAtUtc.ToUniversalTime() <= nowUtc.ToUniversalTime())
             return Result.Failure(LeadErrors.ResumeDateMustBeFuture);
-        if (campaignCode?.Trim().Length > 100) return Result.Failure(LeadErrors.CampaignCodeTooLong);
+        if (campaignCode?.Trim().Length > 100)
+            return Result.Failure(LeadErrors.CampaignCodeTooLong);
 
         Status = LeadStatus.Dormant;
         ClosureReason = reason;
@@ -252,17 +270,32 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         DormancyResponsibleUserId = responsibleUserId;
         DormancyCampaignCode = string.IsNullOrWhiteSpace(campaignCode) ? null : campaignCode.Trim();
         AutomaticFollowUpsEnabled = false;
-        RaiseDomainEvent(new LeadMarkedDormantDomainEvent(Id, OrganizationId, reason,
-            ResumeAtUtc.Value, responsibleUserId));
+        RaiseDomainEvent(
+            new LeadMarkedDormantDomainEvent(
+                Id,
+                OrganizationId,
+                reason,
+                ResumeAtUtc.Value,
+                responsibleUserId
+            )
+        );
         return Result.Success();
     }
 
-    public Result ReferToPartner(string partnerName, string sharedDataDescription,
-        DateTimeOffset consentCollectedAtUtc, string? comment, DateTimeOffset referredAtUtc)
+    public Result ReferToPartner(
+        string partnerName,
+        string sharedDataDescription,
+        DateTimeOffset consentCollectedAtUtc,
+        string? comment,
+        DateTimeOffset referredAtUtc
+    )
     {
         if (string.IsNullOrWhiteSpace(partnerName) || partnerName.Trim().Length > 200)
             return Result.Failure(LeadErrors.PartnerNameInvalid);
-        if (string.IsNullOrWhiteSpace(sharedDataDescription) || sharedDataDescription.Trim().Length > 2000)
+        if (
+            string.IsNullOrWhiteSpace(sharedDataDescription)
+            || sharedDataDescription.Trim().Length > 2000
+        )
             return Result.Failure(LeadErrors.SharedDataDescriptionInvalid);
         if (consentCollectedAtUtc == default || consentCollectedAtUtc > referredAtUtc)
             return Result.Failure(LeadErrors.ReferralConsentRequired);
@@ -275,21 +308,31 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         SharedDataDescription = sharedDataDescription.Trim();
         ReferralConsentCollectedAtUtc = consentCollectedAtUtc.ToUniversalTime();
         AutomaticFollowUpsEnabled = false;
-        RaiseDomainEvent(new LeadReferredToPartnerDomainEvent(Id, OrganizationId,
-            ReferredPartnerName, SharedDataDescription, ReferralConsentCollectedAtUtc.Value));
+        RaiseDomainEvent(
+            new LeadReferredToPartnerDomainEvent(
+                Id,
+                OrganizationId,
+                ReferredPartnerName,
+                SharedDataDescription,
+                ReferralConsentCollectedAtUtc.Value
+            )
+        );
         return Result.Success();
     }
 
     public Result Reopen(string? comment, DateTimeOffset reopenedAtUtc)
     {
-        if (!IsClosed(Status)) return Result.Failure(LeadErrors.ReopenNotAllowed);
+        if (!IsClosed(Status))
+            return Result.Failure(LeadErrors.ReopenNotAllowed);
         LeadStatus previous = Status;
         Status = LeadStatus.New;
         ReopenedAtUtc = reopenedAtUtc.ToUniversalTime();
         AutomaticFollowUpsEnabled = true;
         ClosureComment = string.IsNullOrWhiteSpace(comment) ? ClosureComment : comment.Trim();
         ClearDormancy();
-        RaiseDomainEvent(new LeadReopenedDomainEvent(Id, OrganizationId, previous, comment?.Trim()));
+        RaiseDomainEvent(
+            new LeadReopenedDomainEvent(Id, OrganizationId, previous, comment?.Trim())
+        );
         return Result.Success();
     }
 
@@ -300,18 +343,30 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         DormancyCampaignCode = null;
     }
 
-    private static bool IsClosureDecision(LeadStatus status) => status is LeadStatus.Lost
-        or LeadStatus.NotEligible or LeadStatus.OutOfScope or LeadStatus.Duplicate
-        or LeadStatus.NoResponse or LeadStatus.CancelledByLead or LeadStatus.ConvertedElsewhere;
+    private static bool IsClosureDecision(LeadStatus status) =>
+        status
+            is LeadStatus.Lost
+                or LeadStatus.NotEligible
+                or LeadStatus.OutOfScope
+                or LeadStatus.Duplicate
+                or LeadStatus.NoResponse
+                or LeadStatus.CancelledByLead
+                or LeadStatus.ConvertedElsewhere;
 
-    private static bool IsClosed(LeadStatus status) => IsClosureDecision(status)
+    private static bool IsClosed(LeadStatus status) =>
+        IsClosureDecision(status)
         || status is LeadStatus.Dormant or LeadStatus.TransferredToPartner;
 
-    public Result MarkConverted(PersonId personId, DraftEnrollmentId draftEnrollmentId, DateTimeOffset convertedAtUtc)
+    public Result MarkConverted(
+        PersonId personId,
+        DraftEnrollmentId draftEnrollmentId,
+        DateTimeOffset convertedAtUtc
+    )
     {
         if (ConvertedPersonId.HasValue && DraftEnrollmentId.HasValue)
         {
-            return ConvertedPersonId.Value == personId && DraftEnrollmentId.Value == draftEnrollmentId
+            return
+                ConvertedPersonId.Value == personId && DraftEnrollmentId.Value == draftEnrollmentId
                 ? Result.Success()
                 : Result.Failure(LeadErrors.AlreadyConverted);
         }
@@ -334,8 +389,15 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         ConvertedPersonId = personId;
         DraftEnrollmentId = draftEnrollmentId;
         ConvertedAtUtc = convertedAtUtc.ToUniversalTime();
-        RaiseDomainEvent(new ProspectConvertedDomainEvent(
-            Id, OrganizationId, personId, draftEnrollmentId, ConvertedAtUtc.Value));
+        RaiseDomainEvent(
+            new ProspectConvertedDomainEvent(
+                Id,
+                OrganizationId,
+                personId,
+                draftEnrollmentId,
+                ConvertedAtUtc.Value
+            )
+        );
 
         return Result.Success();
     }
@@ -343,20 +405,35 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
     private static bool CanTransition(LeadStatus current, LeadStatus target) =>
         current switch
         {
-            LeadStatus.New => target is LeadStatus.Contacted or LeadStatus.Lost or LeadStatus.Dormant,
+            LeadStatus.New => target
+                is LeadStatus.Contacted
+                    or LeadStatus.Lost
+                    or LeadStatus.Dormant,
             LeadStatus.Contacted => target is LeadStatus.Lost or LeadStatus.Dormant,
-            LeadStatus.Qualified => target is LeadStatus.AssessmentScheduled or LeadStatus.OfferSent or LeadStatus.Lost or LeadStatus.Dormant,
-            LeadStatus.AssessmentScheduled => target is LeadStatus.OfferSent or LeadStatus.Lost or LeadStatus.Dormant,
-            LeadStatus.OfferSent => target is LeadStatus.Negotiation or LeadStatus.Won or LeadStatus.Lost or LeadStatus.Dormant,
-            LeadStatus.Negotiation => target is LeadStatus.Won or LeadStatus.Lost or LeadStatus.Dormant,
+            LeadStatus.Qualified => target
+                is LeadStatus.AssessmentScheduled
+                    or LeadStatus.OfferSent
+                    or LeadStatus.Lost
+                    or LeadStatus.Dormant,
+            LeadStatus.AssessmentScheduled => target
+                is LeadStatus.OfferSent
+                    or LeadStatus.Lost
+                    or LeadStatus.Dormant,
+            LeadStatus.OfferSent => target
+                is LeadStatus.Negotiation
+                    or LeadStatus.Won
+                    or LeadStatus.Lost
+                    or LeadStatus.Dormant,
+            LeadStatus.Negotiation => target
+                is LeadStatus.Won
+                    or LeadStatus.Lost
+                    or LeadStatus.Dormant,
             LeadStatus.Lost or LeadStatus.Dormant => target == LeadStatus.New,
             LeadStatus.Won => false,
-            _ => false
+            _ => false,
         };
 
-    public void SetCreatedAudit(
-        DateTimeOffset createdAtUtc,
-        UserId? createdByUserId)
+    public void SetCreatedAudit(DateTimeOffset createdAtUtc, UserId? createdByUserId)
     {
         if (CreatedAtUtc != default)
         {
@@ -367,9 +444,7 @@ public sealed class Lead : AggregateRoot<LeadId>, IAuditableEntity
         CreatedByUserId = createdByUserId;
     }
 
-    public void SetModifiedAudit(
-        DateTimeOffset modifiedAtUtc,
-        UserId? modifiedByUserId)
+    public void SetModifiedAudit(DateTimeOffset modifiedAtUtc, UserId? modifiedByUserId)
     {
         LastModifiedAtUtc = modifiedAtUtc;
         LastModifiedByUserId = modifiedByUserId;

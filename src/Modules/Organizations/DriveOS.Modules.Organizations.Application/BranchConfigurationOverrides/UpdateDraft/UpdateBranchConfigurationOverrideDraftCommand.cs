@@ -9,4 +9,5 @@ public sealed record UpdateBranchConfigurationOverrideDraftCommand(
     BranchId BranchId,
     BranchConfigurationOverrideId OverrideId,
     string PayloadJson,
-    int ExpectedRevision) : ICommand;
+    int ExpectedRevision
+) : ICommand;

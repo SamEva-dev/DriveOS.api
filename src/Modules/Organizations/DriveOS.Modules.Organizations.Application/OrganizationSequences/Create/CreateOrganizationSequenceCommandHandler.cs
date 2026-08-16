@@ -14,22 +14,25 @@ internal sealed class CreateOrganizationSequenceCommandHandler(
     IBranchReadService branchReadService,
     IOrganizationSequenceRepository sequenceRepository,
     IUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
-    : ICommandHandler<CreateOrganizationSequenceCommand, OrganizationSequenceId>
+    ICurrentUser currentUser
+) : ICommandHandler<CreateOrganizationSequenceCommand, OrganizationSequenceId>
 {
     public async Task<Result<OrganizationSequenceId>> Handle(
         CreateOrganizationSequenceCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
         {
             return Result.Failure<OrganizationSequenceId>(
-                OrganizationSequenceErrors.CurrentUserRequired);
+                OrganizationSequenceErrors.CurrentUserRequired
+            );
         }
 
         var organization = await organizationReadService.GetByIdAsync(
             command.OrganizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (organization is null)
         {
@@ -39,7 +42,8 @@ internal sealed class CreateOrganizationSequenceCommandHandler(
         if (organization.Status is "Suspended" or "Closed" or "Archived")
         {
             return Result.Failure<OrganizationSequenceId>(
-                OrganizationSequenceErrors.OrganizationUnavailable);
+                OrganizationSequenceErrors.OrganizationUnavailable
+            );
         }
 
         if (command.Scope == OrganizationSequenceScope.Branch)
@@ -47,35 +51,39 @@ internal sealed class CreateOrganizationSequenceCommandHandler(
             if (command.BranchId is null)
             {
                 return Result.Failure<OrganizationSequenceId>(
-                    OrganizationSequenceErrors.BranchRequired);
+                    OrganizationSequenceErrors.BranchRequired
+                );
             }
 
             var branch = await branchReadService.GetByIdAsync(
                 command.OrganizationId,
                 command.BranchId.Value,
-                cancellationToken);
+                cancellationToken
+            );
 
             if (branch is null)
             {
                 return Result.Failure<OrganizationSequenceId>(
-                    OrganizationSequenceErrors.BranchNotFound);
+                    OrganizationSequenceErrors.BranchNotFound
+                );
             }
         }
 
         string normalizedCode = command.Code.Trim().ToUpperInvariant();
 
-        if (await sequenceRepository.ExistsAsync(
+        if (
+            await sequenceRepository.ExistsAsync(
                 command.OrganizationId,
                 command.BranchId,
                 normalizedCode,
-                cancellationToken))
+                cancellationToken
+            )
+        )
         {
-            return Result.Failure<OrganizationSequenceId>(
-                OrganizationSequenceErrors.AlreadyExists);
+            return Result.Failure<OrganizationSequenceId>(OrganizationSequenceErrors.AlreadyExists);
         }
 
-        Result<SequencePattern> patternResult =
-            SequencePattern.Create(command.Pattern);
+        Result<SequencePattern> patternResult = SequencePattern.Create(command.Pattern);
 
         if (patternResult.IsFailure)
         {
@@ -91,7 +99,8 @@ internal sealed class CreateOrganizationSequenceCommandHandler(
             patternResult.Value,
             command.Padding,
             command.InitialValue,
-            command.ResetPolicy);
+            command.ResetPolicy
+        );
 
         if (sequenceResult.IsFailure)
         {

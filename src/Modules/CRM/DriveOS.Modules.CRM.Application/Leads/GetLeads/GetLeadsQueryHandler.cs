@@ -10,7 +10,8 @@ public sealed class GetLeadsQueryHandler(ILeadReadService leadReadService)
 {
     public async Task<Result<PagedResult<LeadListItem>>> Handle(
         GetLeadsQuery query,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         PagedResult<LeadListItem> page = await leadReadService.GetPagedAsync(
             query.OrganizationId,
@@ -24,7 +25,8 @@ public sealed class GetLeadsQueryHandler(ILeadReadService leadReadService)
             query.UnassignedOnly,
             query.SortBy,
             query.SortDirection,
-            cancellationToken);
+            cancellationToken
+        );
 
         return Result.Success(page);
     }

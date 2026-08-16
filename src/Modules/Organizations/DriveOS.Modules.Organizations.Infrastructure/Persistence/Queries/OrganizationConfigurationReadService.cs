@@ -6,26 +6,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Queries;
 
-internal sealed class OrganizationConfigurationReadService(
-    OrganizationsDbContext dbContext)
+internal sealed class OrganizationConfigurationReadService(OrganizationsDbContext dbContext)
     : IOrganizationConfigurationReadService
 {
     public async Task<OrganizationConfigurationResponse?> GetByIdAsync(
         OrganizationId organizationId,
         OrganizationConfigurationId configurationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         // Status is persisted as a string ("Draft", "Published", ...).
         // Casting the enum to int inside the EF projection makes Npgsql try
         // to cast that text column to integer (e.g. "Draft"::integer), which
         // fails with PostgreSQL 22P02. Materialize first, then cast in memory.
-        var configuration = await dbContext.OrganizationConfigurations
-            .AsNoTracking()
+        var configuration = await dbContext
+            .OrganizationConfigurations.AsNoTracking()
             .SingleOrDefaultAsync(
                 candidate =>
-                    candidate.OrganizationId == organizationId &&
-                    candidate.Id == configurationId,
-                cancellationToken);
+                    candidate.OrganizationId == organizationId && candidate.Id == configurationId,
+                cancellationToken
+            );
 
         if (configuration is null)
         {
@@ -53,15 +53,17 @@ internal sealed class OrganizationConfigurationReadService(
             configuration.LastModifiedAtUtc,
             configuration.LastModifiedByUserId.HasValue
                 ? configuration.LastModifiedByUserId.Value.Value
-                : null);
+                : null
+        );
     }
 
     public async Task<IReadOnlyList<OrganizationConfigurationListItemResponse>> GetVersionsAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        var configurations = await dbContext.OrganizationConfigurations
-            .AsNoTracking()
+        var configurations = await dbContext
+            .OrganizationConfigurations.AsNoTracking()
             .Where(configuration => configuration.OrganizationId == organizationId)
             .OrderByDescending(configuration => configuration.VersionNumber)
             .ToListAsync(cancellationToken);
@@ -76,7 +78,8 @@ internal sealed class OrganizationConfigurationReadService(
                 configuration.EffectiveToUtc,
                 configuration.PublishedAtUtc,
                 configuration.Revision,
-                configuration.CreatedAtUtc))
+                configuration.CreatedAtUtc
+            ))
             .ToList();
     }
 }

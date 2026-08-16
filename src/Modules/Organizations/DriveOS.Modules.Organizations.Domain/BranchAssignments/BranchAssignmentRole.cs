@@ -1,5 +1,4 @@
-﻿namespace DriveOS.Modules.Organizations.Domain
-    .BranchAssignments;
+﻿namespace DriveOS.Modules.Organizations.Domain.BranchAssignments;
 
 public enum BranchAssignmentRole
 {

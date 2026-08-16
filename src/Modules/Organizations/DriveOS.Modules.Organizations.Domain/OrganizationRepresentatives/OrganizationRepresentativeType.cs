@@ -9,5 +9,5 @@ public enum OrganizationRepresentativeType
     AdministrativeRepresentative = 5,
     BillingRepresentative = 6,
     DataProtectionRepresentative = 7,
-    Other = 99
+    Other = 99,
 }

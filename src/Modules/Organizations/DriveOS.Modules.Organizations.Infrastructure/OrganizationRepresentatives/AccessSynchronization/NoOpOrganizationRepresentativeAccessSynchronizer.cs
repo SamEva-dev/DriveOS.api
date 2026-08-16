@@ -5,9 +5,14 @@ namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentativ
 internal sealed class NoOpOrganizationRepresentativeAccessSynchronizer
     : IOrganizationRepresentativeAccessSynchronizer
 {
-    public Task SynchronizeAsync(OrganizationRepresentativeAccessSnapshot representative, CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    public Task SynchronizeAsync(
+        OrganizationRepresentativeAccessSnapshot representative,
+        CancellationToken cancellationToken = default
+    ) => Task.CompletedTask;
 
-    public Task RevokeAsync(OrganizationRepresentativeAccessSnapshot representative, string reason, CancellationToken cancellationToken = default)
-        => Task.CompletedTask;
+    public Task RevokeAsync(
+        OrganizationRepresentativeAccessSnapshot representative,
+        string reason,
+        CancellationToken cancellationToken = default
+    ) => Task.CompletedTask;
 }

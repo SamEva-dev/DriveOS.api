@@ -11,9 +11,7 @@ internal sealed class AnonymousCurrentUser : ICurrentUser
 
     public string? Email => null;
 
-    public IReadOnlySet<string> Permissions { get; } =
-        new HashSet<string>();
+    public IReadOnlySet<string> Permissions { get; } = new HashSet<string>();
 
-    public bool HasPermission(string permission) =>
-        false;
+    public bool HasPermission(string permission) => false;
 }

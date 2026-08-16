@@ -17,7 +17,8 @@ public sealed class GetOrganizationSettingsQueryHandlerSuccessTests
 
         var result = await handler.Handle(
             new GetOrganizationSettingsQuery(organizationId),
-            CancellationToken.None);
+            CancellationToken.None
+        );
 
         Assert.True(result.IsSuccess);
         Assert.Same(expected, result.Value);
@@ -56,7 +57,8 @@ public sealed class GetOrganizationSettingsQueryHandlerSuccessTests
             null,
             1,
             DateTimeOffset.UtcNow,
-            null);
+            null
+        );
 
     private sealed class CapturingReadService(OrganizationSettingsResponse response)
         : IOrganizationSettingsReadService
@@ -65,7 +67,8 @@ public sealed class GetOrganizationSettingsQueryHandlerSuccessTests
 
         public Task<OrganizationSettingsResponse?> GetByOrganizationIdAsync(
             OrganizationId organizationId,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default
+        )
         {
             RequestedOrganizationId = organizationId;
             return Task.FromResult<OrganizationSettingsResponse?>(response);

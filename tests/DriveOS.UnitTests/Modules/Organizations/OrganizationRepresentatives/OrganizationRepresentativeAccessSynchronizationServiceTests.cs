@@ -38,25 +38,43 @@ public sealed class OrganizationRepresentativeAccessSynchronizationServiceTests
     private static OrganizationRepresentative CreateRepresentative(bool withUser)
     {
         var scope = RepresentativeAuthorityScope.Create("General representation").Value;
-        return OrganizationRepresentative.Create(
-            OrganizationRepresentativeId.New(),
-            new OrganizationId(Guid.NewGuid()),
-            new PersonId(Guid.NewGuid()),
-            withUser ? new UserId(Guid.NewGuid()) : null,
-            OrganizationRepresentativeType.LegalRepresentative,
-            scope,
-            false,
-            new DateOnly(2026, 1, 1),
-            null).Value;
+        return OrganizationRepresentative
+            .Create(
+                OrganizationRepresentativeId.New(),
+                new OrganizationId(Guid.NewGuid()),
+                new PersonId(Guid.NewGuid()),
+                withUser ? new UserId(Guid.NewGuid()) : null,
+                OrganizationRepresentativeType.LegalRepresentative,
+                scope,
+                false,
+                new DateOnly(2026, 1, 1),
+                null
+            )
+            .Value;
     }
 
     private sealed class FakeSynchronizer : IOrganizationRepresentativeAccessSynchronizer
     {
         public int SynchronizeCalls { get; private set; }
         public int RevokeCalls { get; private set; }
-        public Task SynchronizeAsync(OrganizationRepresentativeAccessSnapshot representative, CancellationToken cancellationToken = default)
-        { SynchronizeCalls++; return Task.CompletedTask; }
-        public Task RevokeAsync(OrganizationRepresentativeAccessSnapshot representative, string reason, CancellationToken cancellationToken = default)
-        { RevokeCalls++; return Task.CompletedTask; }
+
+        public Task SynchronizeAsync(
+            OrganizationRepresentativeAccessSnapshot representative,
+            CancellationToken cancellationToken = default
+        )
+        {
+            SynchronizeCalls++;
+            return Task.CompletedTask;
+        }
+
+        public Task RevokeAsync(
+            OrganizationRepresentativeAccessSnapshot representative,
+            string reason,
+            CancellationToken cancellationToken = default
+        )
+        {
+            RevokeCalls++;
+            return Task.CompletedTask;
+        }
     }
 }

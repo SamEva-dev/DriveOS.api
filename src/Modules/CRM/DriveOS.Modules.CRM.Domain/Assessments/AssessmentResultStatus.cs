@@ -6,12 +6,12 @@ public enum AssessmentResultStatus
     Draft = 1,
     CorrectionRequested = 2,
     Validated = 3,
-    Shared = 4
+    Shared = 4,
 }
 
 public enum AssessmentResultConfidence
 {
     Low = 0,
     Medium = 1,
-    High = 2
+    High = 2,
 }

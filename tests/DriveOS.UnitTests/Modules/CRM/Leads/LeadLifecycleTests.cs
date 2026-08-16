@@ -85,10 +85,18 @@ public sealed class LeadLifecycleTests
             null,
             LeadIdentity.Create("Jane", "Doe", "jane@example.com", null).Value,
             RequestedTraining.Create("B", TransmissionPreference.Manual, null).Value,
-            LeadSource.Create(LeadSourceType.Website).Value).Value;
+            LeadSource.Create(LeadSourceType.Website).Value
+        ).Value;
 
     private static LeadQualification CreateQualification() =>
-        LeadQualification.Create("Obtenir le permis pour travailler", "B",
-            "Soirs et samedi", new DateOnly(2026, 12, 1), FinancingOption.CPF,
-            "Dossier CPF à vérifier").Value;
+        LeadQualification
+            .Create(
+                "Obtenir le permis pour travailler",
+                "B",
+                "Soirs et samedi",
+                new DateOnly(2026, 12, 1),
+                FinancingOption.CPF,
+                "Dossier CPF à vérifier"
+            )
+            .Value;
 }

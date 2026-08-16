@@ -6,17 +6,34 @@ namespace DriveOS.Modules.CRM.Domain.Assessments;
 public sealed class AssessmentSessionRevision : Entity<AssessmentSessionRevisionId>
 {
     private AssessmentSessionRevision() { }
-    private AssessmentSessionRevision(AssessmentSessionRevisionId id, AssessmentSession session, UserId savedByUserId, DateTimeOffset savedAtUtc) : base(id)
+
+    private AssessmentSessionRevision(
+        AssessmentSessionRevisionId id,
+        AssessmentSession session,
+        UserId savedByUserId,
+        DateTimeOffset savedAtUtc
+    )
+        : base(id)
     {
-        OrganizationId = session.OrganizationId; SessionId = session.Id; Revision = session.Revision;
-        AnswersJson = session.AnswersJson; FactualObservations = session.FactualObservations;
-        PedagogicalInterpretation = session.PedagogicalInterpretation; Recommendation = session.Recommendation;
-        InternalNotes = session.InternalNotes; ProspectComment = session.ProspectComment;
-        ResultJson = session.ResultJson; AiSuggestionJson = session.AiSuggestionJson;
-        ResultConfidence = session.ResultConfidence; ResultStatus = session.ResultStatus;
+        OrganizationId = session.OrganizationId;
+        SessionId = session.Id;
+        Revision = session.Revision;
+        AnswersJson = session.AnswersJson;
+        FactualObservations = session.FactualObservations;
+        PedagogicalInterpretation = session.PedagogicalInterpretation;
+        Recommendation = session.Recommendation;
+        InternalNotes = session.InternalNotes;
+        ProspectComment = session.ProspectComment;
+        ResultJson = session.ResultJson;
+        AiSuggestionJson = session.AiSuggestionJson;
+        ResultConfidence = session.ResultConfidence;
+        ResultStatus = session.ResultStatus;
         CorrectionReason = session.CorrectionReason;
-        Status = session.Status; SavedByUserId = savedByUserId; SavedAtUtc = savedAtUtc.ToUniversalTime();
+        Status = session.Status;
+        SavedByUserId = savedByUserId;
+        SavedAtUtc = savedAtUtc.ToUniversalTime();
     }
+
     public OrganizationId OrganizationId { get; private set; }
     public AssessmentSessionId SessionId { get; private set; }
     public int Revision { get; private set; }
@@ -34,6 +51,10 @@ public sealed class AssessmentSessionRevision : Entity<AssessmentSessionRevision
     public AssessmentSessionStatus Status { get; private set; }
     public UserId SavedByUserId { get; private set; }
     public DateTimeOffset SavedAtUtc { get; private set; }
-    public static AssessmentSessionRevision Capture(AssessmentSession session, UserId savedByUserId, DateTimeOffset savedAtUtc) =>
-        new(AssessmentSessionRevisionId.New(), session, savedByUserId, savedAtUtc);
+
+    public static AssessmentSessionRevision Capture(
+        AssessmentSession session,
+        UserId savedByUserId,
+        DateTimeOffset savedAtUtc
+    ) => new(AssessmentSessionRevisionId.New(), session, savedByUserId, savedAtUtc);
 }

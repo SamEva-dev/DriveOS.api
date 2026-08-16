@@ -17,7 +17,8 @@ public sealed record BranchConfigurationOverrideResponse(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);
 
 public sealed record BranchConfigurationOverrideListItemResponse(
     Guid Id,
@@ -29,4 +30,5 @@ public sealed record BranchConfigurationOverrideListItemResponse(
     DateTimeOffset? EffectiveToUtc,
     DateTimeOffset? PublishedAtUtc,
     int Revision,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc
+);

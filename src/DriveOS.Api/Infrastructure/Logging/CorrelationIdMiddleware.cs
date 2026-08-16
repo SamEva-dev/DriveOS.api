@@ -7,43 +7,32 @@ public sealed class CorrelationIdMiddleware
 {
     private readonly RequestDelegate _next;
 
-    public CorrelationIdMiddleware(
-        RequestDelegate next)
+    public CorrelationIdMiddleware(RequestDelegate next)
     {
         _next = next;
     }
 
-    public async Task InvokeAsync(
-        HttpContext httpContext)
+    public async Task InvokeAsync(HttpContext httpContext)
     {
-        string correlationId =
-            ResolveCorrelationId(httpContext);
+        string correlationId = ResolveCorrelationId(httpContext);
 
-        httpContext.TraceIdentifier =
-            correlationId;
+        httpContext.TraceIdentifier = correlationId;
 
-        httpContext.Response.Headers[
-            LoggingConstants.CorrelationIdHeader] =
-            correlationId;
+        httpContext.Response.Headers[LoggingConstants.CorrelationIdHeader] = correlationId;
 
-        using (LogContext.PushProperty(
-                   LoggingConstants.CorrelationIdProperty,
-                   correlationId))
+        using (LogContext.PushProperty(LoggingConstants.CorrelationIdProperty, correlationId))
         {
             await _next(httpContext);
         }
     }
 
-    private static string ResolveCorrelationId(
-        HttpContext httpContext)
+    private static string ResolveCorrelationId(HttpContext httpContext)
     {
-        string? providedCorrelationId =
-            httpContext.Request.Headers[
-                LoggingConstants.CorrelationIdHeader]
-                .FirstOrDefault();
+        string? providedCorrelationId = httpContext
+            .Request.Headers[LoggingConstants.CorrelationIdHeader]
+            .FirstOrDefault();
 
-        if (!string.IsNullOrWhiteSpace(
-                providedCorrelationId))
+        if (!string.IsNullOrWhiteSpace(providedCorrelationId))
         {
             return providedCorrelationId.Trim();
         }

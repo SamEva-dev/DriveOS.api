@@ -11,7 +11,8 @@ public sealed record SubscriptionCancellation
         DateTimeOffset requestedAtUtc,
         DateTimeOffset effectiveAtUtc,
         string reason,
-        UserId requestedByUserId)
+        UserId requestedByUserId
+    )
     {
         RequestedAtUtc = requestedAtUtc;
         EffectiveAtUtc = effectiveAtUtc;
@@ -28,38 +29,46 @@ public sealed record SubscriptionCancellation
         DateTimeOffset requestedAtUtc,
         DateTimeOffset effectiveAtUtc,
         string? reason,
-        UserId requestedByUserId)
+        UserId requestedByUserId
+    )
     {
         string normalizedReason = reason?.Trim() ?? string.Empty;
 
         if (requestedByUserId.IsEmpty)
         {
             return Result.Failure<SubscriptionCancellation>(
-                OrganizationSubscriptionErrors.EmptyActorUserId);
+                OrganizationSubscriptionErrors.EmptyActorUserId
+            );
         }
 
         if (string.IsNullOrWhiteSpace(normalizedReason))
         {
             return Result.Failure<SubscriptionCancellation>(
-                OrganizationSubscriptionErrors.EmptyChangeReason);
+                OrganizationSubscriptionErrors.EmptyChangeReason
+            );
         }
 
         if (normalizedReason.Length > ReasonMaximumLength)
         {
             return Result.Failure<SubscriptionCancellation>(
-                OrganizationSubscriptionErrors.ChangeReasonTooLong(ReasonMaximumLength));
+                OrganizationSubscriptionErrors.ChangeReasonTooLong(ReasonMaximumLength)
+            );
         }
 
         if (effectiveAtUtc < requestedAtUtc)
         {
             return Result.Failure<SubscriptionCancellation>(
-                OrganizationSubscriptionErrors.InvalidCancellationDate);
+                OrganizationSubscriptionErrors.InvalidCancellationDate
+            );
         }
 
-        return Result.Success(new SubscriptionCancellation(
-            requestedAtUtc,
-            effectiveAtUtc,
-            normalizedReason,
-            requestedByUserId));
+        return Result.Success(
+            new SubscriptionCancellation(
+                requestedAtUtc,
+                effectiveAtUtc,
+                normalizedReason,
+                requestedByUserId
+            )
+        );
     }
 }

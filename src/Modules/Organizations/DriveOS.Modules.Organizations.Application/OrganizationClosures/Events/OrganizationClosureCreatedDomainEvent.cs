@@ -7,4 +7,5 @@ public sealed record OrganizationClosureCreatedDomainEvent(
     OrganizationClosureId ClosureId,
     OrganizationId OrganizationId,
     OrganizationClosureReasonCode ReasonCode,
-    DateTimeOffset RequestedEffectiveAtUtc) : DomainEvent;
+    DateTimeOffset RequestedEffectiveAtUtc
+) : DomainEvent;

@@ -15,7 +15,8 @@ public sealed record ConvertLeadCommand(
     bool DuplicateCheckCompleted,
     string? GuardianSummary,
     string? PayerSummary,
-    IReadOnlyCollection<string> RequiredDocumentCodes) : ICommand<ConvertLeadResponse>;
+    IReadOnlyCollection<string> RequiredDocumentCodes
+) : ICommand<ConvertLeadResponse>;
 
 public sealed record ConversionChecklistItem(string Code, bool Completed);
 
@@ -26,4 +27,5 @@ public sealed record ConvertLeadResponse(
     Guid AcceptedOfferId,
     Guid? StudentPersonId,
     Guid? StudentEnrollmentId,
-    IReadOnlyCollection<ConversionChecklistItem> Checklist);
+    IReadOnlyCollection<ConversionChecklistItem> Checklist
+);

@@ -11,5 +11,5 @@ public sealed record CreateBranchConfigurationOverrideDraftCommand(
     OrganizationConfigurationId BaseConfigurationId,
     int VersionNumber,
     string CountryCode,
-    string PayloadJson)
-    : ICommand<BranchConfigurationOverrideId>;
+    string PayloadJson
+) : ICommand<BranchConfigurationOverrideId>;

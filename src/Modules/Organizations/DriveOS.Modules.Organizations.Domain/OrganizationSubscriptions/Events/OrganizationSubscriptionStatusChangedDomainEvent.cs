@@ -9,4 +9,5 @@ public sealed record OrganizationSubscriptionStatusChangedDomainEvent(
     SubscriptionStatus PreviousStatus,
     SubscriptionStatus CurrentStatus,
     string Reason,
-    UserId ChangedByUserId) : DomainEvent;
+    UserId ChangedByUserId
+) : DomainEvent;

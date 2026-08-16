@@ -12,37 +12,44 @@ public sealed record CreateOrganizationSubscriptionRequest(
     DateTimeOffset? TrialStartsAtUtc,
     DateTimeOffset? TrialEndsAtUtc,
     string? ExternalProvider,
-    string? ExternalSubscriptionId);
+    string? ExternalSubscriptionId
+);
 
 public sealed record ChangeOrganizationSubscriptionPlanRequest(
     string PlanCode,
     IReadOnlyCollection<string> EntitlementCodes,
     IReadOnlyDictionary<string, long> Limits,
     int ExpectedVersion,
-    string Reason);
+    string Reason
+);
 
 public sealed record ChangeOrganizationSubscriptionStatusRequest(
     DateTimeOffset? PeriodStartsAtUtc,
     DateTimeOffset? PeriodEndsAtUtc,
     int ExpectedVersion,
-    string Reason);
+    string Reason
+);
 
 public sealed record CancelOrganizationSubscriptionRequest(
     DateTimeOffset EffectiveAtUtc,
     int ExpectedVersion,
-    string Reason);
+    string Reason
+);
 
 public sealed record SubscriptionPeriodResponseContract(
     DateTimeOffset StartsAtUtc,
-    DateTimeOffset? EndsAtUtc);
+    DateTimeOffset? EndsAtUtc
+);
 
 public sealed record SubscriptionCancellationResponseContract(
     DateTimeOffset RequestedAtUtc,
     DateTimeOffset EffectiveAtUtc,
     string Reason,
-    Guid RequestedByUserId);
+    Guid RequestedByUserId
+);
 
 public sealed record SubscriptionEntitlementResponseContract(string Code);
+
 public sealed record SubscriptionLimitResponseContract(string Code, long Value);
 
 public sealed record OrganizationSubscriptionResponseContract(
@@ -60,18 +67,18 @@ public sealed record OrganizationSubscriptionResponseContract(
     IReadOnlyCollection<SubscriptionLimitResponseContract> Limits,
     int Version,
     DateTimeOffset CreatedAtUtc,
-    DateTimeOffset? LastModifiedAtUtc);
+    DateTimeOffset? LastModifiedAtUtc
+);
 
-public sealed record OrganizationEntitlementCheckResponse(
-    string EntitlementCode,
-    bool IsGranted);
+public sealed record OrganizationEntitlementCheckResponse(string EntitlementCode, bool IsGranted);
 
 public sealed record OrganizationLimitCheckResponseContract(
     string LimitCode,
     int Availability,
     long? Limit,
     long CurrentUsage,
-    long RequestedIncrease);
+    long RequestedIncrease
+);
 
 internal sealed record CreateOrganizationSubscriptionApiModel(
     OrganizationId OrganizationId,
@@ -83,7 +90,8 @@ internal sealed record CreateOrganizationSubscriptionApiModel(
     DateTimeOffset? TrialStartsAtUtc,
     DateTimeOffset? TrialEndsAtUtc,
     string? ExternalProvider,
-    string? ExternalSubscriptionId);
+    string? ExternalSubscriptionId
+);
 
 internal sealed record ChangeOrganizationSubscriptionPlanApiModel(
     OrganizationId OrganizationId,
@@ -92,7 +100,8 @@ internal sealed record ChangeOrganizationSubscriptionPlanApiModel(
     IReadOnlyDictionary<string, long> Limits,
     int ExpectedVersion,
     string Reason,
-    UserId ChangedByUserId);
+    UserId ChangedByUserId
+);
 
 internal sealed record ChangeOrganizationSubscriptionStatusApiModel(
     OrganizationId OrganizationId,
@@ -101,7 +110,8 @@ internal sealed record ChangeOrganizationSubscriptionStatusApiModel(
     DateTimeOffset? PeriodEndsAtUtc,
     int ExpectedVersion,
     string Reason,
-    UserId ChangedByUserId);
+    UserId ChangedByUserId
+);
 
 internal sealed record CancelOrganizationSubscriptionApiModel(
     OrganizationId OrganizationId,
@@ -109,4 +119,5 @@ internal sealed record CancelOrganizationSubscriptionApiModel(
     DateTimeOffset EffectiveAtUtc,
     string Reason,
     UserId RequestedByUserId,
-    int ExpectedVersion);
+    int ExpectedVersion
+);

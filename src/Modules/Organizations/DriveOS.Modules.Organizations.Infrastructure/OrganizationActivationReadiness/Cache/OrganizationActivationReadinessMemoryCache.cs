@@ -8,15 +8,16 @@ namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationRea
 
 public sealed class OrganizationActivationReadinessMemoryCache(
     IMemoryCache memoryCache,
-    IOptions<OrganizationActivationReadinessCacheOptions> options)
-    : IOrganizationActivationReadinessReportCache
+    IOptions<OrganizationActivationReadinessCacheOptions> options
+) : IOrganizationActivationReadinessReportCache
 {
     private readonly OrganizationActivationReadinessCacheOptions _options = options.Value;
 
     public async Task<OrganizationActivationReadinessReport> GetOrCreateAsync(
         OrganizationId organizationId,
         Func<CancellationToken, Task<OrganizationActivationReadinessReport>> factory,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         if (!_options.Enabled || _options.DurationSeconds <= 0)
         {
@@ -25,8 +26,10 @@ public sealed class OrganizationActivationReadinessMemoryCache(
 
         string key = GetKey(organizationId);
 
-        if (memoryCache.TryGetValue(key, out OrganizationActivationReadinessReport? cached)
-            && cached is not null)
+        if (
+            memoryCache.TryGetValue(key, out OrganizationActivationReadinessReport? cached)
+            && cached is not null
+        )
         {
             return cached;
         }
@@ -36,7 +39,8 @@ public sealed class OrganizationActivationReadinessMemoryCache(
         memoryCache.Set(
             key,
             report,
-            TimeSpan.FromSeconds(Math.Clamp(_options.DurationSeconds, 1, 300)));
+            TimeSpan.FromSeconds(Math.Clamp(_options.DurationSeconds, 1, 300))
+        );
 
         return report;
     }

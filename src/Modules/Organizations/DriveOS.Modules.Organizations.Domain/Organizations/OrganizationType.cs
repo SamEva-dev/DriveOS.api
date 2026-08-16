@@ -9,5 +9,5 @@ public enum OrganizationType
     VehicleProvider = 5,
     FundingOrganization = 6,
     PartnerOrganization = 7,
-    PlatformOperator = 8
+    PlatformOperator = 8,
 }

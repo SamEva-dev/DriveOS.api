@@ -3,5 +3,5 @@
 public enum QueryTracking
 {
     NoTracking = 0,
-    Tracking = 1
+    Tracking = 1,
 }

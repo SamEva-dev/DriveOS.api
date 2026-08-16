@@ -1,32 +1,23 @@
 ﻿using FluentValidation;
 
-namespace DriveOS.Modules.Organizations.Application
-    .Branches.Managers.AssignBranchManager;
+namespace DriveOS.Modules.Organizations.Application.Branches.Managers.AssignBranchManager;
 
-internal sealed class
-    AssignBranchManagerCommandValidator
-    : AbstractValidator<
-        AssignBranchManagerCommand>
+internal sealed class AssignBranchManagerCommandValidator
+    : AbstractValidator<AssignBranchManagerCommand>
 {
     public AssignBranchManagerCommandValidator()
     {
-        RuleFor(command =>
-                command.OrganizationId.Value)
+        RuleFor(command => command.OrganizationId.Value)
             .NotEmpty()
-            .WithMessage(
-                "errors.branches.organizationId.empty");
+            .WithMessage("errors.branches.organizationId.empty");
 
-        RuleFor(command =>
-                command.BranchId.Value)
+        RuleFor(command => command.BranchId.Value)
             .NotEmpty()
-            .WithMessage(
-                "errors.branches.id.empty");
+            .WithMessage("errors.branches.id.empty");
 
-        RuleFor(command =>
-                command.ManagerUserId.Value)
+        RuleFor(command => command.ManagerUserId.Value)
             .NotEmpty()
-            .WithMessage(
-                "errors.branches.manager.userId.empty");
+            .WithMessage("errors.branches.manager.userId.empty");
 
         //RuleFor(command =>
         //        command.EffectiveFromUtc)

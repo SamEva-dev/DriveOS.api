@@ -4,12 +4,18 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationClosures.Readine
 
 public interface IOrganizationClosureReadinessService
 {
-    Task<OrganizationClosureReadinessReport> EvaluateAsync(OrganizationId organizationId, CancellationToken cancellationToken);
+    Task<OrganizationClosureReadinessReport> EvaluateAsync(
+        OrganizationId organizationId,
+        CancellationToken cancellationToken
+    );
 }
 
 public interface IOrganizationClosureReadinessSnapshotSource
 {
-    Task<OrganizationClosureReadinessSnapshot> GetAsync(OrganizationId organizationId, CancellationToken cancellationToken);
+    Task<OrganizationClosureReadinessSnapshot> GetAsync(
+        OrganizationId organizationId,
+        CancellationToken cancellationToken
+    );
 }
 
 public sealed record OrganizationClosureReadinessSnapshot(
@@ -20,4 +26,5 @@ public sealed record OrganizationClosureReadinessSnapshot(
     int OpenOperations,
     int BlockingFinancialItems,
     int ActiveIntegrations,
-    bool RetentionPolicyConfigured);
+    bool RetentionPolicyConfigured
+);

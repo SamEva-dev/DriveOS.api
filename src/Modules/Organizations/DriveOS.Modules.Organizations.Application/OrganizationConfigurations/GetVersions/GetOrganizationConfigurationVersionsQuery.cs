@@ -4,6 +4,5 @@ using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationConfigurations.GetVersions;
 
-public sealed record GetOrganizationConfigurationVersionsQuery(
-    OrganizationId OrganizationId)
+public sealed record GetOrganizationConfigurationVersionsQuery(OrganizationId OrganizationId)
     : IQuery<IReadOnlyList<OrganizationConfigurationListItemResponse>>;

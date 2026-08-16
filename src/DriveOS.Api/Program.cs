@@ -1,28 +1,33 @@
 using DomainRelay.Validation;
 using DriveOS.Api;
-using DriveOS.Api.Endpoints.Provisioning;
+using DriveOS.Api.Configuration;
 using DriveOS.Api.Endpoints.Crm;
+using DriveOS.Api.Endpoints.Organization.AccessManagement;
+using DriveOS.Api.Endpoints.Organization.BranchAssignments;
+using DriveOS.Api.Endpoints.Organization.BranchConfigurationOverrides;
+using DriveOS.Api.Endpoints.Organization.Branches;
+using DriveOS.Api.Endpoints.Organization.Networks;
+using DriveOS.Api.Endpoints.Organization.OrganizationConfigurations;
+using DriveOS.Api.Endpoints.Organization.OrganizationLegalProfiles;
+using DriveOS.Api.Endpoints.Organization.OrganizationRepresentatives;
+using DriveOS.Api.Endpoints.Organization.Organizations;
+using DriveOS.Api.Endpoints.Organization.OrganizationSequences;
+using DriveOS.Api.Endpoints.Organization.OrganizationSettings;
+using DriveOS.Api.Endpoints.Organization.OrganizationSubscriptions;
+using DriveOS.Api.Endpoints.Provisioning;
+using DriveOS.Api.Endpoints.Students;
 using DriveOS.Api.Errors;
 using DriveOS.Api.Infrastructure.Logging;
+using DriveOS.Api.Integrations.Students;
+using DriveOS.Modules.CRM.Application;
+using DriveOS.Modules.CRM.Application.Leads.ConvertLead;
+using DriveOS.Modules.CRM.Infrastructure;
 using DriveOS.Modules.Organizations.Application;
 using DriveOS.Modules.Organizations.Infrastructure;
-using DriveOS.Modules.CRM.Application;
-using DriveOS.Modules.CRM.Infrastructure;
+using DriveOS.Modules.Students.Application;
+using DriveOS.Modules.Students.Infrastructure;
 using Serilog;
 using Serilog.Events;
-using DriveOS.Api.Configuration;
-using DriveOS.Api.Endpoints.Organization.Organizations;
-using DriveOS.Api.Endpoints.Organization.OrganizationSettings;
-using DriveOS.Api.Endpoints.Organization.Branches;
-using DriveOS.Api.Endpoints.Organization.OrganizationSubscriptions;
-using DriveOS.Api.Endpoints.Organization.BranchAssignments;
-using DriveOS.Api.Endpoints.Organization.AccessManagement;
-using DriveOS.Api.Endpoints.Organization.BranchConfigurationOverrides;
-using DriveOS.Api.Endpoints.Organization.OrganizationConfigurations;
-using DriveOS.Api.Endpoints.Organization.OrganizationSequences;
-using DriveOS.Api.Endpoints.Organization.OrganizationRepresentatives;
-using DriveOS.Api.Endpoints.Organization.OrganizationLegalProfiles;
-using DriveOS.Api.Endpoints.Organization.Networks;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -32,9 +37,7 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information(
-        "Starting {Application}",
-        LoggingConstants.ApplicationName);
+    Log.Information("Starting {Application}", LoggingConstants.ApplicationName);
     var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddSingleton(TimeProvider.System);
 
@@ -42,15 +45,15 @@ try
         (services, configuration) =>
         {
             configuration
-                .ReadFrom.Configuration(
-                    builder.Configuration)
+                .ReadFrom.Configuration(builder.Configuration)
                 .ReadFrom.Services(services)
                 .Enrich.FromLogContext()
                 .Enrich.WithProperty(
-                    LoggingConstants
-                        .ApplicationNameProperty,
-                    LoggingConstants.ApplicationName);
-        });
+                    LoggingConstants.ApplicationNameProperty,
+                    LoggingConstants.ApplicationName
+                );
+        }
+    );
 
     builder.Services.AddOpenApi(
         "v1",
@@ -59,129 +62,102 @@ try
             options.AddDocumentTransformer(
                 (document, context, cancellationToken) =>
                 {
-                    document.Info.Title =
-                        "DriveOS API";
+                    document.Info.Title = "DriveOS API";
 
-                    document.Info.Version =
-                        "v1";
+                    document.Info.Version = "v1";
 
                     document.Info.Description =
-                        "API SaaS internationale de gestion " +
-                        "des auto-écoles, enseignants, " +
-                        "élèves, véhicules, formations, " +
-                        "paiements et conformité.";
+                        "API SaaS internationale de gestion "
+                        + "des auto-écoles, enseignants, "
+                        + "élèves, véhicules, formations, "
+                        + "paiements et conformité.";
 
                     return Task.CompletedTask;
-                });
-        });
-
-
+                }
+            );
+        }
+    );
 
     //builder.Services.AddValidatorsFromAssembly(
     //    typeof(CreateOrganizationCommandValidator).Assembly);
 
+    builder
+        .Services.AddApiServices(builder.Configuration)
+        .AddOrganizationsApplication()
+        .AddOrganizationsInfrastructure(builder.Configuration)
+        .AddCrmApplication()
+        .AddCrmInfrastructure(builder.Configuration)
+        .AddStudentsApplication()
+        .AddStudentsInfrastructure(builder.Configuration);
 
-    builder.Services
-        .AddApiServices(builder.Configuration)
-    .AddOrganizationsApplication()
-    .AddOrganizationsInfrastructure(
-        builder.Configuration)
-    .AddCrmApplication()
-    .AddCrmInfrastructure(
-        builder.Configuration);
+    builder.Services.AddScoped<IStudentProvisioningGateway, StudentProvisioningGateway>();
 
     builder.Services.AddDomainRelayValidation();
-    builder.Services.AddExceptionHandler<
-        ValidationExceptionHandler>();
+    builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 
     builder.Services.AddProblemDetails();
 
     string[] allowedOrigins =
-    builder.Configuration
-        .GetSection("Cors:AllowedOrigins")
-        .Get<string[]>()
-    ?? throw new InvalidOperationException(
-        "The CORS allowed origins configuration is missing.");
+        builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+        ?? throw new InvalidOperationException(
+            "The CORS allowed origins configuration is missing."
+        );
 
     builder.Services.ConfigureHttpJsonOptions(options =>
     {
         options.ConfigureDriveOsEnums();
     });
 
-    builder.Services.AddCors(
-        options =>
-        {
-            options.AddPolicy(
-                "DriveOsWeb",
-                policy =>
-                {
-                    policy
-                        .WithOrigins(allowedOrigins)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
-        });
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(
+            "DriveOsWeb",
+            policy =>
+            {
+                policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+            }
+        );
+    });
 
     var app = builder.Build();
     app.UseMiddleware<CorrelationIdMiddleware>();
-    app.UseSerilogRequestLogging(
-        options =>
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.MessageTemplate =
+            "HTTP {RequestMethod} {RequestPath} "
+            + "responded {StatusCode} in "
+            + "{Elapsed:0.0000} ms";
+
+        options.GetLevel = (httpContext, elapsed, exception) =>
         {
-            options.MessageTemplate =
-                "HTTP {RequestMethod} {RequestPath} " +
-                "responded {StatusCode} in " +
-                "{Elapsed:0.0000} ms";
+            if (exception is not null)
+            {
+                return LogEventLevel.Error;
+            }
 
-            options.GetLevel =
-                (httpContext, elapsed, exception) =>
-                {
-                    if (exception is not null)
-                    {
-                        return LogEventLevel.Error;
-                    }
+            return httpContext.Response.StatusCode switch
+            {
+                >= 500 => LogEventLevel.Error,
 
-                    return httpContext.Response.StatusCode
-                        switch
-                    {
-                        >= 500 =>
-                            LogEventLevel.Error,
+                >= 400 => LogEventLevel.Warning,
 
-                        >= 400 =>
-                            LogEventLevel.Warning,
+                _ => LogEventLevel.Information,
+            };
+        };
 
-                        _ =>
-                            LogEventLevel.Information
-                    };
-                };
+        options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        {
+            diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
 
-            options.EnrichDiagnosticContext =
-                (diagnosticContext, httpContext) =>
-                {
-                    diagnosticContext.Set(
-                        "RequestHost",
-                        httpContext.Request.Host.Value);
+            diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
 
-                    diagnosticContext.Set(
-                        "RequestScheme",
-                        httpContext.Request.Scheme);
+            diagnosticContext.Set("ClientIp", httpContext.Connection.RemoteIpAddress?.ToString());
 
-                    diagnosticContext.Set(
-                        "ClientIp",
-                        httpContext.Connection
-                            .RemoteIpAddress?
-                            .ToString());
+            diagnosticContext.Set("UserAgent", httpContext.Request.Headers.UserAgent.ToString());
 
-                    diagnosticContext.Set(
-                        "UserAgent",
-                        httpContext.Request.Headers
-                            .UserAgent
-                            .ToString());
-
-                    diagnosticContext.Set(
-                        "TraceIdentifier",
-                        httpContext.TraceIdentifier);
-                };
-        });
+            diagnosticContext.Set("TraceIdentifier", httpContext.TraceIdentifier);
+        };
+    });
     app.UseExceptionHandler();
     app.ApplyMigrations();
 
@@ -189,29 +165,22 @@ try
     {
         app.MapOpenApi("/openapi/{documentName}.json");
 
-        app.UseSwaggerUI(
-            options =>
-            {
-                options.SwaggerEndpoint(
-                    "/openapi/v1.json",
-                    "DriveOS API v1");
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/openapi/v1.json", "DriveOS API v1");
 
-                options.RoutePrefix =
-                    "swagger";
+            options.RoutePrefix = "swagger";
 
-                options.DocumentTitle =
-                    "DriveOS API Documentation";
+            options.DocumentTitle = "DriveOS API Documentation";
 
-                options.DisplayRequestDuration();
+            options.DisplayRequestDuration();
 
-                options.EnableTryItOutByDefault();
+            options.EnableTryItOutByDefault();
 
-                options.EnablePersistAuthorization();
+            options.EnablePersistAuthorization();
 
-                options.DocExpansion(
-                    Swashbuckle.AspNetCore
-                        .SwaggerUI.DocExpansion.List);
-            });
+            options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
+        });
     }
 
     app.UseHttpsRedirection();
@@ -238,28 +207,16 @@ try
     app.MapNetworkMembershipEndpoints();
     app.MapAssessmentAppointmentEndpoints();
     app.MapCommercialOfferEndpoints();
+    app.MapStudentDashboardEndpoints();
 
-    app.MapGet(
-        "/health",
-        () => Results.Ok(
-            new
-            {
-                status = "Healthy",
-                service = "DriveOS.Api"
-
-            }));
-    Log.Information(
-        "{Application} started successfully",
-        LoggingConstants.ApplicationName);
+    app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "DriveOS.Api" }));
+    Log.Information("{Application} started successfully", LoggingConstants.ApplicationName);
 
     app.Run();
 }
 catch (Exception exception)
 {
-    Log.Fatal(
-        exception,
-        "{Application} terminated unexpectedly",
-        LoggingConstants.ApplicationName);
+    Log.Fatal(exception, "{Application} terminated unexpectedly", LoggingConstants.ApplicationName);
 }
 finally
 {

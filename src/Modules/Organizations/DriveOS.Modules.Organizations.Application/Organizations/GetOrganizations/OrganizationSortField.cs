@@ -1,5 +1,4 @@
-﻿namespace DriveOS.Modules.Organizations.Application
-    .Organizations.GetOrganizations;
+﻿namespace DriveOS.Modules.Organizations.Application.Organizations.GetOrganizations;
 
 public enum OrganizationSortField
 {
@@ -7,5 +6,5 @@ public enum OrganizationSortField
     CountryCode = 1,
     Type = 2,
     Status = 3,
-    CreatedAtUtc = 4
+    CreatedAtUtc = 4,
 }

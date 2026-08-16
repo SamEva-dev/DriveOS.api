@@ -15,4 +15,5 @@
 public sealed record CreateOrganizationRequest(
     string LegalName,
     string CountryCode,
-    int OrganizationType);
+    int OrganizationType
+);

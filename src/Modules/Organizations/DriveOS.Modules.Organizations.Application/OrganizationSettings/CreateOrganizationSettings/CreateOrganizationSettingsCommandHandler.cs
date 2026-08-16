@@ -2,8 +2,8 @@ using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Modules.Organizations.Application.Abstractions;
 using DriveOS.Modules.Organizations.Application.Branches;
-using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
 using DriveOS.Modules.Organizations.Domain.Organizations;
+using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
 using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationSettings.CreateOrganizationSettings;
@@ -12,29 +12,27 @@ public sealed class CreateOrganizationSettingsCommandHandler(
     IOrganizationReadService organizationReadService,
     IBranchReadService branchReadService,
     IOrganizationSettingsRepository settingsRepository,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<CreateOrganizationSettingsCommand, OrganizationSettingsId>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<CreateOrganizationSettingsCommand, OrganizationSettingsId>
 {
     public async Task<Result<OrganizationSettingsId>> Handle(
         CreateOrganizationSettingsCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var organization = await organizationReadService.GetByIdAsync(
             command.OrganizationId,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (organization is null)
         {
-            return Result.Failure<OrganizationSettingsId>(
-                OrganizationErrors.NotFound);
+            return Result.Failure<OrganizationSettingsId>(OrganizationErrors.NotFound);
         }
 
-        if (await settingsRepository.ExistsAsync(
-                command.OrganizationId,
-                cancellationToken))
+        if (await settingsRepository.ExistsAsync(command.OrganizationId, cancellationToken))
         {
-            return Result.Failure<OrganizationSettingsId>(
-                OrganizationSettingsErrors.AlreadyExists);
+            return Result.Failure<OrganizationSettingsId>(OrganizationSettingsErrors.AlreadyExists);
         }
 
         if (command.DefaultBranchId is not null)
@@ -42,19 +40,22 @@ public sealed class CreateOrganizationSettingsCommandHandler(
             var branch = await branchReadService.GetByIdAsync(
                 command.OrganizationId,
                 command.DefaultBranchId.Value,
-                cancellationToken);
+                cancellationToken
+            );
 
             if (branch is null)
             {
                 return Result.Failure<OrganizationSettingsId>(
-                    OrganizationSettingsErrors.DefaultBranchNotOwned);
+                    OrganizationSettingsErrors.DefaultBranchNotOwned
+                );
             }
         }
 
         Result<OrganizationProfile> profileResult = OrganizationProfile.Create(
             command.TradeName,
             command.RegistrationNumber,
-            command.TaxNumber);
+            command.TaxNumber
+        );
 
         if (profileResult.IsFailure)
         {
@@ -62,10 +63,7 @@ public sealed class CreateOrganizationSettingsCommandHandler(
         }
 
         Result<OrganizationContactInformation> contactResult =
-            OrganizationContactInformation.Create(
-                command.Email,
-                command.Phone,
-                command.Website);
+            OrganizationContactInformation.Create(command.Email, command.Phone, command.Website);
 
         if (contactResult.IsFailure)
         {
@@ -78,23 +76,24 @@ public sealed class CreateOrganizationSettingsCommandHandler(
             command.PostalCode,
             command.City,
             command.Region,
-            command.AddressCountryCode);
+            command.AddressCountryCode
+        );
 
         if (addressResult.IsFailure)
         {
             return Result.Failure<OrganizationSettingsId>(addressResult.Error);
         }
 
-        Result<OrganizationRegionalSettings> regionalResult =
-            OrganizationRegionalSettings.Create(
-                command.DefaultLanguage,
-                command.SupportedLanguages,
-                command.TimeZoneId,
-                command.CurrencyCode,
-                command.DateFormat,
-                command.TimeFormat,
-                command.FirstDayOfWeek,
-                command.MeasurementSystem);
+        Result<OrganizationRegionalSettings> regionalResult = OrganizationRegionalSettings.Create(
+            command.DefaultLanguage,
+            command.SupportedLanguages,
+            command.TimeZoneId,
+            command.CurrencyCode,
+            command.DateFormat,
+            command.TimeFormat,
+            command.FirstDayOfWeek,
+            command.MeasurementSystem
+        );
 
         if (regionalResult.IsFailure)
         {
@@ -108,7 +107,8 @@ public sealed class CreateOrganizationSettingsCommandHandler(
                 command.DefaultCancellationDelayHours,
                 command.AllowStudentSelfBooking,
                 command.RequireBranchForOperations,
-                command.DefaultBranchId);
+                command.DefaultBranchId
+            );
 
         if (operationalResult.IsFailure)
         {
@@ -123,16 +123,15 @@ public sealed class CreateOrganizationSettingsCommandHandler(
                 contactResult.Value,
                 addressResult.Value,
                 regionalResult.Value,
-                operationalResult.Value);
+                operationalResult.Value
+            );
 
         if (creationResult.IsFailure)
         {
             return Result.Failure<OrganizationSettingsId>(creationResult.Error);
         }
 
-        await settingsRepository.AddAsync(
-            creationResult.Value,
-            cancellationToken);
+        await settingsRepository.AddAsync(creationResult.Value, cancellationToken);
 
         await unitOfWork.CommitAsync(cancellationToken);
 

@@ -8,5 +8,5 @@ public enum FinancingOption
     Employer = 3,
     PublicFunding = 4,
     Installments = 5,
-    Other = 6
+    Other = 6,
 }

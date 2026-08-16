@@ -1,2 +1,14 @@
-using FluentValidation; namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.SetPrimaryOwner;
-internal sealed class SetPrimaryOrganizationOwnerCommandValidator:AbstractValidator<SetPrimaryOrganizationOwnerCommand>{public SetPrimaryOrganizationOwnerCommandValidator(){RuleFor(x=>x.OrganizationId).NotEmpty();RuleFor(x=>x.RepresentativeId).NotEmpty();RuleFor(x=>x.ExpectedRevision).GreaterThan(0);}}
+using FluentValidation;
+
+namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.SetPrimaryOwner;
+
+internal sealed class SetPrimaryOrganizationOwnerCommandValidator
+    : AbstractValidator<SetPrimaryOrganizationOwnerCommand>
+{
+    public SetPrimaryOrganizationOwnerCommandValidator()
+    {
+        RuleFor(x => x.OrganizationId).NotEmpty();
+        RuleFor(x => x.RepresentativeId).NotEmpty();
+        RuleFor(x => x.ExpectedRevision).GreaterThan(0);
+    }
+}

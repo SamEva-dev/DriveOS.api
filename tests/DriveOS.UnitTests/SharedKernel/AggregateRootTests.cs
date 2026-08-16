@@ -22,9 +22,7 @@ public sealed class AggregateRootTests
     private sealed class TestAggregate : AggregateRoot<Guid>
     {
         public TestAggregate(Guid id)
-            : base(id)
-        {
-        }
+            : base(id) { }
 
         public void DoSomething()
         {
@@ -32,6 +30,5 @@ public sealed class AggregateRootTests
         }
     }
 
-    private sealed record SomethingHappenedDomainEvent
-        : DomainEvent;
+    private sealed record SomethingHappenedDomainEvent : DomainEvent;
 }

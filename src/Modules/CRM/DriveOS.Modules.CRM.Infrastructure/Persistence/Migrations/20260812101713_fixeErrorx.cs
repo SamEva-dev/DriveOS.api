@@ -8,15 +8,9 @@ namespace DriveOS.Modules.CRM.Infrastructure.Persistence.Migrations
     public partial class fixeErrorx : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-
-        }
+        protected override void Up(MigrationBuilder migrationBuilder) { }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-
-        }
+        protected override void Down(MigrationBuilder migrationBuilder) { }
     }
 }

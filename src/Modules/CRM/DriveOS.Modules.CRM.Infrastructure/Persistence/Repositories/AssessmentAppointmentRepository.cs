@@ -14,35 +14,37 @@ internal sealed class AssessmentAppointmentRepository(CrmDbContext context)
     public Task<AssessmentAppointment?> GetByIdAsync(
         OrganizationId organizationId,
         AssessmentAppointmentId appointmentId,
-        CancellationToken cancellationToken = default) =>
-        context.AssessmentAppointments
-            .AsNoTracking()
+        CancellationToken cancellationToken = default
+    ) =>
+        context
+            .AssessmentAppointments.AsNoTracking()
             .SingleOrDefaultAsync(
                 appointment =>
-                    appointment.OrganizationId == organizationId &&
-                    appointment.Id == appointmentId,
-                cancellationToken);
+                    appointment.OrganizationId == organizationId && appointment.Id == appointmentId,
+                cancellationToken
+            );
 
     public Task<AssessmentAppointment?> GetByIdForUpdateAsync(
         OrganizationId organizationId,
         AssessmentAppointmentId appointmentId,
-        CancellationToken cancellationToken = default) =>
-        context.AssessmentAppointments
-            .SingleOrDefaultAsync(
-                appointment =>
-                    appointment.OrganizationId == organizationId &&
-                    appointment.Id == appointmentId,
-                cancellationToken);
+        CancellationToken cancellationToken = default
+    ) =>
+        context.AssessmentAppointments.SingleOrDefaultAsync(
+            appointment =>
+                appointment.OrganizationId == organizationId && appointment.Id == appointmentId,
+            cancellationToken
+        );
 
     public async Task<IReadOnlyList<AssessmentAppointment>> GetByLeadAsync(
         OrganizationId organizationId,
         LeadId leadId,
-        CancellationToken cancellationToken = default) =>
-        await context.AssessmentAppointments
-            .AsNoTracking()
+        CancellationToken cancellationToken = default
+    ) =>
+        await context
+            .AssessmentAppointments.AsNoTracking()
             .Where(appointment =>
-                appointment.OrganizationId == organizationId &&
-                appointment.LeadId == leadId)
+                appointment.OrganizationId == organizationId && appointment.LeadId == leadId
+            )
             .OrderByDescending(appointment => appointment.StartsAtUtc)
             .ToListAsync(cancellationToken);
 
@@ -56,17 +58,19 @@ internal sealed class AssessmentAppointmentRepository(CrmDbContext context)
         Guid? roomId,
         Guid? simulatorId,
         AssessmentAppointmentId? excludedAppointmentId = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        IQueryable<AssessmentAppointment> query = context.AssessmentAppointments
-            .AsNoTracking()
+        IQueryable<AssessmentAppointment> query = context
+            .AssessmentAppointments.AsNoTracking()
             .Where(appointment =>
-                appointment.OrganizationId == organizationId &&
-                appointment.Status != AssessmentAppointmentStatus.Completed &&
-                appointment.Status != AssessmentAppointmentStatus.Cancelled &&
-                appointment.Status != AssessmentAppointmentStatus.NoShow &&
-                appointment.StartsAtUtc < endsAtUtc &&
-                startsAtUtc < appointment.EndsAtUtc);
+                appointment.OrganizationId == organizationId
+                && appointment.Status != AssessmentAppointmentStatus.Completed
+                && appointment.Status != AssessmentAppointmentStatus.Cancelled
+                && appointment.Status != AssessmentAppointmentStatus.NoShow
+                && appointment.StartsAtUtc < endsAtUtc
+                && startsAtUtc < appointment.EndsAtUtc
+            );
 
         if (excludedAppointmentId.HasValue)
         {
@@ -79,28 +83,52 @@ internal sealed class AssessmentAppointmentRepository(CrmDbContext context)
         if (evaluatorUserId.HasValue)
         {
             UserId evaluatorId = evaluatorUserId.Value;
-            query = query.Concat(context.AssessmentAppointments
-                .AsNoTracking()
-                .Where(appointment =>
-                    appointment.OrganizationId == organizationId &&
-                    appointment.Status != AssessmentAppointmentStatus.Completed &&
-                    appointment.Status != AssessmentAppointmentStatus.Cancelled &&
-                    appointment.Status != AssessmentAppointmentStatus.NoShow &&
-                    appointment.StartsAtUtc < endsAtUtc &&
-                    startsAtUtc < appointment.EndsAtUtc &&
-                    appointment.EvaluatorUserId == evaluatorId &&
-                    (!excludedAppointmentId.HasValue || appointment.Id != excludedAppointmentId.Value)));
+            query = query.Concat(
+                context
+                    .AssessmentAppointments.AsNoTracking()
+                    .Where(appointment =>
+                        appointment.OrganizationId == organizationId
+                        && appointment.Status != AssessmentAppointmentStatus.Completed
+                        && appointment.Status != AssessmentAppointmentStatus.Cancelled
+                        && appointment.Status != AssessmentAppointmentStatus.NoShow
+                        && appointment.StartsAtUtc < endsAtUtc
+                        && startsAtUtc < appointment.EndsAtUtc
+                        && appointment.EvaluatorUserId == evaluatorId
+                        && (
+                            !excludedAppointmentId.HasValue
+                            || appointment.Id != excludedAppointmentId.Value
+                        )
+                    )
+            );
         }
 
         if (vehicleId.HasValue)
-            query = AddResourceConflicts(query, organizationId, startsAtUtc, endsAtUtc,
-                excludedAppointmentId, appointment => appointment.VehicleId == vehicleId);
+            query = AddResourceConflicts(
+                query,
+                organizationId,
+                startsAtUtc,
+                endsAtUtc,
+                excludedAppointmentId,
+                appointment => appointment.VehicleId == vehicleId
+            );
         if (roomId.HasValue)
-            query = AddResourceConflicts(query, organizationId, startsAtUtc, endsAtUtc,
-                excludedAppointmentId, appointment => appointment.RoomId == roomId);
+            query = AddResourceConflicts(
+                query,
+                organizationId,
+                startsAtUtc,
+                endsAtUtc,
+                excludedAppointmentId,
+                appointment => appointment.RoomId == roomId
+            );
         if (simulatorId.HasValue)
-            query = AddResourceConflicts(query, organizationId, startsAtUtc, endsAtUtc,
-                excludedAppointmentId, appointment => appointment.SimulatorId == simulatorId);
+            query = AddResourceConflicts(
+                query,
+                organizationId,
+                startsAtUtc,
+                endsAtUtc,
+                excludedAppointmentId,
+                appointment => appointment.SimulatorId == simulatorId
+            );
 
         return query.AnyAsync(cancellationToken);
     }
@@ -111,16 +139,23 @@ internal sealed class AssessmentAppointmentRepository(CrmDbContext context)
         DateTimeOffset startsAtUtc,
         DateTimeOffset endsAtUtc,
         AssessmentAppointmentId? excludedAppointmentId,
-        System.Linq.Expressions.Expression<Func<AssessmentAppointment, bool>> resourcePredicate) =>
-        query.Concat(context.AssessmentAppointments
-            .AsNoTracking()
-            .Where(appointment =>
-                appointment.OrganizationId == organizationId &&
-                appointment.Status != AssessmentAppointmentStatus.Completed &&
-                appointment.Status != AssessmentAppointmentStatus.Cancelled &&
-                appointment.Status != AssessmentAppointmentStatus.NoShow &&
-                appointment.StartsAtUtc < endsAtUtc &&
-                startsAtUtc < appointment.EndsAtUtc &&
-                (!excludedAppointmentId.HasValue || appointment.Id != excludedAppointmentId.Value))
-            .Where(resourcePredicate));
+        System.Linq.Expressions.Expression<Func<AssessmentAppointment, bool>> resourcePredicate
+    ) =>
+        query.Concat(
+            context
+                .AssessmentAppointments.AsNoTracking()
+                .Where(appointment =>
+                    appointment.OrganizationId == organizationId
+                    && appointment.Status != AssessmentAppointmentStatus.Completed
+                    && appointment.Status != AssessmentAppointmentStatus.Cancelled
+                    && appointment.Status != AssessmentAppointmentStatus.NoShow
+                    && appointment.StartsAtUtc < endsAtUtc
+                    && startsAtUtc < appointment.EndsAtUtc
+                    && (
+                        !excludedAppointmentId.HasValue
+                        || appointment.Id != excludedAppointmentId.Value
+                    )
+                )
+                .Where(resourcePredicate)
+        );
 }

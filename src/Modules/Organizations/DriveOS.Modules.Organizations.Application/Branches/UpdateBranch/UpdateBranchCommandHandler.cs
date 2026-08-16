@@ -9,18 +9,19 @@ namespace DriveOS.Modules.Organizations.Application.Branches.UpdateBranch;
 internal sealed class UpdateBranchCommandHandler(
     IOrganizationRepository organizationRepository,
     IBranchRepository branchRepository,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<UpdateBranchCommand>
+    IUnitOfWork unitOfWork
+) : ICommandHandler<UpdateBranchCommand>
 {
     public async Task<Result> Handle(
         UpdateBranchCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        Organization? organization =
-            await organizationRepository.GetByIdAsync(
-                command.OrganizationId,
-                asNoTracking: true,
-                cancellationToken);
+        Organization? organization = await organizationRepository.GetByIdAsync(
+            command.OrganizationId,
+            asNoTracking: true,
+            cancellationToken
+        );
 
         if (organization is null)
         {
@@ -30,10 +31,10 @@ internal sealed class UpdateBranchCommandHandler(
         Branch? branch = await branchRepository.GetByIdAsync(
             command.BranchId,
             asNoTracking: false,
-            cancellationToken);
+            cancellationToken
+        );
 
-        if (branch is null ||
-            branch.OrganizationId != command.OrganizationId)
+        if (branch is null || branch.OrganizationId != command.OrganizationId)
         {
             return Result.Failure(BranchErrors.NotFound);
         }
@@ -45,11 +46,14 @@ internal sealed class UpdateBranchCommandHandler(
             return Result.Failure(nameResult.Error);
         }
 
-        if (await branchRepository.ExistsByNameAsync(
+        if (
+            await branchRepository.ExistsByNameAsync(
                 command.OrganizationId,
                 nameResult.Value.NormalizedValue,
                 command.BranchId,
-                cancellationToken))
+                cancellationToken
+            )
+        )
         {
             return Result.Failure(BranchErrors.DuplicateName);
         }
@@ -59,7 +63,8 @@ internal sealed class UpdateBranchCommandHandler(
             command.AddressLine2,
             command.PostalCode,
             command.City,
-            organization.CountryCode);
+            organization.CountryCode
+        );
 
         if (addressResult.IsFailure)
         {
@@ -70,7 +75,8 @@ internal sealed class UpdateBranchCommandHandler(
             nameResult.Value,
             command.BranchType,
             addressResult.Value,
-            command.TimeZoneId);
+            command.TimeZoneId
+        );
 
         if (updateResult.IsFailure)
         {

@@ -7,14 +7,16 @@ namespace DriveOS.Modules.CRM.Application.Assessments.CancelAssessment;
 
 public sealed class CancelAssessmentCommandHandler(
     IAssessmentAppointmentRepository repository,
-    ICrmUnitOfWork unitOfWork) : ICommandHandler<CancelAssessmentCommand>
+    ICrmUnitOfWork unitOfWork
+) : ICommandHandler<CancelAssessmentCommand>
 {
     public async Task<Result> Handle(CancelAssessmentCommand command, CancellationToken ct)
     {
         AssessmentAppointment? appointment = await repository.GetByIdForUpdateAsync(
             command.OrganizationId,
             command.AppointmentId,
-            ct);
+            ct
+        );
 
         if (appointment is null)
             return Result.Failure(AssessmentAppointmentErrors.NotFound);

@@ -10,5 +10,5 @@ public sealed record LeadCreatedDomainEvent(
     string FirstName,
     string LastName,
     string LicenseCategory,
-    LeadSourceType Source)
-    : DomainEvent;
+    LeadSourceType Source
+) : DomainEvent;

@@ -5,5 +5,5 @@ namespace DriveOS.Modules.Organizations.Domain.Branches.Events;
 
 public sealed record BranchPrimaryDesignationRemovedDomainEvent(
     BranchId BranchId,
-    OrganizationId OrganizationId)
-    : DomainEvent;
+    OrganizationId OrganizationId
+) : DomainEvent;

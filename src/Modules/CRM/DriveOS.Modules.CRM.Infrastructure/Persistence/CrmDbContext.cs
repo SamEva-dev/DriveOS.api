@@ -1,10 +1,10 @@
 using DriveOS.Modules.CRM.Application.Abstractions.Persistence;
 using DriveOS.Modules.CRM.Domain.Activities;
-using DriveOS.Modules.CRM.Domain.Leads;
-using DriveOS.Modules.CRM.Domain.Conversions;
-using DriveOS.Modules.CRM.Domain.Tasks;
 using DriveOS.Modules.CRM.Domain.Assessments;
+using DriveOS.Modules.CRM.Domain.Conversions;
+using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.Modules.CRM.Domain.Offers;
+using DriveOS.Modules.CRM.Domain.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -15,9 +15,7 @@ public sealed class CrmDbContext : DbContext, ICrmUnitOfWork
     private IDbContextTransaction? _currentTransaction;
 
     public CrmDbContext(DbContextOptions<CrmDbContext> options)
-        : base(options)
-    {
-    }
+        : base(options) { }
 
     public DbSet<Lead> Leads => Set<Lead>();
     public DbSet<LeadConversion> LeadConversions => Set<LeadConversion>();
@@ -25,35 +23,30 @@ public sealed class CrmDbContext : DbContext, ICrmUnitOfWork
     public DbSet<CrmActivity> Activities => Set<CrmActivity>();
     public DbSet<AssessmentAppointment> AssessmentAppointments => Set<AssessmentAppointment>();
     public DbSet<AssessmentSession> AssessmentSessions => Set<AssessmentSession>();
-    public DbSet<AssessmentSessionRevision> AssessmentSessionRevisions => Set<AssessmentSessionRevision>();
+    public DbSet<AssessmentSessionRevision> AssessmentSessionRevisions =>
+        Set<AssessmentSessionRevision>();
     public DbSet<CommercialOffer> CommercialOffers => Set<CommercialOffer>();
     public DbSet<CommercialOfferLine> CommercialOfferLines => Set<CommercialOfferLine>();
     public DbSet<SavedLeadView> SavedLeadViews => Set<SavedLeadView>();
 
-    public bool HasActiveTransaction =>
-        _currentTransaction is not null;
+    public bool HasActiveTransaction => _currentTransaction is not null;
 
-    public async Task BeginTransactionAsync(
-        CancellationToken cancellationToken = default)
+    public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (HasActiveTransaction)
         {
-            throw new InvalidOperationException(
-                "A transaction is already active.");
+            throw new InvalidOperationException("A transaction is already active.");
         }
 
-        _currentTransaction =
-            await Database.BeginTransactionAsync(cancellationToken);
+        _currentTransaction = await Database.BeginTransactionAsync(cancellationToken);
     }
 
-    public Task<int> CommitAsync(
-        CancellationToken cancellationToken = default)
+    public Task<int> CommitAsync(CancellationToken cancellationToken = default)
     {
         return SaveChangesAsync(cancellationToken);
     }
 
-    public async Task CommitTransactionAsync(
-        CancellationToken cancellationToken = default)
+    public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
         IDbContextTransaction transaction = GetActiveTransaction();
 
@@ -73,8 +66,7 @@ public sealed class CrmDbContext : DbContext, ICrmUnitOfWork
         }
     }
 
-    public async Task RollbackTransactionAsync(
-        CancellationToken cancellationToken = default)
+    public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
         IDbContextTransaction transaction = GetActiveTransaction();
 
@@ -93,8 +85,7 @@ public sealed class CrmDbContext : DbContext, ICrmUnitOfWork
     {
         modelBuilder.HasDefaultSchema(CrmSchema.Name);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(
-            typeof(CrmDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(CrmDbContext).Assembly);
 
         base.OnModelCreating(modelBuilder);
     }
@@ -115,8 +106,7 @@ public sealed class CrmDbContext : DbContext, ICrmUnitOfWork
     private IDbContextTransaction GetActiveTransaction()
     {
         return _currentTransaction
-            ?? throw new InvalidOperationException(
-                "No active transaction exists.");
+            ?? throw new InvalidOperationException("No active transaction exists.");
     }
 
     private async ValueTask DisposeCurrentTransactionAsync()

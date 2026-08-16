@@ -16,99 +16,112 @@ namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationActivationRea
 /// </summary>
 internal sealed class OrganizationActivationReadinessDataSource(
     OrganizationsDbContext dbContext,
-    IClock clock)
-    : IOrganizationActivationReadinessDataSource
+    IClock clock
+) : IOrganizationActivationReadinessDataSource
 {
     public Task<bool> HasActiveLegalProfileAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        return dbContext.OrganizationLegalProfiles
-            .AsNoTracking()
+        return dbContext
+            .OrganizationLegalProfiles.AsNoTracking()
             .AnyAsync(
                 profile =>
-                    profile.OrganizationId == organizationId &&
-                    profile.Status == OrganizationLegalProfileStatus.Active,
-                cancellationToken);
+                    profile.OrganizationId == organizationId
+                    && profile.Status == OrganizationLegalProfileStatus.Active,
+                cancellationToken
+            );
     }
 
     public Task<bool> HasActiveOwnerAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         DateOnly today = DateOnly.FromDateTime(clock.UtcNow.UtcDateTime);
 
-        return dbContext.OrganizationRepresentatives
-            .AsNoTracking()
+        return dbContext
+            .OrganizationRepresentatives.AsNoTracking()
             .AnyAsync(
                 representative =>
-                    representative.OrganizationId == organizationId &&
-                    representative.RepresentativeType == OrganizationRepresentativeType.Owner &&
-                    representative.Status == OrganizationRepresentativeStatus.Active &&
-                    representative.EffectiveFrom <= today &&
-                    (representative.EffectiveTo == null || representative.EffectiveTo >= today),
-                cancellationToken);
+                    representative.OrganizationId == organizationId
+                    && representative.RepresentativeType == OrganizationRepresentativeType.Owner
+                    && representative.Status == OrganizationRepresentativeStatus.Active
+                    && representative.EffectiveFrom <= today
+                    && (representative.EffectiveTo == null || representative.EffectiveTo >= today),
+                cancellationToken
+            );
     }
 
     public Task<bool> HasActivePrimaryOwnerAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         DateOnly today = DateOnly.FromDateTime(clock.UtcNow.UtcDateTime);
 
-        return dbContext.OrganizationRepresentatives
-            .AsNoTracking()
+        return dbContext
+            .OrganizationRepresentatives.AsNoTracking()
             .AnyAsync(
                 representative =>
-                    representative.OrganizationId == organizationId &&
-                    representative.RepresentativeType == OrganizationRepresentativeType.Owner &&
-                    representative.IsPrimaryOwner &&
-                    representative.Status == OrganizationRepresentativeStatus.Active &&
-                    representative.EffectiveFrom <= today &&
-                    (representative.EffectiveTo == null || representative.EffectiveTo >= today),
-                cancellationToken);
+                    representative.OrganizationId == organizationId
+                    && representative.RepresentativeType == OrganizationRepresentativeType.Owner
+                    && representative.IsPrimaryOwner
+                    && representative.Status == OrganizationRepresentativeStatus.Active
+                    && representative.EffectiveFrom <= today
+                    && (representative.EffectiveTo == null || representative.EffectiveTo >= today),
+                cancellationToken
+            );
     }
 
     public Task<bool> HasActiveSubscriptionAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         DateTimeOffset now = clock.UtcNow;
 
-        return dbContext.OrganizationSubscriptions
-            .AsNoTracking()
+        return dbContext
+            .OrganizationSubscriptions.AsNoTracking()
             .AnyAsync(
                 subscription =>
-                    subscription.OrganizationId == organizationId &&
-                    (subscription.Status == SubscriptionStatus.Active ||
-                     subscription.Status == SubscriptionStatus.Trialing) &&
-                    subscription.CurrentPeriod.StartsAtUtc <= now &&
-                    (subscription.CurrentPeriod.EndsAtUtc == null ||
-                     subscription.CurrentPeriod.EndsAtUtc > now),
-                cancellationToken);
+                    subscription.OrganizationId == organizationId
+                    && (
+                        subscription.Status == SubscriptionStatus.Active
+                        || subscription.Status == SubscriptionStatus.Trialing
+                    )
+                    && subscription.CurrentPeriod.StartsAtUtc <= now
+                    && (
+                        subscription.CurrentPeriod.EndsAtUtc == null
+                        || subscription.CurrentPeriod.EndsAtUtc > now
+                    ),
+                cancellationToken
+            );
     }
 
     public Task<bool> HasOperationalSettingsAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        return dbContext.OrganizationSettings
-            .AsNoTracking()
-            .AnyAsync(
-                settings => settings.OrganizationId == organizationId,
-                cancellationToken);
+        return dbContext
+            .OrganizationSettings.AsNoTracking()
+            .AnyAsync(settings => settings.OrganizationId == organizationId, cancellationToken);
     }
 
     public Task<BranchId?> GetPrimaryBranchIdAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        return dbContext.Branches
-            .AsNoTracking()
+        return dbContext
+            .Branches.AsNoTracking()
             .Where(branch =>
-                branch.OrganizationId == organizationId &&
-                branch.IsPrimary &&
-                branch.Status != BranchStatus.Closed)
+                branch.OrganizationId == organizationId
+                && branch.IsPrimary
+                && branch.Status != BranchStatus.Closed
+            )
             .Select(branch => (BranchId?)branch.Id)
             .SingleOrDefaultAsync(cancellationToken);
     }
@@ -116,22 +129,25 @@ internal sealed class OrganizationActivationReadinessDataSource(
     public Task<bool> HasActiveBranchManagerAsync(
         OrganizationId organizationId,
         BranchId branchId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         DateTimeOffset now = clock.UtcNow;
 
-        return dbContext.BranchManagerAssignments
-            .AsNoTracking()
+        return dbContext
+            .BranchManagerAssignments.AsNoTracking()
             .AnyAsync(
                 assignment =>
-                    assignment.BranchId == branchId &&
-                    assignment.Status == BranchManagerAssignmentStatus.Active &&
-                    assignment.EffectiveFromUtc <= now &&
-                    (assignment.EffectiveToUtc == null || assignment.EffectiveToUtc > now) &&
-                    dbContext.Branches.Any(branch =>
-                        branch.Id == assignment.BranchId &&
-                        branch.OrganizationId == organizationId &&
-                        branch.Status != BranchStatus.Closed),
-                cancellationToken);
+                    assignment.BranchId == branchId
+                    && assignment.Status == BranchManagerAssignmentStatus.Active
+                    && assignment.EffectiveFromUtc <= now
+                    && (assignment.EffectiveToUtc == null || assignment.EffectiveToUtc > now)
+                    && dbContext.Branches.Any(branch =>
+                        branch.Id == assignment.BranchId
+                        && branch.OrganizationId == organizationId
+                        && branch.Status != BranchStatus.Closed
+                    ),
+                cancellationToken
+            );
     }
 }

@@ -14,8 +14,13 @@ public sealed record SendCommercialOfferCommand(
     string Language,
     string DocumentReference,
     IReadOnlyCollection<string> AttachmentReferences,
-    int SecureLinkLifetimeHours) : ICommand<SendCommercialOfferResponse>;
+    int SecureLinkLifetimeHours
+) : ICommand<SendCommercialOfferResponse>;
 
 public sealed record SendCommercialOfferResponse(
-    Guid OfferId, string OfferStatus, string DeliveryStatus,
-    string? SecureLinkToken, DateTimeOffset? SecureLinkExpiresAtUtc);
+    Guid OfferId,
+    string OfferStatus,
+    string DeliveryStatus,
+    string? SecureLinkToken,
+    DateTimeOffset? SecureLinkExpiresAtUtc
+);

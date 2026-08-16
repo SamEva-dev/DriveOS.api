@@ -9,4 +9,5 @@ public sealed record OrganizationSubscriptionPlanChangedDomainEvent(
     string PreviousPlanCode,
     string CurrentPlanCode,
     string Reason,
-    UserId ChangedByUserId) : DomainEvent;
+    UserId ChangedByUserId
+) : DomainEvent;

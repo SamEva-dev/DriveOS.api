@@ -1,5 +1,4 @@
-﻿namespace DriveOS.Modules.Organizations.Application
-    .Organizations.GetOrganizationById;
+﻿namespace DriveOS.Modules.Organizations.Application.Organizations.GetOrganizationById;
 
 public sealed record OrganizationResponse(
     Guid Id,
@@ -10,4 +9,5 @@ public sealed record OrganizationResponse(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);

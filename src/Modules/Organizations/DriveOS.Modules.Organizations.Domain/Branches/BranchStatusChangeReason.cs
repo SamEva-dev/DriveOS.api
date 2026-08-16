@@ -4,36 +4,29 @@ public sealed record BranchStatusChangeReason
 {
     public const int MaximumLength = 500;
 
-    private BranchStatusChangeReason(
-        string value)
+    private BranchStatusChangeReason(string value)
     {
         Value = value;
     }
 
     public string Value { get; }
 
-    public static BranchStatusChangeReason Create(
-        string value)
+    public static BranchStatusChangeReason Create(string value)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(
-            value);
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
-        string normalizedValue =
-            value.Trim();
+        string normalizedValue = value.Trim();
 
-        if (
-            normalizedValue.Length >
-            MaximumLength)
+        if (normalizedValue.Length > MaximumLength)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(value),
-                $"The reason cannot exceed {MaximumLength} characters.");
+                $"The reason cannot exceed {MaximumLength} characters."
+            );
         }
 
-        return new BranchStatusChangeReason(
-            normalizedValue);
+        return new BranchStatusChangeReason(normalizedValue);
     }
 
-    public override string ToString() =>
-        Value;
+    public override string ToString() => Value;
 }

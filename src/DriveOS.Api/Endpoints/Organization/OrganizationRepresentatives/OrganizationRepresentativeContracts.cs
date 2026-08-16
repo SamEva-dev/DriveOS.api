@@ -11,26 +11,29 @@ public sealed record CreateOrganizationRepresentativeRequest(
     bool IsPrimaryOwner,
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
-    bool ActivateImmediately);
+    bool ActivateImmediately
+);
 
 public sealed record UpdateOrganizationRepresentativeAuthorityRequest(
     string AuthorityScope,
     Guid? UserId,
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
-public sealed record ChangeOrganizationRepresentativeStatusRequest(
-    int ExpectedRevision);
+public sealed record ChangeOrganizationRepresentativeStatusRequest(int ExpectedRevision);
 
 public sealed record ChangeOrganizationRepresentativeStatusWithReasonRequest(
     string Reason,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 public sealed record EndOrganizationRepresentativeRequest(
     DateOnly EffectiveTo,
     string Reason,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 public sealed record OrganizationRepresentativeResponseContract(
     Guid Id,
@@ -47,7 +50,8 @@ public sealed record OrganizationRepresentativeResponseContract(
     DateTimeOffset CreatedAtUtc,
     Guid? CreatedByUserId,
     DateTimeOffset? LastModifiedAtUtc,
-    Guid? LastModifiedByUserId);
+    Guid? LastModifiedByUserId
+);
 
 public sealed record OrganizationRepresentativeListItemContract(
     Guid Id,
@@ -59,7 +63,8 @@ public sealed record OrganizationRepresentativeListItemContract(
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
     string Status,
-    int Revision);
+    int Revision
+);
 
 internal sealed record CreateOrganizationRepresentativeApiModel(
     OrganizationId OrganizationId,
@@ -70,7 +75,8 @@ internal sealed record CreateOrganizationRepresentativeApiModel(
     bool IsPrimaryOwner,
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
-    bool ActivateImmediately);
+    bool ActivateImmediately
+);
 
 internal sealed record UpdateOrganizationRepresentativeAuthorityApiModel(
     OrganizationId OrganizationId,
@@ -79,22 +85,26 @@ internal sealed record UpdateOrganizationRepresentativeAuthorityApiModel(
     UserId? UserId,
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 internal sealed record ChangeOrganizationRepresentativeStatusApiModel(
     OrganizationId OrganizationId,
     OrganizationRepresentativeId RepresentativeId,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 internal sealed record ChangeOrganizationRepresentativeStatusWithReasonApiModel(
     OrganizationId OrganizationId,
     OrganizationRepresentativeId RepresentativeId,
     string Reason,
-    int ExpectedRevision);
+    int ExpectedRevision
+);
 
 internal sealed record EndOrganizationRepresentativeApiModel(
     OrganizationId OrganizationId,
     OrganizationRepresentativeId RepresentativeId,
     DateOnly EffectiveTo,
     string Reason,
-    int ExpectedRevision);
+    int ExpectedRevision
+);

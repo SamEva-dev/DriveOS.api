@@ -7,14 +7,13 @@ public sealed class CrmModuleArchitectureTests
     [Fact]
     public void Domain_ShouldNotReferenceOuterLayers()
     {
-        Assembly domainAssembly =
-            typeof(DriveOS.Modules.CRM.Domain.AssemblyMarker).Assembly;
+        Assembly domainAssembly = typeof(DriveOS.Modules.CRM.Domain.AssemblyMarker).Assembly;
 
         string[] forbiddenPrefixes =
         [
             "DriveOS.Modules.CRM.Application",
             "DriveOS.Modules.CRM.Infrastructure",
-            "DriveOS.Api"
+            "DriveOS.Api",
         ];
 
         AssertDoesNotReference(domainAssembly, forbiddenPrefixes);
@@ -26,18 +25,15 @@ public sealed class CrmModuleArchitectureTests
         Assembly applicationAssembly =
             typeof(DriveOS.Modules.CRM.Application.AssemblyMarker).Assembly;
 
-        string[] forbiddenPrefixes =
-        [
-            "DriveOS.Modules.CRM.Infrastructure",
-            "DriveOS.Api"
-        ];
+        string[] forbiddenPrefixes = ["DriveOS.Modules.CRM.Infrastructure", "DriveOS.Api"];
 
         AssertDoesNotReference(applicationAssembly, forbiddenPrefixes);
     }
 
     private static void AssertDoesNotReference(
         Assembly assembly,
-        IReadOnlyCollection<string> forbiddenPrefixes)
+        IReadOnlyCollection<string> forbiddenPrefixes
+    )
     {
         string[] references = assembly
             .GetReferencedAssemblies()
@@ -48,9 +44,8 @@ public sealed class CrmModuleArchitectureTests
         {
             Assert.DoesNotContain(
                 references,
-                reference => reference.StartsWith(
-                    forbiddenPrefix,
-                    StringComparison.Ordinal));
+                reference => reference.StartsWith(forbiddenPrefix, StringComparison.Ordinal)
+            );
         }
     }
 }

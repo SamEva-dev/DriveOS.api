@@ -15,7 +15,8 @@ public sealed class GetOrganizationSettingsQueryHandlerTests
 
         var result = await handler.Handle(
             new GetOrganizationSettingsQuery(OrganizationId.New()),
-            CancellationToken.None);
+            CancellationToken.None
+        );
 
         Assert.True(result.IsFailure);
         Assert.Equal(OrganizationSettingsErrors.NotFound, result.Error);
@@ -25,6 +26,7 @@ public sealed class GetOrganizationSettingsQueryHandlerTests
     {
         public Task<OrganizationSettingsResponse?> GetByOrganizationIdAsync(
             OrganizationId organizationId,
-            CancellationToken cancellationToken = default) => Task.FromResult<OrganizationSettingsResponse?>(null);
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult<OrganizationSettingsResponse?>(null);
     }
 }

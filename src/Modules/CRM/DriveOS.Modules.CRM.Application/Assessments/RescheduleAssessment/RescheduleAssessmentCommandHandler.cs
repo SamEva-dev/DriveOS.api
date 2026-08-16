@@ -7,19 +7,22 @@ namespace DriveOS.Modules.CRM.Application.Assessments.RescheduleAssessment;
 
 public sealed class RescheduleAssessmentCommandHandler(
     IAssessmentAppointmentRepository repository,
-    ICrmUnitOfWork unitOfWork) : ICommandHandler<RescheduleAssessmentCommand>
+    ICrmUnitOfWork unitOfWork
+) : ICommandHandler<RescheduleAssessmentCommand>
 {
     public async Task<Result> Handle(RescheduleAssessmentCommand command, CancellationToken ct)
     {
         AssessmentAppointment? appointment = await repository.GetByIdForUpdateAsync(
             command.OrganizationId,
             command.AppointmentId,
-            ct);
+            ct
+        );
 
         if (appointment is null)
             return Result.Failure(AssessmentAppointmentErrors.NotFound);
 
-        if (await repository.HasSchedulingConflictAsync(
+        if (
+            await repository.HasSchedulingConflictAsync(
                 command.OrganizationId,
                 appointment.LeadId,
                 command.StartsAtUtc,
@@ -29,7 +32,9 @@ public sealed class RescheduleAssessmentCommandHandler(
                 appointment.RoomId,
                 appointment.SimulatorId,
                 appointment.Id,
-                ct))
+                ct
+            )
+        )
             return Result.Failure(AssessmentAppointmentErrors.SchedulingConflict);
 
         Result result = appointment.Reschedule(command.StartsAtUtc, command.EndsAtUtc);

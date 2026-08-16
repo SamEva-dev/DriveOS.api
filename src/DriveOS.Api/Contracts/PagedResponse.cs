@@ -7,4 +7,5 @@ public sealed record PagedResponse<T>(
     long TotalCount,
     int TotalPages,
     bool HasPreviousPage,
-    bool HasNextPage);
+    bool HasNextPage
+);

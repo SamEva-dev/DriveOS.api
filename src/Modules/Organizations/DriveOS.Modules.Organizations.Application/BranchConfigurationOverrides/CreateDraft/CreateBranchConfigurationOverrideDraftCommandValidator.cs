@@ -28,7 +28,9 @@ public sealed class CreateBranchConfigurationOverrideDraftCommandValidator
             .WithMessage("errors.branchConfigurationOverride.version.invalid");
 
         RuleFor(command => command.CountryCode)
-            .NotEmpty().Length(2).Matches("^[A-Za-z]{2}$")
+            .NotEmpty()
+            .Length(2)
+            .Matches("^[A-Za-z]{2}$")
             .WithErrorCode("BranchConfigurationOverrides.CountryCode.Invalid")
             .WithMessage("errors.branchConfigurationOverride.countryCode.invalid");
 

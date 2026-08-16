@@ -4,5 +4,5 @@ public enum OrganizationActivationRequirementSeverity
 {
     Information = 1,
     Warning = 2,
-    Blocking = 3
+    Blocking = 3,
 }

@@ -1,4 +1,3 @@
 ﻿namespace DriveOS.Api.Endpoints.Organization.Organizations;
 
-public sealed record ChangeOrganizationStatusRequest(
-    string Reason);
+public sealed record ChangeOrganizationStatusRequest(string Reason);

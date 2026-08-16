@@ -9,5 +9,6 @@ public interface IOrganizationActivationReadinessRule
 
     Task<OrganizationActivationRequirementResult> EvaluateAsync(
         OrganizationId organizationId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

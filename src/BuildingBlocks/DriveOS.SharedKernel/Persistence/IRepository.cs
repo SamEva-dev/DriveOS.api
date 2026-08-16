@@ -9,29 +9,32 @@ public interface IRepository<TEntity, in TId>
     Task<TEntity?> GetByIdAsync(
         TId id,
         bool asNoTracking = false,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<IReadOnlyCollection<TEntity>> GetAllAsync(
         bool asNoTracking = false,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<IReadOnlyCollection<TEntity>> FindAsync(
         Expression<Func<TEntity, bool>> predicate,
         bool asNoTracking = false,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<TEntity?> FirstOrDefaultAsync(
         Expression<Func<TEntity, bool>> predicate,
         bool asNoTracking = false,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<int> CountAsync(
         Expression<Func<TEntity, bool>>? predicate = null,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
-    Task AddAsync(
-        TEntity entity,
-        CancellationToken cancellationToken = default);
+    Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
 
     void Update(TEntity entity);
 

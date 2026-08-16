@@ -11,5 +11,5 @@ public sealed record UpdateOrganizationOperationalSettingsCommand(
     bool AllowStudentSelfBooking,
     bool RequireBranchForOperations,
     BranchId? DefaultBranchId,
-    int ExpectedVersion)
-    : ICommand;
+    int ExpectedVersion
+) : ICommand;

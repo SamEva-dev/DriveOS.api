@@ -1,5 +1,3 @@
 ﻿namespace DriveOS.Api.Endpoints.Organization.BranchAssignments;
 
-public sealed record
-    CreateBranchUserAssignmentResponse(
-        Guid Id);
+public sealed record CreateBranchUserAssignmentResponse(Guid Id);

@@ -21,16 +21,26 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                     person_id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: true),
                     representative_type = table.Column<int>(type: "integer", nullable: false),
-                    authority_scope = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    authority_scope = table.Column<string>(
+                        type: "character varying(2000)",
+                        maxLength: 2000,
+                        nullable: false
+                    ),
                     is_primary_owner = table.Column<bool>(type: "boolean", nullable: false),
                     effective_from = table.Column<DateOnly>(type: "date", nullable: false),
                     effective_to = table.Column<DateOnly>(type: "date", nullable: true),
                     status = table.Column<int>(type: "integer", nullable: false),
                     revision = table.Column<int>(type: "integer", nullable: false),
-                    created_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    created_at_utc = table.Column<DateTimeOffset>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
                     created_by_user_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    last_modified_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    last_modified_by_user_id = table.Column<Guid>(type: "uuid", nullable: true)
+                    last_modified_at_utc = table.Column<DateTimeOffset>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
+                    last_modified_by_user_id = table.Column<Guid>(type: "uuid", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -41,14 +51,17 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                         principalSchema: "organization",
                         principalTable: "organizations",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
+                        onDelete: ReferentialAction.Restrict
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_organization_representatives_org_status",
                 schema: "organization",
                 table: "organization_representatives",
-                columns: new[] { "organization_id", "status" });
+                columns: new[] { "organization_id", "status" }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ux_organization_representatives_active_identity",
@@ -56,7 +69,8 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                 table: "organization_representatives",
                 columns: new[] { "organization_id", "person_id", "representative_type" },
                 unique: true,
-                filter: "status IN (1, 2, 3)");
+                filter: "status IN (1, 2, 3)"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ux_organization_representatives_primary_owner",
@@ -64,7 +78,8 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                 table: "organization_representatives",
                 column: "organization_id",
                 unique: true,
-                filter: "is_primary_owner = TRUE AND status = 2");
+                filter: "is_primary_owner = TRUE AND status = 2"
+            );
         }
 
         /// <inheritdoc />
@@ -72,7 +87,8 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
         {
             migrationBuilder.DropTable(
                 name: "organization_representatives",
-                schema: "organization");
+                schema: "organization"
+            );
         }
     }
 }

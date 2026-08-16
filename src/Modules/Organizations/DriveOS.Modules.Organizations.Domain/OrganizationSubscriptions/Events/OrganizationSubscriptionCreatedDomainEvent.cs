@@ -7,4 +7,5 @@ public sealed record OrganizationSubscriptionCreatedDomainEvent(
     OrganizationSubscriptionId SubscriptionId,
     OrganizationId OrganizationId,
     string PlanCode,
-    SubscriptionStatus Status) : DomainEvent;
+    SubscriptionStatus Status
+) : DomainEvent;

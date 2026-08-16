@@ -9,4 +9,5 @@ public sealed record OrganizationSequenceNumberReservedDomainEvent(
     BranchId? BranchId,
     string Code,
     long NumericValue,
-    string FormattedValue) : DomainEvent;
+    string FormattedValue
+) : DomainEvent;

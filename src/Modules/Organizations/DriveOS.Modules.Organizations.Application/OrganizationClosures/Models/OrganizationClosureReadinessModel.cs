@@ -8,27 +8,34 @@ public sealed record OrganizationClosureRequirementModel(
     bool IsSatisfied,
     string Severity,
     string MessageKey,
-    IReadOnlyDictionary<string, object?> Parameters);
+    IReadOnlyDictionary<string, object?> Parameters
+);
 
 public sealed record OrganizationClosureReadinessModel(
     OrganizationId OrganizationId,
     bool CanClose,
     IReadOnlyList<OrganizationClosureRequirementModel> Requirements,
-    IReadOnlyList<OrganizationClosureRequirementModel> BlockingRequirements)
+    IReadOnlyList<OrganizationClosureRequirementModel> BlockingRequirements
+)
 {
-    public static OrganizationClosureReadinessModel FromReport(OrganizationClosureReadinessReport report)
+    public static OrganizationClosureReadinessModel FromReport(
+        OrganizationClosureReadinessReport report
+    )
     {
-        OrganizationClosureRequirementModel Map(OrganizationClosureRequirement requirement) => new(
-            requirement.Code,
-            requirement.IsSatisfied,
-            requirement.Severity.ToString(),
-            requirement.MessageKey,
-            requirement.Parameters);
+        OrganizationClosureRequirementModel Map(OrganizationClosureRequirement requirement) =>
+            new(
+                requirement.Code,
+                requirement.IsSatisfied,
+                requirement.Severity.ToString(),
+                requirement.MessageKey,
+                requirement.Parameters
+            );
 
         return new(
             report.OrganizationId,
             report.CanClose,
             report.Requirements.Select(Map).ToArray(),
-            report.BlockingRequirements.Select(Map).ToArray());
+            report.BlockingRequirements.Select(Map).ToArray()
+        );
     }
 }

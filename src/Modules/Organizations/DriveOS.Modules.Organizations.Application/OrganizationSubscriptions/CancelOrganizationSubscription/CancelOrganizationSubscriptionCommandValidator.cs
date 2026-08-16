@@ -1,6 +1,9 @@
 using FluentValidation;
+
 namespace DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.CancelOrganizationSubscription;
-public sealed class CancelOrganizationSubscriptionCommandValidator : AbstractValidator<CancelOrganizationSubscriptionCommand>
+
+public sealed class CancelOrganizationSubscriptionCommandValidator
+    : AbstractValidator<CancelOrganizationSubscriptionCommand>
 {
     public CancelOrganizationSubscriptionCommandValidator()
     {

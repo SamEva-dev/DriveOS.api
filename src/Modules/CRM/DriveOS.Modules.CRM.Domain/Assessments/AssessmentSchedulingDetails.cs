@@ -7,7 +7,7 @@ public enum AssessmentType
     MixedAssessment = 2,
     SimulatorAssessment = 3,
     RemoteAssessment = 4,
-    DocumentBasedAssessment = 5
+    DocumentBasedAssessment = 5,
 }
 
 public enum AssessmentDeliveryMode
@@ -16,7 +16,7 @@ public enum AssessmentDeliveryMode
     Remote = 1,
     Hybrid = 2,
     Mobile = 3,
-    Partner = 4
+    Partner = 4,
 }
 
 public enum AssessmentLocationKind
@@ -26,5 +26,5 @@ public enum AssessmentLocationKind
     Simulator = 2,
     LeadAddress = 3,
     PartnerCenter = 4,
-    VideoConference = 5
+    VideoConference = 5,
 }

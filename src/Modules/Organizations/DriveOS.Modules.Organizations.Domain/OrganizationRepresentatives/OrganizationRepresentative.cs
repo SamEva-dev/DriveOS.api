@@ -6,9 +6,9 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 
-public sealed class OrganizationRepresentative :
-    AggregateRoot<OrganizationRepresentativeId>,
-    IAuditableEntity
+public sealed class OrganizationRepresentative
+    : AggregateRoot<OrganizationRepresentativeId>,
+        IAuditableEntity
 {
     private OrganizationRepresentative() { }
 
@@ -21,7 +21,8 @@ public sealed class OrganizationRepresentative :
         RepresentativeAuthorityScope authorityScope,
         bool isPrimaryOwner,
         DateOnly effectiveFrom,
-        DateOnly? effectiveTo)
+        DateOnly? effectiveTo
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -63,34 +64,67 @@ public sealed class OrganizationRepresentative :
         RepresentativeAuthorityScope authorityScope,
         bool isPrimaryOwner,
         DateOnly effectiveFrom,
-        DateOnly? effectiveTo)
+        DateOnly? effectiveTo
+    )
     {
-        if (id.IsEmpty) return Result.Failure<OrganizationRepresentative>(OrganizationRepresentativeErrors.EmptyId);
-        if (organizationId.IsEmpty) return Result.Failure<OrganizationRepresentative>(OrganizationRepresentativeErrors.EmptyOrganizationId);
-        if (personId.IsEmpty) return Result.Failure<OrganizationRepresentative>(OrganizationRepresentativeErrors.EmptyPersonId);
-        if (!Enum.IsDefined(representativeType)) return Result.Failure<OrganizationRepresentative>(OrganizationRepresentativeErrors.InvalidType);
-        if (effectiveTo.HasValue && effectiveTo.Value < effectiveFrom) return Result.Failure<OrganizationRepresentative>(OrganizationRepresentativeErrors.InvalidEffectivePeriod);
+        if (id.IsEmpty)
+            return Result.Failure<OrganizationRepresentative>(
+                OrganizationRepresentativeErrors.EmptyId
+            );
+        if (organizationId.IsEmpty)
+            return Result.Failure<OrganizationRepresentative>(
+                OrganizationRepresentativeErrors.EmptyOrganizationId
+            );
+        if (personId.IsEmpty)
+            return Result.Failure<OrganizationRepresentative>(
+                OrganizationRepresentativeErrors.EmptyPersonId
+            );
+        if (!Enum.IsDefined(representativeType))
+            return Result.Failure<OrganizationRepresentative>(
+                OrganizationRepresentativeErrors.InvalidType
+            );
+        if (effectiveTo.HasValue && effectiveTo.Value < effectiveFrom)
+            return Result.Failure<OrganizationRepresentative>(
+                OrganizationRepresentativeErrors.InvalidEffectivePeriod
+            );
         if (isPrimaryOwner && representativeType != OrganizationRepresentativeType.Owner)
-            return Result.Failure<OrganizationRepresentative>(OrganizationRepresentativeErrors.PrimaryOwnerMustBeOwner);
+            return Result.Failure<OrganizationRepresentative>(
+                OrganizationRepresentativeErrors.PrimaryOwnerMustBeOwner
+            );
 
         ArgumentNullException.ThrowIfNull(authorityScope);
 
         var representative = new OrganizationRepresentative(
-            id, organizationId, personId, userId, representativeType,
-            authorityScope, isPrimaryOwner, effectiveFrom, effectiveTo);
+            id,
+            organizationId,
+            personId,
+            userId,
+            representativeType,
+            authorityScope,
+            isPrimaryOwner,
+            effectiveFrom,
+            effectiveTo
+        );
 
-        representative.RaiseDomainEvent(new OrganizationRepresentativeCreatedDomainEvent(
-            representative.Id,
-            representative.OrganizationId,
-            representative.PersonId,
-            representative.RepresentativeType));
+        representative.RaiseDomainEvent(
+            new OrganizationRepresentativeCreatedDomainEvent(
+                representative.Id,
+                representative.OrganizationId,
+                representative.PersonId,
+                representative.RepresentativeType
+            )
+        );
 
         return Result.Success(representative);
     }
 
     public Result Activate()
     {
-        if (Status is OrganizationRepresentativeStatus.Ended or OrganizationRepresentativeStatus.Active)
+        if (
+            Status
+            is OrganizationRepresentativeStatus.Ended
+                or OrganizationRepresentativeStatus.Active
+        )
             return Result.Failure(OrganizationRepresentativeErrors.InvalidStatusTransition);
         Status = OrganizationRepresentativeStatus.Active;
         Revision++;
@@ -99,7 +133,11 @@ public sealed class OrganizationRepresentative :
 
     public Result Suspend(string? reason, UserId actorUserId)
     {
-        if (Status != OrganizationRepresentativeStatus.Active || string.IsNullOrWhiteSpace(reason) || actorUserId.IsEmpty)
+        if (
+            Status != OrganizationRepresentativeStatus.Active
+            || string.IsNullOrWhiteSpace(reason)
+            || actorUserId.IsEmpty
+        )
             return Result.Failure(OrganizationRepresentativeErrors.InvalidStatusTransition);
         ChangeStatus(OrganizationRepresentativeStatus.Suspended, reason.Trim(), actorUserId);
         return Result.Success();
@@ -107,15 +145,29 @@ public sealed class OrganizationRepresentative :
 
     public Result Reactivate(string? reason, UserId actorUserId)
     {
-        if (Status != OrganizationRepresentativeStatus.Suspended || string.IsNullOrWhiteSpace(reason) || actorUserId.IsEmpty)
+        if (
+            Status != OrganizationRepresentativeStatus.Suspended
+            || string.IsNullOrWhiteSpace(reason)
+            || actorUserId.IsEmpty
+        )
             return Result.Failure(OrganizationRepresentativeErrors.InvalidStatusTransition);
         ChangeStatus(OrganizationRepresentativeStatus.Active, reason.Trim(), actorUserId);
         return Result.Success();
     }
 
-    public Result End(DateOnly effectiveTo, string? reason, UserId actorUserId, bool isLastActiveOwner)
+    public Result End(
+        DateOnly effectiveTo,
+        string? reason,
+        UserId actorUserId,
+        bool isLastActiveOwner
+    )
     {
-        if (Status == OrganizationRepresentativeStatus.Ended || effectiveTo < EffectiveFrom || string.IsNullOrWhiteSpace(reason) || actorUserId.IsEmpty)
+        if (
+            Status == OrganizationRepresentativeStatus.Ended
+            || effectiveTo < EffectiveFrom
+            || string.IsNullOrWhiteSpace(reason)
+            || actorUserId.IsEmpty
+        )
             return Result.Failure(OrganizationRepresentativeErrors.InvalidStatusTransition);
         if (IsOwner && isLastActiveOwner)
             return Result.Failure(OrganizationRepresentativeErrors.LastActiveOwnerCannotBeEnded);
@@ -130,7 +182,8 @@ public sealed class OrganizationRepresentative :
         RepresentativeAuthorityScope authorityScope,
         UserId? userId,
         DateOnly effectiveFrom,
-        DateOnly? effectiveTo)
+        DateOnly? effectiveTo
+    )
     {
         ArgumentNullException.ThrowIfNull(authorityScope);
         if (Status == OrganizationRepresentativeStatus.Ended)
@@ -157,14 +210,16 @@ public sealed class OrganizationRepresentative :
 
     public void ClearPrimaryOwner()
     {
-        if (!IsPrimaryOwner) return;
+        if (!IsPrimaryOwner)
+            return;
         IsPrimaryOwner = false;
         Revision++;
     }
 
     public void SetCreatedAudit(DateTimeOffset createdAtUtc, UserId? createdByUserId)
     {
-        if (CreatedAtUtc != default) return;
+        if (CreatedAtUtc != default)
+            return;
         CreatedAtUtc = createdAtUtc;
         CreatedByUserId = createdByUserId;
     }
@@ -175,12 +230,24 @@ public sealed class OrganizationRepresentative :
         LastModifiedByUserId = modifiedByUserId;
     }
 
-    private void ChangeStatus(OrganizationRepresentativeStatus newStatus, string reason, UserId actorUserId)
+    private void ChangeStatus(
+        OrganizationRepresentativeStatus newStatus,
+        string reason,
+        UserId actorUserId
+    )
     {
         OrganizationRepresentativeStatus previous = Status;
         Status = newStatus;
         Revision++;
-        RaiseDomainEvent(new OrganizationRepresentativeStatusChangedDomainEvent(
-            Id, OrganizationId, previous, newStatus, actorUserId, reason));
+        RaiseDomainEvent(
+            new OrganizationRepresentativeStatusChangedDomainEvent(
+                Id,
+                OrganizationId,
+                previous,
+                newStatus,
+                actorUserId,
+                reason
+            )
+        );
     }
 }

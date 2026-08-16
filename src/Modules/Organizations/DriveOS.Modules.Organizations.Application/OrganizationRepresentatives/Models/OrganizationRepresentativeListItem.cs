@@ -13,4 +13,5 @@ public sealed record OrganizationRepresentativeListItem(
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
     OrganizationRepresentativeStatus Status,
-    int Revision);
+    int Revision
+);

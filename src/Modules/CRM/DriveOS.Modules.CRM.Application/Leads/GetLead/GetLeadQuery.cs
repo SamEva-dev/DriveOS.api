@@ -4,6 +4,5 @@ using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Modules.CRM.Application.Leads.GetLead;
 
-public sealed record GetLeadQuery(
-    OrganizationId OrganizationId,
-    LeadId LeadId) : IQuery<LeadResponse>;
+public sealed record GetLeadQuery(OrganizationId OrganizationId, LeadId LeadId)
+    : IQuery<LeadResponse>;

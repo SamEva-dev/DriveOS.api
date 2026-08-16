@@ -6,16 +6,14 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Domain.Subscriptions;
 
-public sealed class OrganizationSubscription :
-    AggregateRoot<OrganizationSubscriptionId>,
-    IAuditableEntity
+public sealed class OrganizationSubscription
+    : AggregateRoot<OrganizationSubscriptionId>,
+        IAuditableEntity
 {
     private readonly List<SubscriptionEntitlement> _entitlements = [];
     private readonly List<SubscriptionLimit> _limits = [];
 
-    private OrganizationSubscription()
-    {
-    }
+    private OrganizationSubscription() { }
 
     private OrganizationSubscription(
         OrganizationSubscriptionId id,
@@ -26,7 +24,8 @@ public sealed class OrganizationSubscription :
         SubscriptionPeriod currentPeriod,
         SubscriptionPeriod? trialPeriod,
         string? externalProvider,
-        string? externalSubscriptionId)
+        string? externalSubscriptionId
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -51,11 +50,9 @@ public sealed class OrganizationSubscription :
     public string? ExternalSubscriptionId { get; private set; }
     public int Version { get; private set; }
 
-    public IReadOnlyCollection<SubscriptionEntitlement> Entitlements =>
-        _entitlements.AsReadOnly();
+    public IReadOnlyCollection<SubscriptionEntitlement> Entitlements => _entitlements.AsReadOnly();
 
-    public IReadOnlyCollection<SubscriptionLimit> Limits =>
-        _limits.AsReadOnly();
+    public IReadOnlyCollection<SubscriptionLimit> Limits => _limits.AsReadOnly();
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public UserId? CreatedByUserId { get; private set; }
@@ -71,18 +68,19 @@ public sealed class OrganizationSubscription :
         SubscriptionPeriod currentPeriod,
         SubscriptionPeriod? trialPeriod = null,
         string? externalProvider = null,
-        string? externalSubscriptionId = null)
+        string? externalSubscriptionId = null
+    )
     {
         if (id.IsEmpty)
         {
-            return Result.Failure<OrganizationSubscription>(
-                OrganizationSubscriptionErrors.EmptyId);
+            return Result.Failure<OrganizationSubscription>(OrganizationSubscriptionErrors.EmptyId);
         }
 
         if (organizationId.IsEmpty)
         {
             return Result.Failure<OrganizationSubscription>(
-                OrganizationSubscriptionErrors.EmptyOrganizationId);
+                OrganizationSubscriptionErrors.EmptyOrganizationId
+            );
         }
 
         ArgumentNullException.ThrowIfNull(planCode);
@@ -91,19 +89,22 @@ public sealed class OrganizationSubscription :
         if (!Enum.IsDefined(status) || !Enum.IsDefined(billingCycle))
         {
             return Result.Failure<OrganizationSubscription>(
-                OrganizationSubscriptionErrors.InvalidStatusTransition);
+                OrganizationSubscriptionErrors.InvalidStatusTransition
+            );
         }
 
         if (status == SubscriptionStatus.Trialing && trialPeriod is null)
         {
             return Result.Failure<OrganizationSubscription>(
-                OrganizationSubscriptionErrors.InvalidTrialPeriod);
+                OrganizationSubscriptionErrors.InvalidTrialPeriod
+            );
         }
 
         if (trialPeriod is not null && trialPeriod.EndsAtUtc is null)
         {
             return Result.Failure<OrganizationSubscription>(
-                OrganizationSubscriptionErrors.InvalidTrialPeriod);
+                OrganizationSubscriptionErrors.InvalidTrialPeriod
+            );
         }
 
         var subscription = new OrganizationSubscription(
@@ -115,14 +116,17 @@ public sealed class OrganizationSubscription :
             currentPeriod,
             trialPeriod,
             externalProvider,
-            externalSubscriptionId);
+            externalSubscriptionId
+        );
 
         subscription.RaiseDomainEvent(
             new OrganizationSubscriptionCreatedDomainEvent(
                 subscription.Id,
                 subscription.OrganizationId,
                 subscription.PlanCode.Value,
-                subscription.Status));
+                subscription.Status
+            )
+        );
 
         return Result.Success(subscription);
     }
@@ -132,7 +136,8 @@ public sealed class OrganizationSubscription :
         IReadOnlyCollection<string> entitlementCodes,
         IReadOnlyDictionary<string, long> limits,
         string? reason,
-        UserId changedByUserId)
+        UserId changedByUserId
+    )
     {
         Result guard = GuardMutableChange(reason, changedByUserId);
         if (guard.IsFailure)
@@ -144,8 +149,9 @@ public sealed class OrganizationSubscription :
         ArgumentNullException.ThrowIfNull(entitlementCodes);
         ArgumentNullException.ThrowIfNull(limits);
 
-        Result<List<SubscriptionEntitlement>> entitlementsResult =
-            BuildEntitlements(entitlementCodes);
+        Result<List<SubscriptionEntitlement>> entitlementsResult = BuildEntitlements(
+            entitlementCodes
+        );
         if (entitlementsResult.IsFailure)
         {
             return Result.Failure(entitlementsResult.Error);
@@ -163,13 +169,16 @@ public sealed class OrganizationSubscription :
         ReplaceLimits(limitsResult.Value);
         IncrementVersion();
 
-        RaiseDomainEvent(new OrganizationSubscriptionPlanChangedDomainEvent(
-            Id,
-            OrganizationId,
-            previousPlanCode,
-            PlanCode.Value,
-            reason!.Trim(),
-            changedByUserId));
+        RaiseDomainEvent(
+            new OrganizationSubscriptionPlanChangedDomainEvent(
+                Id,
+                OrganizationId,
+                previousPlanCode,
+                PlanCode.Value,
+                reason!.Trim(),
+                changedByUserId
+            )
+        );
 
         return Result.Success();
     }
@@ -177,12 +186,8 @@ public sealed class OrganizationSubscription :
     public Result Activate(
         SubscriptionPeriod currentPeriod,
         string? reason,
-        UserId changedByUserId) =>
-        ChangeStatus(
-            SubscriptionStatus.Active,
-            currentPeriod,
-            reason,
-            changedByUserId);
+        UserId changedByUserId
+    ) => ChangeStatus(SubscriptionStatus.Active, currentPeriod, reason, changedByUserId);
 
     public Result MarkPastDue(string? reason, UserId changedByUserId) =>
         ChangeStatus(SubscriptionStatus.PastDue, null, reason, changedByUserId);
@@ -196,15 +201,13 @@ public sealed class OrganizationSubscription :
     public Result Expire(string? reason, UserId changedByUserId) =>
         ChangeStatus(SubscriptionStatus.Expired, null, reason, changedByUserId);
 
-    public Result Cancel(
-        SubscriptionCancellation cancellation)
+    public Result Cancel(SubscriptionCancellation cancellation)
     {
         ArgumentNullException.ThrowIfNull(cancellation);
 
         if (Status is SubscriptionStatus.Cancelled or SubscriptionStatus.Expired)
         {
-            return Result.Failure(
-                OrganizationSubscriptionErrors.InvalidStatusTransition);
+            return Result.Failure(OrganizationSubscriptionErrors.InvalidStatusTransition);
         }
 
         SubscriptionStatus previousStatus = Status;
@@ -212,28 +215,33 @@ public sealed class OrganizationSubscription :
         Status = SubscriptionStatus.Cancelled;
         IncrementVersion();
 
-        RaiseDomainEvent(new OrganizationSubscriptionStatusChangedDomainEvent(
-            Id,
-            OrganizationId,
-            previousStatus,
-            Status,
-            cancellation.Reason,
-            cancellation.RequestedByUserId));
+        RaiseDomainEvent(
+            new OrganizationSubscriptionStatusChangedDomainEvent(
+                Id,
+                OrganizationId,
+                previousStatus,
+                Status,
+                cancellation.Reason,
+                cancellation.RequestedByUserId
+            )
+        );
 
         return Result.Success();
     }
 
     public bool HasEntitlement(string entitlementCode) =>
         _entitlements.Any(item =>
-            string.Equals(item.Code, entitlementCode?.Trim(), StringComparison.Ordinal));
+            string.Equals(item.Code, entitlementCode?.Trim(), StringComparison.Ordinal)
+        );
 
     public long? GetLimit(string limitCode) =>
-        _limits.FirstOrDefault(item =>
-            string.Equals(item.Code, limitCode?.Trim(), StringComparison.Ordinal))?.Value;
+        _limits
+            .FirstOrDefault(item =>
+                string.Equals(item.Code, limitCode?.Trim(), StringComparison.Ordinal)
+            )
+            ?.Value;
 
-    public void SetCreatedAudit(
-    DateTimeOffset createdAtUtc,
-    UserId? createdByUserId)
+    public void SetCreatedAudit(DateTimeOffset createdAtUtc, UserId? createdByUserId)
     {
         if (CreatedAtUtc != default)
         {
@@ -244,9 +252,7 @@ public sealed class OrganizationSubscription :
         CreatedByUserId = createdByUserId;
     }
 
-    public void SetModifiedAudit(
-        DateTimeOffset modifiedAtUtc,
-        UserId? modifiedByUserId)
+    public void SetModifiedAudit(DateTimeOffset modifiedAtUtc, UserId? modifiedByUserId)
     {
         LastModifiedAtUtc = modifiedAtUtc;
         LastModifiedByUserId = modifiedByUserId;
@@ -256,7 +262,8 @@ public sealed class OrganizationSubscription :
         SubscriptionStatus targetStatus,
         SubscriptionPeriod? currentPeriod,
         string? reason,
-        UserId changedByUserId)
+        UserId changedByUserId
+    )
     {
         Result guard = GuardMutableChange(reason, changedByUserId);
         if (guard.IsFailure)
@@ -266,8 +273,7 @@ public sealed class OrganizationSubscription :
 
         if (!CanTransition(Status, targetStatus))
         {
-            return Result.Failure(
-                OrganizationSubscriptionErrors.InvalidStatusTransition);
+            return Result.Failure(OrganizationSubscriptionErrors.InvalidStatusTransition);
         }
 
         SubscriptionStatus previousStatus = Status;
@@ -280,13 +286,16 @@ public sealed class OrganizationSubscription :
 
         IncrementVersion();
 
-        RaiseDomainEvent(new OrganizationSubscriptionStatusChangedDomainEvent(
-            Id,
-            OrganizationId,
-            previousStatus,
-            Status,
-            reason!.Trim(),
-            changedByUserId));
+        RaiseDomainEvent(
+            new OrganizationSubscriptionStatusChangedDomainEvent(
+                Id,
+                OrganizationId,
+                previousStatus,
+                Status,
+                reason!.Trim(),
+                changedByUserId
+            )
+        );
 
         return Result.Success();
     }
@@ -296,65 +305,64 @@ public sealed class OrganizationSubscription :
         if (Status == SubscriptionStatus.Cancelled)
         {
             return Result.Failure(
-                OrganizationSubscriptionErrors.CancelledSubscriptionCannotBeChanged);
+                OrganizationSubscriptionErrors.CancelledSubscriptionCannotBeChanged
+            );
         }
 
         if (changedByUserId.IsEmpty)
         {
-            return Result.Failure(
-                OrganizationSubscriptionErrors.EmptyActorUserId);
+            return Result.Failure(OrganizationSubscriptionErrors.EmptyActorUserId);
         }
 
         string normalizedReason = reason?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(normalizedReason))
         {
-            return Result.Failure(
-                OrganizationSubscriptionErrors.EmptyChangeReason);
+            return Result.Failure(OrganizationSubscriptionErrors.EmptyChangeReason);
         }
 
         if (normalizedReason.Length > SubscriptionCancellation.ReasonMaximumLength)
         {
             return Result.Failure(
                 OrganizationSubscriptionErrors.ChangeReasonTooLong(
-                    SubscriptionCancellation.ReasonMaximumLength));
+                    SubscriptionCancellation.ReasonMaximumLength
+                )
+            );
         }
 
         return Result.Success();
     }
 
-    private static bool CanTransition(
-        SubscriptionStatus current,
-        SubscriptionStatus target) =>
+    private static bool CanTransition(SubscriptionStatus current, SubscriptionStatus target) =>
         current switch
         {
-            SubscriptionStatus.Trialing => target is
-                SubscriptionStatus.Active or
-                SubscriptionStatus.Restricted or
-                SubscriptionStatus.Suspended or
-                SubscriptionStatus.Expired,
+            SubscriptionStatus.Trialing => target
+                is SubscriptionStatus.Active
+                    or SubscriptionStatus.Restricted
+                    or SubscriptionStatus.Suspended
+                    or SubscriptionStatus.Expired,
 
-            SubscriptionStatus.Active => target is
-                SubscriptionStatus.PastDue or
-                SubscriptionStatus.Restricted or
-                SubscriptionStatus.Suspended or
-                SubscriptionStatus.Expired,
+            SubscriptionStatus.Active => target
+                is SubscriptionStatus.PastDue
+                    or SubscriptionStatus.Restricted
+                    or SubscriptionStatus.Suspended
+                    or SubscriptionStatus.Expired,
 
-            SubscriptionStatus.PastDue => target is
-                SubscriptionStatus.Active or
-                SubscriptionStatus.Restricted or
-                SubscriptionStatus.Suspended or
-                SubscriptionStatus.Expired,
+            SubscriptionStatus.PastDue => target
+                is SubscriptionStatus.Active
+                    or SubscriptionStatus.Restricted
+                    or SubscriptionStatus.Suspended
+                    or SubscriptionStatus.Expired,
 
-            SubscriptionStatus.Restricted => target is
-                SubscriptionStatus.Active or
-                SubscriptionStatus.PastDue or
-                SubscriptionStatus.Suspended or
-                SubscriptionStatus.Expired,
+            SubscriptionStatus.Restricted => target
+                is SubscriptionStatus.Active
+                    or SubscriptionStatus.PastDue
+                    or SubscriptionStatus.Suspended
+                    or SubscriptionStatus.Expired,
 
-            SubscriptionStatus.Suspended => target is
-                SubscriptionStatus.Active or
-                SubscriptionStatus.Restricted or
-                SubscriptionStatus.Expired,
+            SubscriptionStatus.Suspended => target
+                is SubscriptionStatus.Active
+                    or SubscriptionStatus.Restricted
+                    or SubscriptionStatus.Expired,
 
             SubscriptionStatus.Expired => target is SubscriptionStatus.Active,
             SubscriptionStatus.Cancelled => false,
@@ -362,26 +370,26 @@ public sealed class OrganizationSubscription :
         };
 
     private static Result<List<SubscriptionEntitlement>> BuildEntitlements(
-        IEnumerable<string> codes)
+        IEnumerable<string> codes
+    )
     {
         var values = new List<SubscriptionEntitlement>();
         var uniqueCodes = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (string code in codes)
         {
-            Result<SubscriptionEntitlement> itemResult =
-                SubscriptionEntitlement.Create(code);
+            Result<SubscriptionEntitlement> itemResult = SubscriptionEntitlement.Create(code);
 
             if (itemResult.IsFailure)
             {
-                return Result.Failure<List<SubscriptionEntitlement>>(
-                    itemResult.Error);
+                return Result.Failure<List<SubscriptionEntitlement>>(itemResult.Error);
             }
 
             if (!uniqueCodes.Add(itemResult.Value.Code))
             {
                 return Result.Failure<List<SubscriptionEntitlement>>(
-                    OrganizationSubscriptionErrors.DuplicateEntitlement);
+                    OrganizationSubscriptionErrors.DuplicateEntitlement
+                );
             }
 
             values.Add(itemResult.Value);
@@ -391,15 +399,15 @@ public sealed class OrganizationSubscription :
     }
 
     private static Result<List<SubscriptionLimit>> BuildLimits(
-        IReadOnlyDictionary<string, long> limits)
+        IReadOnlyDictionary<string, long> limits
+    )
     {
         var values = new List<SubscriptionLimit>();
         var uniqueCodes = new HashSet<string>(StringComparer.Ordinal);
 
         foreach ((string code, long value) in limits)
         {
-            Result<SubscriptionLimit> itemResult =
-                SubscriptionLimit.Create(code, value);
+            Result<SubscriptionLimit> itemResult = SubscriptionLimit.Create(code, value);
 
             if (itemResult.IsFailure)
             {
@@ -409,7 +417,8 @@ public sealed class OrganizationSubscription :
             if (!uniqueCodes.Add(itemResult.Value.Code))
             {
                 return Result.Failure<List<SubscriptionLimit>>(
-                    OrganizationSubscriptionErrors.DuplicateLimit);
+                    OrganizationSubscriptionErrors.DuplicateLimit
+                );
             }
 
             values.Add(itemResult.Value);

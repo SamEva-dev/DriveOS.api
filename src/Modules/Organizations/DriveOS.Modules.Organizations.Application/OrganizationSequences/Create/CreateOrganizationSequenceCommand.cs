@@ -12,5 +12,5 @@ public sealed record CreateOrganizationSequenceCommand(
     string Pattern,
     int Padding,
     long InitialValue,
-    OrganizationSequenceResetPolicy ResetPolicy)
-    : ICommand<OrganizationSequenceId>;
+    OrganizationSequenceResetPolicy ResetPolicy
+) : ICommand<OrganizationSequenceId>;

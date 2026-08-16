@@ -8,10 +8,12 @@ public interface IOrganizationEntitlementChecker
     Task<Result<OrganizationEntitlementCheckResult>> CheckAsync(
         OrganizationId organizationId,
         string entitlementCode,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     Task<Result> RequireAsync(
         OrganizationId organizationId,
         string entitlementCode,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

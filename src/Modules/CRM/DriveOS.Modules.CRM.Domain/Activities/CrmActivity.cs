@@ -10,10 +10,18 @@ public sealed class CrmActivity : AggregateRoot<CrmActivityId>, IAuditableEntity
 {
     private CrmActivity() { }
 
-    private CrmActivity(CrmActivityId id, OrganizationId organizationId, LeadId? leadId,
-        CrmActivityType type, CrmActivityDirection direction, string subject,
-        string? details, DateTimeOffset occurredAtUtc, UserId? advisorUserId,
-        CrmActivityMetadata metadata)
+    private CrmActivity(
+        CrmActivityId id,
+        OrganizationId organizationId,
+        LeadId? leadId,
+        CrmActivityType type,
+        CrmActivityDirection direction,
+        string subject,
+        string? details,
+        DateTimeOffset occurredAtUtc,
+        UserId? advisorUserId,
+        CrmActivityMetadata metadata
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -44,12 +52,21 @@ public sealed class CrmActivity : AggregateRoot<CrmActivityId>, IAuditableEntity
     public DateTimeOffset? LastModifiedAtUtc { get; private set; }
     public UserId? LastModifiedByUserId { get; private set; }
 
-    public static Result<CrmActivity> Create(CrmActivityId id, OrganizationId organizationId,
-        LeadId? leadId, CrmActivityType type, CrmActivityDirection direction,
-        string subject, string? details, DateTimeOffset occurredAtUtc,
-        UserId? advisorUserId = null, CrmActivityMetadata? metadata = null)
+    public static Result<CrmActivity> Create(
+        CrmActivityId id,
+        OrganizationId organizationId,
+        LeadId? leadId,
+        CrmActivityType type,
+        CrmActivityDirection direction,
+        string subject,
+        string? details,
+        DateTimeOffset occurredAtUtc,
+        UserId? advisorUserId = null,
+        CrmActivityMetadata? metadata = null
+    )
     {
-        if (id.IsEmpty) return Result.Failure<CrmActivity>(CrmActivityErrors.IdInvalid);
+        if (id.IsEmpty)
+            return Result.Failure<CrmActivity>(CrmActivityErrors.IdInvalid);
         string normalizedSubject = subject?.Trim() ?? string.Empty;
         string? normalizedDetails = string.IsNullOrWhiteSpace(details) ? null : details.Trim();
 
@@ -63,39 +80,65 @@ public sealed class CrmActivity : AggregateRoot<CrmActivityId>, IAuditableEntity
             return Result.Failure<CrmActivity>(CrmActivityErrors.OccurredAtRequired);
         if (type == CrmActivityType.Note && direction != CrmActivityDirection.None)
             return Result.Failure<CrmActivity>(CrmActivityErrors.DirectionNotAllowed);
-        if (leadId is { IsEmpty: true }) return Result.Failure<CrmActivity>(CrmActivityErrors.LeadIdInvalid);
+        if (leadId is { IsEmpty: true })
+            return Result.Failure<CrmActivity>(CrmActivityErrors.LeadIdInvalid);
         if (metadata?.DurationMinutes is < 0 or > 1440)
             return Result.Failure<CrmActivity>(CrmActivityErrors.DurationInvalid);
-        if (metadata?.Result?.Length > 100 || metadata?.AttachmentName?.Length > 255 ||
-            metadata?.AttachmentReference?.Length > 1000)
+        if (
+            metadata?.Result?.Length > 100
+            || metadata?.AttachmentName?.Length > 255
+            || metadata?.AttachmentReference?.Length > 1000
+        )
             return Result.Failure<CrmActivity>(CrmActivityErrors.MetadataInvalid);
-        if (metadata?.Origin == CrmActivityOrigin.Imported &&
-            (string.IsNullOrWhiteSpace(metadata.ExternalId) ||
-             string.IsNullOrWhiteSpace(metadata.IdempotencyKey) ||
-             metadata.SyncStatus == CrmActivitySyncStatus.NotApplicable ||
-             metadata.SyncStatus == CrmActivitySyncStatus.Failed &&
-             string.IsNullOrWhiteSpace(metadata.SyncErrorKey)))
+        if (
+            metadata?.Origin == CrmActivityOrigin.Imported
+            && (
+                string.IsNullOrWhiteSpace(metadata.ExternalId)
+                || string.IsNullOrWhiteSpace(metadata.IdempotencyKey)
+                || metadata.SyncStatus == CrmActivitySyncStatus.NotApplicable
+                || metadata.SyncStatus == CrmActivitySyncStatus.Failed
+                    && string.IsNullOrWhiteSpace(metadata.SyncErrorKey)
+            )
+        )
             return Result.Failure<CrmActivity>(CrmActivityErrors.MetadataInvalid);
 
-        return Result.Success(new CrmActivity(id, organizationId, leadId, type,
-            direction, normalizedSubject, normalizedDetails, occurredAtUtc.ToUniversalTime(),
-            advisorUserId, metadata ?? CrmActivityMetadata.Manual()));
+        return Result.Success(
+            new CrmActivity(
+                id,
+                organizationId,
+                leadId,
+                type,
+                direction,
+                normalizedSubject,
+                normalizedDetails,
+                occurredAtUtc.ToUniversalTime(),
+                advisorUserId,
+                metadata ?? CrmActivityMetadata.Manual()
+            )
+        );
     }
 
     public Result AttachToLead(LeadId leadId)
     {
-        if (leadId.IsEmpty) return Result.Failure(CrmActivityErrors.LeadIdInvalid);
-        if (LeadId.HasValue) return Result.Failure(CrmActivityErrors.AlreadyAttached);
-        LeadId = leadId; return Result.Success();
+        if (leadId.IsEmpty)
+            return Result.Failure(CrmActivityErrors.LeadIdInvalid);
+        if (LeadId.HasValue)
+            return Result.Failure(CrmActivityErrors.AlreadyAttached);
+        LeadId = leadId;
+        return Result.Success();
     }
 
     public Result Invalidate(string reason, UserId userId, DateTimeOffset nowUtc)
     {
-        if (InvalidatedAtUtc.HasValue) return Result.Failure(CrmActivityErrors.AlreadyInvalidated);
+        if (InvalidatedAtUtc.HasValue)
+            return Result.Failure(CrmActivityErrors.AlreadyInvalidated);
         string value = reason?.Trim() ?? string.Empty;
-        if (value.Length is < 3 or > 500) return Result.Failure(CrmActivityErrors.InvalidationReasonInvalid);
-        InvalidatedAtUtc = nowUtc.ToUniversalTime(); InvalidatedByUserId = userId;
-        InvalidationReason = value; return Result.Success();
+        if (value.Length is < 3 or > 500)
+            return Result.Failure(CrmActivityErrors.InvalidationReasonInvalid);
+        InvalidatedAtUtc = nowUtc.ToUniversalTime();
+        InvalidatedByUserId = userId;
+        InvalidationReason = value;
+        return Result.Success();
     }
 
     public Result RetrySynchronization(DateTimeOffset nowUtc)
@@ -107,19 +150,24 @@ public sealed class CrmActivity : AggregateRoot<CrmActivityId>, IAuditableEntity
             SyncStatus = CrmActivitySyncStatus.Pending,
             SyncAttemptCount = Metadata.SyncAttemptCount + 1,
             LastSyncAttemptAtUtc = nowUtc,
-            SyncErrorKey = null
-        }; return Result.Success();
+            SyncErrorKey = null,
+        };
+        return Result.Success();
     }
 
     public Result AbandonSynchronization(DateTimeOffset nowUtc)
     {
-        if (Metadata.SyncStatus is not (CrmActivitySyncStatus.Failed or CrmActivitySyncStatus.Pending))
+        if (
+            Metadata.SyncStatus
+            is not (CrmActivitySyncStatus.Failed or CrmActivitySyncStatus.Pending)
+        )
             return Result.Failure(CrmActivityErrors.SyncAbandonNotAllowed);
         Metadata = Metadata with
         {
             SyncStatus = CrmActivitySyncStatus.Abandoned,
-            LastSyncAttemptAtUtc = nowUtc
-        }; return Result.Success();
+            LastSyncAttemptAtUtc = nowUtc,
+        };
+        return Result.Success();
     }
 
     public Result SetAttachment(string fileName, string opaqueReference)

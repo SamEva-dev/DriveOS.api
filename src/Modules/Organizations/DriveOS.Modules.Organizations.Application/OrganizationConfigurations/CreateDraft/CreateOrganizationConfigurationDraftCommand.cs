@@ -8,5 +8,5 @@ public sealed record CreateOrganizationConfigurationDraftCommand(
     OrganizationId OrganizationId,
     int VersionNumber,
     string CountryCode,
-    string PayloadJson)
-    : ICommand<OrganizationConfigurationId>;
+    string PayloadJson
+) : ICommand<OrganizationConfigurationId>;

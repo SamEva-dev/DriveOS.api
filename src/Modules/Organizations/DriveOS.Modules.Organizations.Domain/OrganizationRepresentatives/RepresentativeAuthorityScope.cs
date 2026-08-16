@@ -15,14 +15,16 @@ public sealed record RepresentativeAuthorityScope
         if (string.IsNullOrWhiteSpace(value))
         {
             return Result.Failure<RepresentativeAuthorityScope>(
-                OrganizationRepresentativeErrors.AuthorityScopeRequired);
+                OrganizationRepresentativeErrors.AuthorityScopeRequired
+            );
         }
 
         string normalized = value.Trim();
         if (normalized.Length > MaximumLength)
         {
             return Result.Failure<RepresentativeAuthorityScope>(
-                OrganizationRepresentativeErrors.AuthorityScopeTooLong(MaximumLength));
+                OrganizationRepresentativeErrors.AuthorityScopeTooLong(MaximumLength)
+            );
         }
 
         return Result.Success(new RepresentativeAuthorityScope(normalized));

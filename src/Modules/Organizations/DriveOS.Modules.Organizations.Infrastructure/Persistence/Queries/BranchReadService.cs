@@ -7,22 +7,18 @@ using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.SharedKernel.Identifiers;
 using Microsoft.EntityFrameworkCore;
 
-namespace DriveOS.Modules.Organizations.Infrastructure
-    .Persistence.Queries;
+namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Queries;
 
-internal sealed class BranchReadService(
-    OrganizationsDbContext dbContext)
-    : IBranchReadService
+internal sealed class BranchReadService(OrganizationsDbContext dbContext) : IBranchReadService
 {
     public Task<BranchResponse?> GetByIdAsync(
         OrganizationId organizationId,
         BranchId branchId,
-        CancellationToken cancellationToken = default) =>
-        dbContext.Branches
-            .AsNoTracking()
-            .Where(branch =>
-                branch.OrganizationId == organizationId &&
-                branch.Id == branchId)
+        CancellationToken cancellationToken = default
+    ) =>
+        dbContext
+            .Branches.AsNoTracking()
+            .Where(branch => branch.OrganizationId == organizationId && branch.Id == branchId)
             .Select(branch => new BranchResponse(
                 branch.Id.Value,
                 branch.OrganizationId.Value,
@@ -38,7 +34,8 @@ internal sealed class BranchReadService(
                 branch.Address.CountryCode,
                 branch.TimeZoneId,
                 branch.CreatedAtUtc,
-                branch.LastModifiedAtUtc))
+                branch.LastModifiedAtUtc
+            ))
             .SingleOrDefaultAsync(cancellationToken);
 
     public async Task<PagedResult<BranchListItem>> GetPagedAsync(
@@ -48,10 +45,11 @@ internal sealed class BranchReadService(
         string? search,
         BranchSortField sortBy,
         SortDirection sortDirection,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        IQueryable<Branch> query = dbContext.Branches
-            .AsNoTracking()
+        IQueryable<Branch> query = dbContext
+            .Branches.AsNoTracking()
             .Where(branch => branch.OrganizationId == organizationId);
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -60,9 +58,10 @@ internal sealed class BranchReadService(
             string normalized = term.ToUpperInvariant();
 
             query = query.Where(branch =>
-                branch.NormalizedName.Contains(normalized) ||
-                branch.Code.Value.Contains(normalized) ||
-                EF.Functions.ILike(branch.Address.City, $"%{term}%"));
+                branch.NormalizedName.Contains(normalized)
+                || branch.Code.Value.Contains(normalized)
+                || EF.Functions.ILike(branch.Address.City, $"%{term}%")
+            );
         }
 
         int totalCount = await query.CountAsync(cancellationToken);
@@ -81,20 +80,18 @@ internal sealed class BranchReadService(
                 branch.IsPrimary,
                 branch.Address.City,
                 branch.Address.CountryCode,
-                branch.TimeZoneId))
+                branch.TimeZoneId
+            ))
             .ToListAsync(cancellationToken);
 
-        return new PagedResult<BranchListItem>(
-            items,
-            pageNumber,
-            pageSize,
-            totalCount);
+        return new PagedResult<BranchListItem>(items, pageNumber, pageSize, totalCount);
     }
 
     private static IQueryable<Branch> ApplySorting(
         IQueryable<Branch> query,
         BranchSortField sortBy,
-        SortDirection direction)
+        SortDirection direction
+    )
     {
         bool descending = direction == SortDirection.Descending;
 
@@ -116,69 +113,47 @@ internal sealed class BranchReadService(
                 ? query.OrderByDescending(branch => branch.CreatedAtUtc)
                 : query.OrderBy(branch => branch.CreatedAtUtc),
             _ => descending
-                ? query.OrderByDescending(branch => branch.IsPrimary)
+                ? query
+                    .OrderByDescending(branch => branch.IsPrimary)
                     .ThenByDescending(branch => branch.NormalizedName)
-                : query.OrderByDescending(branch => branch.IsPrimary)
+                : query
+                    .OrderByDescending(branch => branch.IsPrimary)
                     .ThenBy(branch => branch.NormalizedName),
         };
     }
 
-    public async Task<
-    IReadOnlyList<
-        BranchStatusHistoryItem>>
-    GetStatusHistoryAsync(
+    public async Task<IReadOnlyList<BranchStatusHistoryItem>> GetStatusHistoryAsync(
         OrganizationId organizationId,
         BranchId branchId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         return await dbContext
             .Set<BranchStatusHistoryEntry>()
             .AsNoTracking()
-            .Where(entry =>
-                entry.BranchId ==
-                    new BranchId(branchId.Value))
+            .Where(entry => entry.BranchId == new BranchId(branchId.Value))
             .Join(
                 dbContext.Branches.AsNoTracking(),
-                historyEntry =>
-                    historyEntry.BranchId,
-                branch =>
-                    branch.Id,
-                (
-                    historyEntry,
-                    branch) =>
+                historyEntry => historyEntry.BranchId,
+                branch => branch.Id,
+                (historyEntry, branch) =>
                     new
                     {
-                        HistoryEntry =
-                            historyEntry,
+                        HistoryEntry = historyEntry,
 
-                        Branch =
-                            branch,
-                    })
-            .Where(item =>
-                item.Branch.OrganizationId ==
-                    new OrganizationId(
-                        organizationId.Value))
-            .OrderByDescending(item =>
-                item.HistoryEntry
-                    .ChangedAtUtc)
-            .Select(item =>
-                new BranchStatusHistoryItem(
-                    item.HistoryEntry.Id,
-                    item.HistoryEntry
-                        .PreviousStatus
-                        .ToString(),
-                    item.HistoryEntry
-                        .NewStatus
-                        .ToString(),
-                    item.HistoryEntry
-                        .Reason.Value,
-                    item.HistoryEntry
-                        .ChangedByUserId,
-                    item.HistoryEntry
-                        .ChangedAtUtc))
-            .ToListAsync(
-                cancellationToken);
+                        Branch = branch,
+                    }
+            )
+            .Where(item => item.Branch.OrganizationId == new OrganizationId(organizationId.Value))
+            .OrderByDescending(item => item.HistoryEntry.ChangedAtUtc)
+            .Select(item => new BranchStatusHistoryItem(
+                item.HistoryEntry.Id,
+                item.HistoryEntry.PreviousStatus.ToString(),
+                item.HistoryEntry.NewStatus.ToString(),
+                item.HistoryEntry.Reason.Value,
+                item.HistoryEntry.ChangedByUserId,
+                item.HistoryEntry.ChangedAtUtc
+            ))
+            .ToListAsync(cancellationToken);
     }
-
-   
 }

@@ -11,29 +11,32 @@ using DriveOS.Modules.Organizations.Application.OrganizationSettings.UpdateOpera
 using DriveOS.Modules.Organizations.Application.OrganizationSettings.UpdateProfile;
 using DriveOS.Modules.Organizations.Application.OrganizationSettings.UpdateRegionalSettings;
 using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
+using DriveOS.Security.Contracts;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
-using DriveOS.Security.Contracts;
 
 namespace DriveOS.Api.Endpoints.Organization.OrganizationSettings;
 
 public static class OrganizationSettingsEndpoints
 {
     public static IEndpointRouteBuilder MapOrganizationSettingsEndpoints(
-        this IEndpointRouteBuilder endpoints)
+        this IEndpointRouteBuilder endpoints
+    )
     {
         RouteGroupBuilder group = endpoints
             .MapGroup("/api/organizations/{organizationId:guid}/settings")
             .WithTags("Organization settings");
 
-        group.MapGet("/", GetAsync)
+        group
+            .MapGet("/", GetAsync)
             .WithName("GetOrganizationSettings")
             .Produces<OrganizationSettingsResponseContract>(StatusCodes.Status200OK)
             .Produces<ApiErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound)
             .RequireAuthorization(DriveOsPermissionCodes.OrganizationSettings.Read);
 
-        group.MapPost("/", CreateAsync)
+        group
+            .MapPost("/", CreateAsync)
             .WithName("CreateOrganizationSettings")
             .Accepts<CreateOrganizationSettingsRequest>("application/json")
             .Produces(StatusCodes.Status201Created)
@@ -43,7 +46,8 @@ public static class OrganizationSettingsEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.OrganizationSettings.Create);
 
-        group.MapPut("/profile", UpdateProfileAsync)
+        group
+            .MapPut("/profile", UpdateProfileAsync)
             .WithName("UpdateOrganizationSettingsProfile")
             .Accepts<UpdateOrganizationProfileRequest>("application/json")
             .Produces(StatusCodes.Status204NoContent)
@@ -53,7 +57,8 @@ public static class OrganizationSettingsEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.OrganizationSettings.Update);
 
-        group.MapPut("/contact", UpdateContactAsync)
+        group
+            .MapPut("/contact", UpdateContactAsync)
             .WithName("UpdateOrganizationSettingsContact")
             .Accepts<UpdateOrganizationContactRequest>("application/json")
             .Produces(StatusCodes.Status204NoContent)
@@ -63,7 +68,8 @@ public static class OrganizationSettingsEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.OrganizationSettings.Update);
 
-        group.MapPut("/address", UpdateAddressAsync)
+        group
+            .MapPut("/address", UpdateAddressAsync)
             .WithName("UpdateOrganizationSettingsAddress")
             .Accepts<UpdateOrganizationAddressRequest>("application/json")
             .Produces(StatusCodes.Status204NoContent)
@@ -73,7 +79,8 @@ public static class OrganizationSettingsEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.OrganizationSettings.Update);
 
-        group.MapPut("/regional", UpdateRegionalAsync)
+        group
+            .MapPut("/regional", UpdateRegionalAsync)
             .WithName("UpdateOrganizationRegionalSettings")
             .Accepts<UpdateOrganizationRegionalSettingsRequest>("application/json")
             .Produces(StatusCodes.Status204NoContent)
@@ -83,7 +90,8 @@ public static class OrganizationSettingsEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .RequireAuthorization(DriveOsPermissionCodes.OrganizationSettings.Update);
 
-        group.MapPut("/operational", UpdateOperationalAsync)
+        group
+            .MapPut("/operational", UpdateOperationalAsync)
             .WithName("UpdateOrganizationOperationalSettings")
             .Accepts<UpdateOrganizationOperationalSettingsRequest>("application/json")
             .Produces(StatusCodes.Status204NoContent)
@@ -102,22 +110,28 @@ public static class OrganizationSettingsEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (!TryGetOrganizationId(organizationId, out OrganizationId id, out Error? error))
             return error!.ToHttpResult(httpContext);
 
         IResult? scopeError = EnsureTenantScope(id, currentTenant, httpContext);
-        if (scopeError is not null) return scopeError;
+        if (scopeError is not null)
+            return scopeError;
 
         Result<OrganizationSettingsResponse> result = await mediator.Send(
-            new GetOrganizationSettingsQuery(id), cancellationToken);
+            new GetOrganizationSettingsQuery(id),
+            cancellationToken
+        );
 
-        if (result.IsFailure) return result.Error.ToHttpResult(httpContext);
+        if (result.IsFailure)
+            return result.Error.ToHttpResult(httpContext);
 
         OrganizationSettingsResponseContract response = mapper.Map<
             OrganizationSettingsResponse,
-            OrganizationSettingsResponseContract>(result.Value);
+            OrganizationSettingsResponseContract
+        >(result.Value);
 
         return Results.Ok(response);
     }
@@ -129,13 +143,15 @@ public static class OrganizationSettingsEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (!TryGetOrganizationId(organizationId, out OrganizationId id, out Error? error))
             return error!.ToHttpResult(httpContext);
 
         IResult? scopeError = EnsureTenantScope(id, currentTenant, httpContext);
-        if (scopeError is not null) return scopeError;
+        if (scopeError is not null)
+            return scopeError;
 
         var model = new CreateOrganizationSettingsApiModel(
             id,
@@ -164,18 +180,22 @@ public static class OrganizationSettingsEndpoints
             request.DefaultCancellationDelayHours,
             request.AllowStudentSelfBooking,
             request.RequireBranchForOperations,
-            request.DefaultBranchId is Guid branchId ? new BranchId(branchId) : null);
+            request.DefaultBranchId is Guid branchId ? new BranchId(branchId) : null
+        );
 
         CreateOrganizationSettingsCommand command = mapper.Map<
             CreateOrganizationSettingsApiModel,
-            CreateOrganizationSettingsCommand>(model);
+            CreateOrganizationSettingsCommand
+        >(model);
 
         Result<OrganizationSettingsId> result = await mediator.Send(command, cancellationToken);
-        if (result.IsFailure) return result.Error.ToHttpResult(httpContext);
+        if (result.IsFailure)
+            return result.Error.ToHttpResult(httpContext);
 
         return Results.Created(
             $"/api/organizations/{organizationId}/settings",
-            new { id = result.Value.Value });
+            new { id = result.Value.Value }
+        );
     }
 
     private static async Task<IResult> UpdateProfileAsync(
@@ -185,20 +205,32 @@ public static class OrganizationSettingsEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetScopedOrganizationId(
-                organizationId, currentTenant, httpContext,
-                out OrganizationId id, out IResult? failure))
+        if (
+            !TryGetScopedOrganizationId(
+                organizationId,
+                currentTenant,
+                httpContext,
+                out OrganizationId id,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         var model = new UpdateOrganizationProfileApiModel(
-            id, request.TradeName, request.RegistrationNumber,
-            request.TaxNumber, request.ExpectedVersion);
+            id,
+            request.TradeName,
+            request.RegistrationNumber,
+            request.TaxNumber,
+            request.ExpectedVersion
+        );
 
         UpdateOrganizationProfileCommand command = mapper.Map<
             UpdateOrganizationProfileApiModel,
-            UpdateOrganizationProfileCommand>(model);
+            UpdateOrganizationProfileCommand
+        >(model);
 
         Result result = await mediator.Send(command, cancellationToken);
         return ToUpdateResult(result, httpContext);
@@ -211,20 +243,32 @@ public static class OrganizationSettingsEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetScopedOrganizationId(
-                organizationId, currentTenant, httpContext,
-                out OrganizationId id, out IResult? failure))
+        if (
+            !TryGetScopedOrganizationId(
+                organizationId,
+                currentTenant,
+                httpContext,
+                out OrganizationId id,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         var model = new UpdateOrganizationContactApiModel(
-            id, request.Email, request.Phone,
-            request.Website, request.ExpectedVersion);
+            id,
+            request.Email,
+            request.Phone,
+            request.Website,
+            request.ExpectedVersion
+        );
 
         UpdateOrganizationContactCommand command = mapper.Map<
             UpdateOrganizationContactApiModel,
-            UpdateOrganizationContactCommand>(model);
+            UpdateOrganizationContactCommand
+        >(model);
 
         Result result = await mediator.Send(command, cancellationToken);
         return ToUpdateResult(result, httpContext);
@@ -237,21 +281,35 @@ public static class OrganizationSettingsEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetScopedOrganizationId(
-                organizationId, currentTenant, httpContext,
-                out OrganizationId id, out IResult? failure))
+        if (
+            !TryGetScopedOrganizationId(
+                organizationId,
+                currentTenant,
+                httpContext,
+                out OrganizationId id,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         var model = new UpdateOrganizationAddressApiModel(
-            id, request.AddressLine1, request.AddressLine2,
-            request.PostalCode, request.City, request.Region,
-            request.AddressCountryCode, request.ExpectedVersion);
+            id,
+            request.AddressLine1,
+            request.AddressLine2,
+            request.PostalCode,
+            request.City,
+            request.Region,
+            request.AddressCountryCode,
+            request.ExpectedVersion
+        );
 
         UpdateOrganizationAddressCommand command = mapper.Map<
             UpdateOrganizationAddressApiModel,
-            UpdateOrganizationAddressCommand>(model);
+            UpdateOrganizationAddressCommand
+        >(model);
 
         Result result = await mediator.Send(command, cancellationToken);
         return ToUpdateResult(result, httpContext);
@@ -264,22 +322,37 @@ public static class OrganizationSettingsEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetScopedOrganizationId(
-                organizationId, currentTenant, httpContext,
-                out OrganizationId id, out IResult? failure))
+        if (
+            !TryGetScopedOrganizationId(
+                organizationId,
+                currentTenant,
+                httpContext,
+                out OrganizationId id,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         var model = new UpdateOrganizationRegionalSettingsApiModel(
-            id, request.DefaultLanguage, request.SupportedLanguages,
-            request.TimeZoneId, request.CurrencyCode, request.DateFormat,
-            request.TimeFormat, request.FirstDayOfWeek,
-            request.MeasurementSystem, request.ExpectedVersion);
+            id,
+            request.DefaultLanguage,
+            request.SupportedLanguages,
+            request.TimeZoneId,
+            request.CurrencyCode,
+            request.DateFormat,
+            request.TimeFormat,
+            request.FirstDayOfWeek,
+            request.MeasurementSystem,
+            request.ExpectedVersion
+        );
 
         UpdateOrganizationRegionalSettingsCommand command = mapper.Map<
             UpdateOrganizationRegionalSettingsApiModel,
-            UpdateOrganizationRegionalSettingsCommand>(model);
+            UpdateOrganizationRegionalSettingsCommand
+        >(model);
 
         Result result = await mediator.Send(command, cancellationToken);
         return ToUpdateResult(result, httpContext);
@@ -292,11 +365,18 @@ public static class OrganizationSettingsEndpoints
         IObjectMapper mapper,
         ICurrentTenant currentTenant,
         HttpContext httpContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        if (!TryGetScopedOrganizationId(
-                organizationId, currentTenant, httpContext,
-                out OrganizationId id, out IResult? failure))
+        if (
+            !TryGetScopedOrganizationId(
+                organizationId,
+                currentTenant,
+                httpContext,
+                out OrganizationId id,
+                out IResult? failure
+            )
+        )
             return failure!;
 
         var model = new UpdateOrganizationOperationalSettingsApiModel(
@@ -306,14 +386,14 @@ public static class OrganizationSettingsEndpoints
             request.DefaultCancellationDelayHours,
             request.AllowStudentSelfBooking,
             request.RequireBranchForOperations,
-            request.DefaultBranchId is Guid branchId
-                ? new BranchId(branchId)
-                : null,
-            request.ExpectedVersion);
+            request.DefaultBranchId is Guid branchId ? new BranchId(branchId) : null,
+            request.ExpectedVersion
+        );
 
         UpdateOrganizationOperationalSettingsCommand command = mapper.Map<
             UpdateOrganizationOperationalSettingsApiModel,
-            UpdateOrganizationOperationalSettingsCommand>(model);
+            UpdateOrganizationOperationalSettingsCommand
+        >(model);
 
         Result result = await mediator.Send(command, cancellationToken);
         return ToUpdateResult(result, httpContext);
@@ -324,41 +404,34 @@ public static class OrganizationSettingsEndpoints
         ICurrentTenant currentTenant,
         HttpContext httpContext,
         out OrganizationId organizationId,
-        out IResult? failure)
+        out IResult? failure
+    )
     {
-        if (!TryGetOrganizationId(
-                rawOrganizationId,
-                out organizationId,
-                out Error? error))
+        if (!TryGetOrganizationId(rawOrganizationId, out organizationId, out Error? error))
         {
             failure = error!.ToHttpResult(httpContext);
             return false;
         }
 
-        failure = EnsureTenantScope(
-            organizationId,
-            currentTenant,
-            httpContext);
+        failure = EnsureTenantScope(organizationId, currentTenant, httpContext);
 
         return failure is null;
     }
 
-    private static IResult ToUpdateResult(
-        Result result,
-        HttpContext httpContext) =>
-        result.IsSuccess
-            ? Results.NoContent()
-            : result.Error.ToHttpResult(httpContext);
+    private static IResult ToUpdateResult(Result result, HttpContext httpContext) =>
+        result.IsSuccess ? Results.NoContent() : result.Error.ToHttpResult(httpContext);
 
     private static bool TryGetOrganizationId(
         Guid value,
         out OrganizationId organizationId,
-        out Error? error)
+        out Error? error
+    )
     {
         organizationId = new OrganizationId(value);
         error = null;
 
-        if (value != Guid.Empty) return true;
+        if (value != Guid.Empty)
+            return true;
 
         error = OrganizationSettingsEndpointErrors.InvalidOrganizationId;
         return false;
@@ -367,13 +440,14 @@ public static class OrganizationSettingsEndpoints
     private static IResult? EnsureTenantScope(
         OrganizationId requestedOrganizationId,
         ICurrentTenant currentTenant,
-        HttpContext httpContext)
+        HttpContext httpContext
+    )
     {
-        if (!currentTenant.HasTenant) return null;
+        if (!currentTenant.HasTenant)
+            return null;
 
         return currentTenant.OrganizationId == requestedOrganizationId
             ? null
-            : OrganizationSettingsEndpointErrors.TenantScopeMismatch
-                .ToHttpResult(httpContext);
+            : OrganizationSettingsEndpointErrors.TenantScopeMismatch.ToHttpResult(httpContext);
     }
 }

@@ -5,12 +5,29 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationClosures.Command
 
 public interface IOrganizationClosureOrchestrator
 {
-    Task<OrganizationClosureExecutionResult> ExecuteAsync(OrganizationClosure closure, UserId actorUserId, CancellationToken cancellationToken);
-    Task<OrganizationClosureExecutionResult> ReopenAsync(OrganizationId organizationId, string justification, UserId actorUserId, CancellationToken cancellationToken);
+    Task<OrganizationClosureExecutionResult> ExecuteAsync(
+        OrganizationClosure closure,
+        UserId actorUserId,
+        CancellationToken cancellationToken
+    );
+    Task<OrganizationClosureExecutionResult> ReopenAsync(
+        OrganizationId organizationId,
+        string justification,
+        UserId actorUserId,
+        CancellationToken cancellationToken
+    );
 }
 
-public sealed record OrganizationClosureExecutionResult(bool Succeeded, IReadOnlyList<OrganizationClosureStepResult> Steps);
-public sealed record OrganizationClosureStepResult(string Step, bool Succeeded, string? ErrorCode = null);
+public sealed record OrganizationClosureExecutionResult(
+    bool Succeeded,
+    IReadOnlyList<OrganizationClosureStepResult> Steps
+);
+
+public sealed record OrganizationClosureStepResult(
+    string Step,
+    bool Succeeded,
+    string? ErrorCode = null
+);
 
 public static class OrganizationClosureSteps
 {

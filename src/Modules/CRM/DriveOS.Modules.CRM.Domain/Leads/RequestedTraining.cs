@@ -7,16 +7,15 @@ public sealed record RequestedTraining
     private RequestedTraining(
         string licenseCategory,
         TransmissionPreference transmission,
-        string? preferredLocation)
+        string? preferredLocation
+    )
     {
         LicenseCategory = licenseCategory;
         Transmission = transmission;
         PreferredLocation = preferredLocation;
     }
 
-    private RequestedTraining()
-    {
-    }
+    private RequestedTraining() { }
 
     public string LicenseCategory { get; private init; } = string.Empty;
 
@@ -27,42 +26,36 @@ public sealed record RequestedTraining
     public static Result<RequestedTraining> Create(
         string licenseCategory,
         TransmissionPreference transmission,
-        string? preferredLocation)
+        string? preferredLocation
+    )
     {
-        string normalizedCategory =
-            licenseCategory?.Trim().ToUpperInvariant() ?? string.Empty;
+        string normalizedCategory = licenseCategory?.Trim().ToUpperInvariant() ?? string.Empty;
 
         string? normalizedLocation = NormalizeOptional(preferredLocation);
 
         if (string.IsNullOrWhiteSpace(normalizedCategory))
         {
-            return Result.Failure<RequestedTraining>(
-                LeadErrors.LicenseCategoryRequired);
+            return Result.Failure<RequestedTraining>(LeadErrors.LicenseCategoryRequired);
         }
 
         if (normalizedCategory.Length > 30)
         {
-            return Result.Failure<RequestedTraining>(
-                LeadErrors.LicenseCategoryTooLong);
+            return Result.Failure<RequestedTraining>(LeadErrors.LicenseCategoryTooLong);
         }
 
         if (!Enum.IsDefined(transmission))
         {
-            return Result.Failure<RequestedTraining>(
-                LeadErrors.InvalidTransmissionPreference);
+            return Result.Failure<RequestedTraining>(LeadErrors.InvalidTransmissionPreference);
         }
 
         if (normalizedLocation?.Length > 200)
         {
-            return Result.Failure<RequestedTraining>(
-                LeadErrors.PreferredLocationTooLong);
+            return Result.Failure<RequestedTraining>(LeadErrors.PreferredLocationTooLong);
         }
 
         return Result.Success(
-            new RequestedTraining(
-                normalizedCategory,
-                transmission,
-                normalizedLocation));
+            new RequestedTraining(normalizedCategory, transmission, normalizedLocation)
+        );
     }
 
     private static string? NormalizeOptional(string? value)

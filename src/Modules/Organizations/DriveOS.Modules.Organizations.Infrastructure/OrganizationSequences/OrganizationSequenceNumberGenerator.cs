@@ -13,19 +13,19 @@ namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationSequences;
 internal sealed class OrganizationSequenceNumberGenerator(
     OrganizationsDbContext dbContext,
     IClock clock,
-    IOptions<OrganizationSequenceReservationOptions> options)
-    : IOrganizationSequenceNumberGenerator
+    IOptions<OrganizationSequenceReservationOptions> options
+) : IOrganizationSequenceNumberGenerator
 {
     public async Task<Result<string>> ReserveNextAsync(
         OrganizationId organizationId,
         BranchId? branchId,
         string code,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         if (organizationId.IsEmpty)
         {
-            return Result.Failure<string>(
-                OrganizationSequenceErrors.EmptyOrganizationId);
+            return Result.Failure<string>(OrganizationSequenceErrors.EmptyOrganizationId);
         }
 
         string normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
@@ -34,11 +34,9 @@ internal sealed class OrganizationSequenceNumberGenerator(
             return Result.Failure<string>(OrganizationSequenceErrors.EmptyCode);
         }
 
-        int maximumRetries =
-            options.Value.GetValidatedMaxConcurrencyRetries();
+        int maximumRetries = options.Value.GetValidatedMaxConcurrencyRetries();
 
-        IExecutionStrategy executionStrategy =
-            dbContext.Database.CreateExecutionStrategy();
+        IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
 
         return await executionStrategy.ExecuteAsync(async () =>
         {
@@ -47,31 +45,28 @@ internal sealed class OrganizationSequenceNumberGenerator(
                 cancellationToken.ThrowIfCancellationRequested();
 
                 await using IDbContextTransaction transaction =
-                    await dbContext.Database.BeginTransactionAsync(
-                        cancellationToken);
+                    await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
                 try
                 {
                     OrganizationSequence? sequence =
-                        await dbContext.OrganizationSequences
-                            .SingleOrDefaultAsync(
-                                candidate =>
-                                    candidate.OrganizationId == organizationId &&
-                                    candidate.BranchId == branchId &&
-                                    candidate.Code == normalizedCode,
-                                cancellationToken);
+                        await dbContext.OrganizationSequences.SingleOrDefaultAsync(
+                            candidate =>
+                                candidate.OrganizationId == organizationId
+                                && candidate.BranchId == branchId
+                                && candidate.Code == normalizedCode,
+                            cancellationToken
+                        );
 
                     if (sequence is null)
                     {
                         await transaction.RollbackAsync(cancellationToken);
                         dbContext.ChangeTracker.Clear();
 
-                        return Result.Failure<string>(
-                            OrganizationSequenceErrors.NotFound);
+                        return Result.Failure<string>(OrganizationSequenceErrors.NotFound);
                     }
 
-                    Result<string> reservation =
-                        sequence.ReserveNext(clock.UtcNow);
+                    Result<string> reservation = sequence.ReserveNext(clock.UtcNow);
 
                     if (reservation.IsFailure)
                     {
@@ -94,8 +89,8 @@ internal sealed class OrganizationSequenceNumberGenerator(
                     if (attempt >= maximumRetries)
                     {
                         return Result.Failure<string>(
-                            OrganizationSequenceErrors.ConcurrencyRetryExhausted(
-                                attempt + 1));
+                            OrganizationSequenceErrors.ConcurrencyRetryExhausted(attempt + 1)
+                        );
                     }
                 }
                 catch
@@ -104,7 +99,6 @@ internal sealed class OrganizationSequenceNumberGenerator(
                     dbContext.ChangeTracker.Clear();
                     throw;
                 }
-
             }
         });
     }

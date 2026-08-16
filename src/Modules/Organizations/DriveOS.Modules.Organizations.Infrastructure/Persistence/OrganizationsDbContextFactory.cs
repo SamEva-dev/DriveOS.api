@@ -8,25 +8,21 @@ internal sealed class OrganizationsDbContextFactory
     public OrganizationsDbContext CreateDbContext(string[] args)
     {
         string connectionString =
-            Environment.GetEnvironmentVariable(
-                "ConnectionStrings__DriveOS")
+            Environment.GetEnvironmentVariable("ConnectionStrings__DriveOS")
             ?? throw new InvalidOperationException(
-                "The environment variable " +
-                "'ConnectionStrings__DriveOS' is missing.");
+                "The environment variable " + "'ConnectionStrings__DriveOS' is missing."
+            );
 
-        var optionsBuilder =
-            new DbContextOptionsBuilder<OrganizationsDbContext>();
+        var optionsBuilder = new DbContextOptionsBuilder<OrganizationsDbContext>();
 
         optionsBuilder.UseNpgsql(
             connectionString,
             options =>
             {
-                options.MigrationsHistoryTable(
-                    "__ef_migrations_history",
-                    OrganizationsSchema.Name);
-            });
+                options.MigrationsHistoryTable("__ef_migrations_history", OrganizationsSchema.Name);
+            }
+        );
 
-        return new OrganizationsDbContext(
-            optionsBuilder.Options);
+        return new OrganizationsDbContext(optionsBuilder.Options);
     }
 }

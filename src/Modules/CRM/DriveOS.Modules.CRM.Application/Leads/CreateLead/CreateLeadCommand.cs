@@ -16,4 +16,5 @@ public sealed record CreateLeadCommand(
     string? PreferredLocation,
     LeadSourceType SourceType,
     string? SourceDetail,
-    UserId? AssignedAdvisorId) : ICommand<LeadId>;
+    UserId? AssignedAdvisorId
+) : ICommand<LeadId>;

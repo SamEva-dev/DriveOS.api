@@ -9,29 +9,32 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationActivationReadin
 internal sealed class GetOrganizationActivationReadinessQueryHandler(
     IOrganizationRepository organizationRepository,
     IOrganizationActivationReadinessService readinessService,
-    IOrganizationActivationReadinessReportCache readinessCache)
-    : IQueryHandler<GetOrganizationActivationReadinessQuery, OrganizationActivationReadinessReport>
+    IOrganizationActivationReadinessReportCache readinessCache
+) : IQueryHandler<GetOrganizationActivationReadinessQuery, OrganizationActivationReadinessReport>
 {
     public async Task<Result<OrganizationActivationReadinessReport>> Handle(
         GetOrganizationActivationReadinessQuery query,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         Organization? organization = await organizationRepository.GetByIdAsync(
             query.OrganizationId,
             asNoTracking: true,
-            cancellationToken);
+            cancellationToken
+        );
 
         if (organization is null)
         {
             return Result.Failure<OrganizationActivationReadinessReport>(
-                OrganizationErrors.NotFoundById(query.OrganizationId));
+                OrganizationErrors.NotFoundById(query.OrganizationId)
+            );
         }
 
-        OrganizationActivationReadinessReport report =
-            await readinessCache.GetOrCreateAsync(
-                query.OrganizationId,
-                token => readinessService.EvaluateAsync(query.OrganizationId, token),
-                cancellationToken);
+        OrganizationActivationReadinessReport report = await readinessCache.GetOrCreateAsync(
+            query.OrganizationId,
+            token => readinessService.EvaluateAsync(query.OrganizationId, token),
+            cancellationToken
+        );
 
         return Result.Success(report);
     }

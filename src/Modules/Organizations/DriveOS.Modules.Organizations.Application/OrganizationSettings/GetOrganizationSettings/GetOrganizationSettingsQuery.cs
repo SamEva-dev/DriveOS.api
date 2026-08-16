@@ -4,6 +4,5 @@ using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Modules.Organizations.Application.OrganizationSettings.GetOrganizationSettings;
 
-public sealed record GetOrganizationSettingsQuery(
-    OrganizationId OrganizationId)
+public sealed record GetOrganizationSettingsQuery(OrganizationId OrganizationId)
     : IQuery<OrganizationSettingsResponse>;

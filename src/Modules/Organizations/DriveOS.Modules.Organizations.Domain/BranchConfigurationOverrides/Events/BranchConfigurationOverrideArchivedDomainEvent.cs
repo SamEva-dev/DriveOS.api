@@ -7,4 +7,5 @@ public sealed record BranchConfigurationOverrideArchivedDomainEvent(
     BranchConfigurationOverrideId OverrideId,
     OrganizationId OrganizationId,
     BranchId BranchId,
-    int VersionNumber) : DomainEvent;
+    int VersionNumber
+) : DomainEvent;

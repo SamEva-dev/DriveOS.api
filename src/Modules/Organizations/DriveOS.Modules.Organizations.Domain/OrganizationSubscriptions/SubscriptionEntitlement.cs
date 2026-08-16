@@ -6,9 +6,7 @@ public sealed class SubscriptionEntitlement
 {
     public const int CodeMaximumLength = 150;
 
-    private SubscriptionEntitlement()
-    {
-    }
+    private SubscriptionEntitlement() { }
 
     private SubscriptionEntitlement(string code) => Code = code;
 
@@ -21,7 +19,8 @@ public sealed class SubscriptionEntitlement
         if (string.IsNullOrWhiteSpace(normalized) || normalized.Length > CodeMaximumLength)
         {
             return Result.Failure<SubscriptionEntitlement>(
-                OrganizationSubscriptionErrors.InvalidEntitlementCode);
+                OrganizationSubscriptionErrors.InvalidEntitlementCode
+            );
         }
 
         return Result.Success(new SubscriptionEntitlement(normalized));

@@ -9,4 +9,5 @@ public sealed record BranchListItem(
     bool IsPrimary,
     string City,
     string CountryCode,
-    string TimeZoneId);
+    string TimeZoneId
+);

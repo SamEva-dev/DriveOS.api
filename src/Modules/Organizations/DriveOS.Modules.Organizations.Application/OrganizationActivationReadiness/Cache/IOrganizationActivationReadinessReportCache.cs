@@ -8,7 +8,8 @@ public interface IOrganizationActivationReadinessReportCache
     Task<OrganizationActivationReadinessReport> GetOrCreateAsync(
         OrganizationId organizationId,
         Func<CancellationToken, Task<OrganizationActivationReadinessReport>> factory,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     void Invalidate(OrganizationId organizationId);
 }

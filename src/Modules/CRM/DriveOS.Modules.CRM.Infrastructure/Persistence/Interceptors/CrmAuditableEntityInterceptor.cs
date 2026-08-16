@@ -7,13 +7,13 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace DriveOS.Modules.CRM.Infrastructure.Persistence.Interceptors;
 
-internal sealed class CrmAuditableEntityInterceptor(
-    IClock clock,
-    ICurrentUser currentUser) : SaveChangesInterceptor
+internal sealed class CrmAuditableEntityInterceptor(IClock clock, ICurrentUser currentUser)
+    : SaveChangesInterceptor
 {
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
-        InterceptionResult<int> result)
+        InterceptionResult<int> result
+    )
     {
         ApplyAudit(eventData.Context);
         return base.SavingChanges(eventData, result);
@@ -22,7 +22,8 @@ internal sealed class CrmAuditableEntityInterceptor(
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         ApplyAudit(eventData.Context);
         return base.SavingChangesAsync(eventData, result, cancellationToken);

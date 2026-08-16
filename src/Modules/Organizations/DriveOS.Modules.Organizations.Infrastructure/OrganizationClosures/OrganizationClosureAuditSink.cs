@@ -5,8 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DriveOS.Modules.Organizations.Infrastructure.OrganizationClosures;
 
-internal sealed class OrganizationClosureAuditSink(
-    ILogger<OrganizationClosureAuditSink> logger)
+internal sealed class OrganizationClosureAuditSink(ILogger<OrganizationClosureAuditSink> logger)
     : IOrganizationClosureAuditSink
 {
     public Task WriteAsync(
@@ -15,7 +14,8 @@ internal sealed class OrganizationClosureAuditSink(
         OrganizationClosureId closureId,
         UserId actorUserId,
         IReadOnlyDictionary<string, object?> data,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -25,7 +25,8 @@ internal sealed class OrganizationClosureAuditSink(
             organizationId,
             closureId,
             actorUserId,
-            data);
+            data
+        );
 
         return Task.CompletedTask;
     }

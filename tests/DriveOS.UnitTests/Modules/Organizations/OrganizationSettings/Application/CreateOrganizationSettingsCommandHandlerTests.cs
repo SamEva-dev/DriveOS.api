@@ -4,12 +4,12 @@ using DriveOS.Modules.Organizations.Application.Abstractions;
 using DriveOS.Modules.Organizations.Application.Branches;
 using DriveOS.Modules.Organizations.Application.Branches.Models;
 using DriveOS.Modules.Organizations.Application.Branches.StatusHistory;
-using DriveOS.Modules.Organizations.Application.OrganizationSettings.CreateOrganizationSettings;
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizationById;
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizations;
 using DriveOS.Modules.Organizations.Application.Organizations.OrganizationStatusHistory;
-using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
+using DriveOS.Modules.Organizations.Application.OrganizationSettings.CreateOrganizationSettings;
 using DriveOS.Modules.Organizations.Domain.Organizations;
+using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
 using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.UnitTests.OrganizationSettings.Application;
@@ -27,12 +27,14 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             new ExistingOrganizationReadService(organizationId),
             new ExistingBranchReadService(organizationId, branchId),
             repository,
-            unitOfWork);
+            unitOfWork
+        );
 
         CreateOrganizationSettingsCommand command = CreateCommand(
             organizationId,
             branchId,
-            requireBranch: true);
+            requireBranch: true
+        );
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -53,11 +55,13 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             new MissingOrganizationReadService(),
             new MissingBranchReadService(),
             repository,
-            unitOfWork);
+            unitOfWork
+        );
 
         var result = await handler.Handle(
             CreateCommand(organizationId, null, requireBranch: false),
-            CancellationToken.None);
+            CancellationToken.None
+        );
 
         Assert.True(result.IsFailure);
         Assert.Equal(OrganizationErrors.NotFound, result.Error);
@@ -75,11 +79,13 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             new ExistingOrganizationReadService(organizationId),
             new MissingBranchReadService(),
             repository,
-            unitOfWork);
+            unitOfWork
+        );
 
         var result = await handler.Handle(
             CreateCommand(organizationId, null, requireBranch: false),
-            CancellationToken.None);
+            CancellationToken.None
+        );
 
         Assert.True(result.IsFailure);
         Assert.Equal(OrganizationSettingsErrors.AlreadyExists, result.Error);
@@ -98,11 +104,13 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             new ExistingOrganizationReadService(organizationId),
             new MissingBranchReadService(),
             repository,
-            unitOfWork);
+            unitOfWork
+        );
 
         var result = await handler.Handle(
             CreateCommand(organizationId, branchId, requireBranch: true),
-            CancellationToken.None);
+            CancellationToken.None
+        );
 
         Assert.True(result.IsFailure);
         Assert.Equal(OrganizationSettingsErrors.DefaultBranchNotOwned, result.Error);
@@ -113,7 +121,8 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
     private static CreateOrganizationSettingsCommand CreateCommand(
         OrganizationId organizationId,
         BranchId? branchId,
-        bool requireBranch) =>
+        bool requireBranch
+    ) =>
         new(
             organizationId,
             "Auto-école Horizon",
@@ -141,14 +150,16 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             24,
             true,
             requireBranch,
-            branchId);
+            branchId
+        );
 
     private sealed class ExistingOrganizationReadService(OrganizationId organizationId)
         : IOrganizationReadService
     {
         public Task<OrganizationResponse?> GetByIdAsync(
             OrganizationId requestedId,
-            CancellationToken cancellationToken = default) =>
+            CancellationToken cancellationToken = default
+        ) =>
             Task.FromResult<OrganizationResponse?>(
                 requestedId == organizationId
                     ? new OrganizationResponse(
@@ -160,8 +171,10 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
                         DateTimeOffset.UtcNow,
                         null,
                         null,
-                        null)
-                    : null);
+                        null
+                    )
+                    : null
+            );
 
         public Task<PagedResult<OrganizationListItem>> GetPagedAsync(
             int pageNumber,
@@ -169,21 +182,21 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             string? search,
             OrganizationSortField sortBy,
             SortDirection sortDirection,
-            CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken = default
+        ) => throw new NotSupportedException();
 
         public Task<IReadOnlyList<OrganizationStatusHistoryItem>> GetStatusHistoryAsync(
             OrganizationId id,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
     }
 
     private sealed class MissingOrganizationReadService : IOrganizationReadService
     {
         public Task<OrganizationResponse?> GetByIdAsync(
             OrganizationId organizationId,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<OrganizationResponse?>(null);
+            CancellationToken cancellationToken = default
+        ) => Task.FromResult<OrganizationResponse?>(null);
 
         public Task<PagedResult<OrganizationListItem>> GetPagedAsync(
             int pageNumber,
@@ -191,23 +204,23 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             string? search,
             OrganizationSortField sortBy,
             SortDirection sortDirection,
-            CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken = default
+        ) => throw new NotSupportedException();
 
         public Task<IReadOnlyList<OrganizationStatusHistoryItem>> GetStatusHistoryAsync(
             OrganizationId organizationId,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
     }
 
-    private sealed class ExistingBranchReadService(
-        OrganizationId organizationId,
-        BranchId branchId) : IBranchReadService
+    private sealed class ExistingBranchReadService(OrganizationId organizationId, BranchId branchId)
+        : IBranchReadService
     {
         public Task<BranchResponse?> GetByIdAsync(
             OrganizationId requestedOrganizationId,
             BranchId requestedBranchId,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken
+        ) =>
             Task.FromResult<BranchResponse?>(
                 requestedOrganizationId == organizationId && requestedBranchId == branchId
                     ? new BranchResponse(
@@ -225,24 +238,28 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
                         "FR",
                         "Europe/Paris",
                         DateTimeOffset.UtcNow,
-                        null)
-                    : null);
+                        null
+                    )
+                    : null
+            );
 
-        public Task<PagedResult<DriveOS.Modules.Organizations.Application.Branches.Models.BranchListItem>> GetPagedAsync(
+        public Task<
+            PagedResult<DriveOS.Modules.Organizations.Application.Branches.Models.BranchListItem>
+        > GetPagedAsync(
             OrganizationId organizationId,
             int pageNumber,
             int pageSize,
             string? search,
             BranchSortField sortBy,
             SortDirection sortDirection,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
 
         public Task<IReadOnlyList<BranchStatusHistoryItem>> GetStatusHistoryAsync(
             OrganizationId organizationId,
             BranchId branchId,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
     }
 
     private sealed class MissingBranchReadService : IBranchReadService
@@ -250,23 +267,25 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
         public Task<BranchResponse?> GetByIdAsync(
             OrganizationId organizationId,
             BranchId branchId,
-            CancellationToken cancellationToken) =>
-            Task.FromResult<BranchResponse?>(null);
+            CancellationToken cancellationToken
+        ) => Task.FromResult<BranchResponse?>(null);
 
-        public Task<PagedResult<DriveOS.Modules.Organizations.Application.Branches.Models.BranchListItem>> GetPagedAsync(
+        public Task<
+            PagedResult<DriveOS.Modules.Organizations.Application.Branches.Models.BranchListItem>
+        > GetPagedAsync(
             OrganizationId organizationId,
             int pageNumber,
             int pageSize,
             string? search,
             BranchSortField sortBy,
             SortDirection sortDirection,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
 
         public Task<IReadOnlyList<BranchStatusHistoryItem>> GetStatusHistoryAsync(
             OrganizationId organizationId,
             BranchId branchId,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
     }
 }

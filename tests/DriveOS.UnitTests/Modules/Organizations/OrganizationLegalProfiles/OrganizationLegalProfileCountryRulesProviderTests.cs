@@ -12,7 +12,7 @@ public sealed class OrganizationLegalProfileCountryRulesProviderTests
         IOrganizationLegalProfileCountryRules[] rules =
         [
             new GenericOrganizationLegalProfileCountryRules(),
-            new FranceOrganizationLegalProfileCountryRules()
+            new FranceOrganizationLegalProfileCountryRules(),
         ];
 
         var provider = new OrganizationLegalProfileCountryRulesProvider(rules);
@@ -26,7 +26,7 @@ public sealed class OrganizationLegalProfileCountryRulesProviderTests
         IOrganizationLegalProfileCountryRules[] rules =
         [
             new GenericOrganizationLegalProfileCountryRules(),
-            new FranceOrganizationLegalProfileCountryRules()
+            new FranceOrganizationLegalProfileCountryRules(),
         ];
 
         var provider = new OrganizationLegalProfileCountryRulesProvider(rules);

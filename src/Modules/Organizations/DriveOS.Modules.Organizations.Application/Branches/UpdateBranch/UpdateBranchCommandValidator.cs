@@ -3,23 +3,17 @@ using FluentValidation;
 
 namespace DriveOS.Modules.Organizations.Application.Branches.UpdateBranch;
 
-internal sealed class UpdateBranchCommandValidator :
-    AbstractValidator<UpdateBranchCommand>
+internal sealed class UpdateBranchCommandValidator : AbstractValidator<UpdateBranchCommand>
 {
     public UpdateBranchCommandValidator()
     {
-        RuleFor(command => command.OrganizationId)
-            .Must(id => !id.IsEmpty);
+        RuleFor(command => command.OrganizationId).Must(id => !id.IsEmpty);
 
-        RuleFor(command => command.BranchId)
-            .Must(id => !id.IsEmpty);
+        RuleFor(command => command.BranchId).Must(id => !id.IsEmpty);
 
-        RuleFor(command => command.Name)
-            .NotEmpty()
-            .MaximumLength(BranchName.MaximumLength);
+        RuleFor(command => command.Name).NotEmpty().MaximumLength(BranchName.MaximumLength);
 
-        RuleFor(command => command.BranchType)
-            .IsInEnum();
+        RuleFor(command => command.BranchType).IsInEnum();
 
         RuleFor(command => command.AddressLine1)
             .NotEmpty()
@@ -32,12 +26,8 @@ internal sealed class UpdateBranchCommandValidator :
             .NotEmpty()
             .MaximumLength(BranchAddress.PostalCodeMaximumLength);
 
-        RuleFor(command => command.City)
-            .NotEmpty()
-            .MaximumLength(BranchAddress.CityMaximumLength);
+        RuleFor(command => command.City).NotEmpty().MaximumLength(BranchAddress.CityMaximumLength);
 
-        RuleFor(command => command.TimeZoneId)
-            .NotEmpty()
-            .MaximumLength(100);
+        RuleFor(command => command.TimeZoneId).NotEmpty().MaximumLength(100);
     }
 }

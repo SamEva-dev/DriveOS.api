@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="DomainRelay.Abstractions" />
+    <PackageReference Include="DomainRelay.DependencyInjection" />
+    <PackageReference Include="DomainRelay.Validation" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\DriveOS.Application.Abstractions\DriveOS.Application.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\DriveOS.SharedKernel\DriveOS.SharedKernel.csproj" />
+    <ProjectReference Include="..\DriveOS.Modules.Students.Domain\DriveOS.Modules.Students.Domain.csproj" />
+  </ItemGroup>
+</Project>

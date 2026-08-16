@@ -7,9 +7,7 @@ using DriveOS.SharedKernel.Results;
 
 namespace DriveOS.Modules.Organizations.Domain.OrganizationSequences;
 
-public sealed class OrganizationSequence :
-    AggregateRoot<OrganizationSequenceId>,
-    IAuditableEntity
+public sealed class OrganizationSequence : AggregateRoot<OrganizationSequenceId>, IAuditableEntity
 {
     public const int CodeMaximumLength = 30;
     public const int MinimumPadding = 1;
@@ -17,7 +15,8 @@ public sealed class OrganizationSequence :
 
     private static readonly Regex CodePattern = new(
         "^[A-Z0-9][A-Z0-9_-]*$",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        RegexOptions.Compiled | RegexOptions.CultureInvariant
+    );
 
     private OrganizationSequence() { }
 
@@ -30,7 +29,8 @@ public sealed class OrganizationSequence :
         SequencePattern pattern,
         int padding,
         long nextValue,
-        OrganizationSequenceResetPolicy resetPolicy)
+        OrganizationSequenceResetPolicy resetPolicy
+    )
         : base(id)
     {
         OrganizationId = organizationId;
@@ -72,32 +72,41 @@ public sealed class OrganizationSequence :
         SequencePattern pattern,
         int padding,
         long initialValue,
-        OrganizationSequenceResetPolicy resetPolicy)
+        OrganizationSequenceResetPolicy resetPolicy
+    )
     {
         if (id.IsEmpty)
             return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.EmptyId);
 
         if (organizationId.IsEmpty)
-            return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.EmptyOrganizationId);
+            return Result.Failure<OrganizationSequence>(
+                OrganizationSequenceErrors.EmptyOrganizationId
+            );
 
         if (!Enum.IsDefined(scope))
             return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.InvalidScope);
 
-        if (scope == OrganizationSequenceScope.Branch &&
-            (!branchId.HasValue || branchId.Value.IsEmpty))
+        if (
+            scope == OrganizationSequenceScope.Branch
+            && (!branchId.HasValue || branchId.Value.IsEmpty)
+        )
         {
             return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.EmptyBranchId);
         }
 
         if (scope == OrganizationSequenceScope.Organization && branchId.HasValue)
-            return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.BranchNotAllowed);
+            return Result.Failure<OrganizationSequence>(
+                OrganizationSequenceErrors.BranchNotAllowed
+            );
 
         string normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(normalizedCode))
             return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.EmptyCode);
 
         if (normalizedCode.Length > CodeMaximumLength)
-            return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.CodeTooLong(CodeMaximumLength));
+            return Result.Failure<OrganizationSequence>(
+                OrganizationSequenceErrors.CodeTooLong(CodeMaximumLength)
+            );
 
         if (!CodePattern.IsMatch(normalizedCode))
             return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.InvalidCode);
@@ -108,10 +117,14 @@ public sealed class OrganizationSequence :
             return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.InvalidPadding);
 
         if (initialValue <= 0)
-            return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.InvalidInitialValue);
+            return Result.Failure<OrganizationSequence>(
+                OrganizationSequenceErrors.InvalidInitialValue
+            );
 
         if (!Enum.IsDefined(resetPolicy))
-            return Result.Failure<OrganizationSequence>(OrganizationSequenceErrors.InvalidResetPolicy);
+            return Result.Failure<OrganizationSequence>(
+                OrganizationSequenceErrors.InvalidResetPolicy
+            );
 
         var sequence = new OrganizationSequence(
             id,
@@ -122,13 +135,17 @@ public sealed class OrganizationSequence :
             pattern,
             padding,
             initialValue,
-            resetPolicy);
+            resetPolicy
+        );
 
-        sequence.RaiseDomainEvent(new OrganizationSequenceCreatedDomainEvent(
-            sequence.Id,
-            sequence.OrganizationId,
-            sequence.BranchId,
-            sequence.Code));
+        sequence.RaiseDomainEvent(
+            new OrganizationSequenceCreatedDomainEvent(
+                sequence.Id,
+                sequence.OrganizationId,
+                sequence.BranchId,
+                sequence.Code
+            )
+        );
 
         return Result.Success(sequence);
     }
@@ -141,12 +158,7 @@ public sealed class OrganizationSequence :
         ApplyResetIfRequired(instantUtc);
 
         long reservedValue = NextValue;
-        string formattedValue = Pattern.Format(
-            Code,
-            reservedValue,
-            Padding,
-            instantUtc);
-
+        string formattedValue = Pattern.Format(Code, reservedValue, Padding, instantUtc);
         checked
         {
             NextValue++;
@@ -154,13 +166,16 @@ public sealed class OrganizationSequence :
 
         Revision++;
 
-        RaiseDomainEvent(new OrganizationSequenceNumberReservedDomainEvent(
-            Id,
-            OrganizationId,
-            BranchId,
-            Code,
-            reservedValue,
-            formattedValue));
+        RaiseDomainEvent(
+            new OrganizationSequenceNumberReservedDomainEvent(
+                Id,
+                OrganizationId,
+                BranchId,
+                Code,
+                reservedValue,
+                formattedValue
+            )
+        );
 
         return Result.Success(formattedValue);
     }
@@ -221,19 +236,21 @@ public sealed class OrganizationSequence :
         bool resetRequired = ResetPolicy switch
         {
             OrganizationSequenceResetPolicy.Never => false,
-            OrganizationSequenceResetPolicy.Yearly =>
-                LastResetYear.HasValue && LastResetYear.Value != instantUtc.Year,
-            OrganizationSequenceResetPolicy.Monthly =>
-                LastResetYear.HasValue &&
-                (LastResetYear.Value != instantUtc.Year || LastResetMonth != instantUtc.Month),
+            OrganizationSequenceResetPolicy.Yearly => LastResetYear.HasValue
+                && LastResetYear.Value != instantUtc.Year,
+            OrganizationSequenceResetPolicy.Monthly => LastResetYear.HasValue
+                && (LastResetYear.Value != instantUtc.Year || LastResetMonth != instantUtc.Month),
             _ => false,
         };
 
         if (resetRequired)
             NextValue = 1;
 
-        if (ResetPolicy is OrganizationSequenceResetPolicy.Yearly or
-            OrganizationSequenceResetPolicy.Monthly)
+        if (
+            ResetPolicy
+            is OrganizationSequenceResetPolicy.Yearly
+                or OrganizationSequenceResetPolicy.Monthly
+        )
         {
             LastResetYear = instantUtc.Year;
         }

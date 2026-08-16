@@ -13,9 +13,12 @@ namespace DriveOS.Api.Endpoints.Organization.AccessManagement;
 
 public static class AccessManagementEndpoints
 {
-    public static IEndpointRouteBuilder MapAccessManagementEndpoints(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapAccessManagementEndpoints(
+        this IEndpointRouteBuilder endpoints
+    )
     {
-        var group = endpoints.MapGroup("/api/access-management")
+        var group = endpoints
+            .MapGroup("/api/access-management")
             .WithTags("Access Management")
             .AddEndpointFilter<AccessManagerMachineTokenEndpointFilter>();
 
@@ -24,43 +27,66 @@ public static class AccessManagementEndpoints
         return endpoints;
     }
 
-    private static async Task<IResult> GetOrganizationsAsync(IMediator mediator, CancellationToken ct)
+    private static async Task<IResult> GetOrganizationsAsync(
+        IMediator mediator,
+        CancellationToken ct
+    )
     {
-        var query = new GetOrganizationsQuery(1, PaginationParameters.MaximumPageSize, null, OrganizationSortField.LegalName, SortDirection.Ascending);
+        var query = new GetOrganizationsQuery(
+            1,
+            PaginationParameters.MaximumPageSize,
+            null,
+            OrganizationSortField.LegalName,
+            SortDirection.Ascending
+        );
         Result<PagedResult<OrganizationListItem>> result = await mediator.Send(query, ct);
-        if (result.IsFailure) return Results.BadRequest(new { code = result.Error.Code, message = result.Error.MessageKey });
+        if (result.IsFailure)
+            return Results.BadRequest(
+                new { code = result.Error.Code, message = result.Error.MessageKey }
+            );
 
-        return Results.Ok(result.Value.Items.Select(x => new
-        {
-            id = x.Id.ToString("D"),
-            name = x.LegalName,
-            code = x.CountryCode,
-            type = x.Type,
-            usersCount = 0
-        }));
+        return Results.Ok(
+            result.Value.Items.Select(x => new
+            {
+                id = x.Id.ToString("D"),
+                name = x.LegalName,
+                code = x.CountryCode,
+                type = x.Type,
+                usersCount = 0,
+            })
+        );
     }
 
-    private static async Task<IResult> GetBranchesAsync(Guid organizationId, IMediator mediator, CancellationToken ct)
+    private static async Task<IResult> GetBranchesAsync(
+        Guid organizationId,
+        IMediator mediator,
+        CancellationToken ct
+    )
     {
-        if (organizationId == Guid.Empty) return Results.BadRequest();
+        if (organizationId == Guid.Empty)
+            return Results.BadRequest();
         var query = new GetBranchesQuery(
             new OrganizationId(organizationId),
             1,
             PaginationParameters.MaximumPageSize,
             null,
             BranchSortField.Name,
-            SortDirection.Ascending);
+            SortDirection.Ascending
+        );
 
         Result<PagedResult<BranchListItem>> result = await mediator.Send(query, ct);
-        if (result.IsFailure) return Results.NotFound();
+        if (result.IsFailure)
+            return Results.NotFound();
 
-        return Results.Ok(result.Value.Items.Select(x => new
-        {
-            id = x.Id,
-            name = x.Name,
-            code = x.Code,
-            status = x.Status,
-            isPrimary = x.IsPrimary
-        }));
+        return Results.Ok(
+            result.Value.Items.Select(x => new
+            {
+                id = x.Id,
+                name = x.Name,
+                code = x.Code,
+                status = x.Status,
+                isPrimary = x.IsPrimary,
+            })
+        );
     }
 }

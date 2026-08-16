@@ -4,9 +4,7 @@ namespace DriveOS.Modules.Organizations.Domain.Branches;
 
 public sealed class BranchStatusHistoryEntry
 {
-    private BranchStatusHistoryEntry()
-    {
-    }
+    private BranchStatusHistoryEntry() { }
 
     private BranchStatusHistoryEntry(
         Guid id,
@@ -15,7 +13,8 @@ public sealed class BranchStatusHistoryEntry
         BranchStatus newStatus,
         BranchStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
         Id = id;
         BranchId = branchId;
@@ -30,35 +29,15 @@ public sealed class BranchStatusHistoryEntry
 
     public BranchId BranchId { get; private set; }
 
-    public BranchStatus PreviousStatus
-    {
-        get;
-        private set;
-    }
+    public BranchStatus PreviousStatus { get; private set; }
 
-    public BranchStatus NewStatus
-    {
-        get;
-        private set;
-    }
+    public BranchStatus NewStatus { get; private set; }
 
-    public BranchStatusChangeReason Reason
-    {
-        get;
-        private set;
-    } = null!;
+    public BranchStatusChangeReason Reason { get; private set; } = null!;
 
-    public Guid ChangedByUserId
-    {
-        get;
-        private set;
-    }
+    public Guid ChangedByUserId { get; private set; }
 
-    public DateTimeOffset ChangedAtUtc
-    {
-        get;
-        private set;
-    }
+    public DateTimeOffset ChangedAtUtc { get; private set; }
 
     internal static BranchStatusHistoryEntry Create(
         BranchId branchId,
@@ -66,30 +45,30 @@ public sealed class BranchStatusHistoryEntry
         BranchStatus newStatus,
         BranchStatusChangeReason reason,
         Guid changedByUserId,
-        DateTimeOffset changedAtUtc)
+        DateTimeOffset changedAtUtc
+    )
     {
         if (branchId.IsEmpty)
         {
-            throw new ArgumentException(
-                "The branch identifier is required.",
-                nameof(branchId));
+            throw new ArgumentException("The branch identifier is required.", nameof(branchId));
         }
 
         if (previousStatus == newStatus)
         {
             throw new InvalidOperationException(
-                "The previous and new statuses cannot be identical.");
+                "The previous and new statuses cannot be identical."
+            );
         }
 
         if (changedByUserId == Guid.Empty)
         {
             throw new ArgumentException(
                 "The user identifier is required.",
-                nameof(changedByUserId));
+                nameof(changedByUserId)
+            );
         }
 
-        ArgumentNullException.ThrowIfNull(
-            reason);
+        ArgumentNullException.ThrowIfNull(reason);
 
         return new BranchStatusHistoryEntry(
             Guid.NewGuid(),
@@ -98,6 +77,7 @@ public sealed class BranchStatusHistoryEntry
             newStatus,
             reason,
             changedByUserId,
-            changedAtUtc);
+            changedAtUtc
+        );
     }
 }

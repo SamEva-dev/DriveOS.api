@@ -11,4 +11,5 @@ public sealed record CreateBranchRequest(
     string PostalCode,
     string City,
     string TimeZoneId,
-    bool IsPrimary);
+    bool IsPrimary
+);

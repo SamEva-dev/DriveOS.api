@@ -1,0 +1,58 @@
+using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Application.Abstractions.Time;
+using DriveOS.Modules.FundingBilling.Application.Persistence;
+using DriveOS.Modules.FundingBilling.Domain.TrainingCredits;
+using DriveOS.SharedKernel.Identifiers;
+using DriveOS.SharedKernel.Results;
+using FluentValidation;
+
+namespace DriveOS.Modules.FundingBilling.Application.TrainingCredits.Manage;
+
+public enum TrainingCreditOperation { Purchase = 1, Reserve = 2, Release = 3, Consume = 4, Adjust = 5 }
+
+public sealed record RecordTrainingCreditMovementCommand(OrganizationId OrganizationId, TrainingCreditAccountId AccountId,
+    TrainingCreditOperation Operation, decimal Quantity, string Reference, string? Reason, UserId ActorUserId) : ICommand<TrainingCreditMovementId>;
+
+internal sealed class RecordTrainingCreditMovementCommandValidator : AbstractValidator<RecordTrainingCreditMovementCommand>
+{
+    public RecordTrainingCreditMovementCommandValidator()
+    {
+        RuleFor(x => x.OrganizationId.Value).NotEmpty();
+        RuleFor(x => x.AccountId.Value).NotEmpty();
+        RuleFor(x => x.Quantity).NotEqual(0m);
+        RuleFor(x => x.Reference).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Reason).MaximumLength(1000);
+        RuleFor(x => x.ActorUserId.Value).NotEmpty();
+        RuleFor(x => x).Must(x => x.Operation == TrainingCreditOperation.Adjust || x.Quantity > 0m).WithMessage("Quantity must be positive for this operation.");
+        RuleFor(x => x.Reason).NotEmpty().When(x => x.Operation == TrainingCreditOperation.Adjust);
+    }
+}
+
+internal sealed class RecordTrainingCreditMovementCommandHandler(ITrainingCreditAccountRepository accounts,
+    IFundingBillingUnitOfWork unitOfWork, IClock clock) : ICommandHandler<RecordTrainingCreditMovementCommand, TrainingCreditMovementId>
+{
+    public async Task<Result<TrainingCreditMovementId>> Handle(RecordTrainingCreditMovementCommand command, CancellationToken cancellationToken)
+    {
+        TrainingCreditAccount? account = await accounts.GetByIdAsync(command.AccountId, cancellationToken);
+        if (account is null || account.OrganizationId != command.OrganizationId)
+            return Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.NotFound);
+        if (await accounts.MovementReferenceExistsAsync(account.Id, command.Reference.Trim(), cancellationToken))
+            return Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.MovementReferenceDuplicate);
+
+        DateTimeOffset now = clock.UtcNow;
+        TrainingCreditMovementId movementId = TrainingCreditMovementId.New();
+        Result<TrainingCreditMovementId> result = command.Operation switch
+        {
+            TrainingCreditOperation.Purchase => account.Purchase(movementId, command.Quantity, command.Reference, command.Reason, command.ActorUserId, now),
+            TrainingCreditOperation.Reserve => account.Reserve(movementId, command.Quantity, command.Reference, command.Reason, command.ActorUserId, now),
+            TrainingCreditOperation.Release => account.Release(movementId, command.Quantity, command.Reference, command.Reason, command.ActorUserId, now),
+            TrainingCreditOperation.Consume => account.Consume(movementId, command.Quantity, command.Reference, command.Reason, command.ActorUserId, now),
+            TrainingCreditOperation.Adjust => account.Adjust(movementId, command.Quantity, command.Reference, command.Reason ?? string.Empty, command.ActorUserId, now),
+            _ => Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.MovementInvalid)
+        };
+        if (result.IsFailure) return result;
+        account.SetModifiedAudit(now, command.ActorUserId);
+        await unitOfWork.CommitAsync(cancellationToken);
+        return result;
+    }
+}

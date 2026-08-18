@@ -12,6 +12,7 @@
     <PackageReference Include="DomainRelay.Mapping.DependencyInjection" />
     <PackageReference Include="DriveOS.Security.Contracts" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Itech.Emailing" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols" />
@@ -27,6 +28,7 @@
     <PackageReference Include="Serilog.Formatting.Compact" />
     <PackageReference Include="Serilog.Enrichers.Environment" />
     <PackageReference Include="Serilog.Enrichers.Thread" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
 
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
 
@@ -34,11 +36,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Modules\Contracts\DriveOS.Modules.Contracts.Application\DriveOS.Modules.Contracts.Application.csproj" />
-    <ProjectReference Include="..\Modules\Contracts\DriveOS.Modules.Contracts.Infrastructure\DriveOS.Modules.Contracts.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Organizations\DriveOS.Modules.Organizations.Infrastructure\DriveOS.Modules.Organizations.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\CRM\DriveOS.Modules.CRM.Infrastructure\DriveOS.Modules.CRM.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Students\DriveOS.Modules.Students.Infrastructure\DriveOS.Modules.Students.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Contracts\DriveOS.Modules.Contracts.Infrastructure\DriveOS.Modules.Contracts.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\FundingBilling\DriveOS.Modules.FundingBilling.Infrastructure\DriveOS.Modules.FundingBilling.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

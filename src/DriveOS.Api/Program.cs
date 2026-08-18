@@ -3,6 +3,7 @@ using DriveOS.Api;
 using DriveOS.Api.Configuration;
 using DriveOS.Api.Endpoints.Crm;
 using DriveOS.Api.Endpoints.Contracts;
+using DriveOS.Api.Endpoints.FundingBilling;
 using DriveOS.Api.Endpoints.Organization.AccessManagement;
 using DriveOS.Api.Endpoints.Organization.BranchAssignments;
 using DriveOS.Api.Endpoints.Organization.BranchConfigurationOverrides;
@@ -21,16 +22,27 @@ using DriveOS.Api.Errors;
 using DriveOS.Api.Infrastructure.Logging;
 using DriveOS.Api.Integrations.Students;
 using DriveOS.Api.Integrations.Contracts;
+using DriveOS.Api.Integrations.FundingBilling;
 using DriveOS.Modules.CRM.Application;
 using DriveOS.Modules.CRM.Application.Leads.ConvertLead;
 using DriveOS.Modules.CRM.Infrastructure;
 using DriveOS.Modules.Contracts.Application;
 using DriveOS.Modules.Contracts.Application.TrainingContracts.Create;
 using DriveOS.Modules.Contracts.Infrastructure;
+using DriveOS.Modules.FundingBilling.Application;
+using DriveOS.Modules.FundingBilling.Application.BillingAccounts.Create;
+using DriveOS.Modules.FundingBilling.Application.Invoices.Issue;
+using DriveOS.Modules.FundingBilling.Application.CreditNotes.Issue;
+using DriveOS.Modules.FundingBilling.Infrastructure;
 using DriveOS.Modules.Organizations.Application;
 using DriveOS.Modules.Organizations.Infrastructure;
 using DriveOS.Modules.Students.Application;
 using DriveOS.Modules.Students.Infrastructure;
+using DriveOS.Api.Integrations.FundingBilling.Notifications;
+using DriveOS.Modules.FundingBilling.Application.Notifications;
+using Itech.Emailing.Registration;
+using Itech.Emailing.Webhooks;
+using Itech.Emailing.Workers;
 using Serilog;
 using Serilog.Events;
 
@@ -95,10 +107,22 @@ try
         .AddStudentsApplication()
         .AddStudentsInfrastructure(builder.Configuration)
         .AddContractsApplication()
-        .AddContractsInfrastructure(builder.Configuration);
+        .AddContractsInfrastructure(builder.Configuration)
+        .AddFundingBillingApplication()
+        .AddFundingBillingInfrastructure(builder.Configuration);
 
     builder.Services.AddScoped<IStudentProvisioningGateway, StudentProvisioningGateway>();
     builder.Services.AddScoped<ITrainingContractSourceGateway, TrainingContractSourceGateway>();
+    builder.Services.AddScoped<IBillingAccountStudentGateway, BillingAccountStudentGateway>();
+    builder.Services.AddScoped<IInvoiceNumberGenerator, InvoiceNumberGenerator>();
+    builder.Services.AddScoped<ICreditNoteNumberGenerator, CreditNoteNumberGenerator>();
+    builder.Services.AddScoped<IFinancialNotificationGateway, LocaGuestFinancialNotificationGateway>();
+
+    string driveOsConnectionString = builder.Configuration.GetConnectionString("DriveOS")
+        ?? throw new InvalidOperationException("The DriveOS database connection string is missing.");
+    builder.Services.AddItechEmailing(builder.Configuration, emailing =>
+        emailing.UsePostgres(driveOsConnectionString, typeof(LocaGuestFinancialNotificationGateway).Assembly.GetName().Name));
+    builder.Services.AddHostedService<EmailDispatcherWorker>();
 
     builder.Services.AddDomainRelayValidation();
     builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
@@ -196,6 +220,8 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
 
+    app.MapBrevoTransactionalWebhook("/api/webhooks/brevo/transactional");
+
     app.MapOrganizationEndpoints();
     app.MapOrganizationSettingsEndpoints();
     app.MapOrganizationSubscriptionEndpoints();
@@ -217,6 +243,18 @@ try
     app.MapCommercialOfferEndpoints();
     app.MapStudentDashboardEndpoints();
     app.MapTrainingContractEndpoints();
+    app.MapBillingAccountEndpoints();
+    app.MapInvoiceEndpoints();
+    app.MapPaymentInstallmentEndpoints();
+    app.MapPaymentEndpoints();
+    app.MapRefundEndpoints();
+    app.MapCreditNoteEndpoints();
+    app.MapCollectionEndpoints();
+    app.MapFundingPlanEndpoints();
+    app.MapBillingPartyEndpoints();
+    app.MapTrainingCreditAccountEndpoints();
+    app.MapStudentFinancialOverviewEndpoints();
+    app.MapFinancialAuditEndpoints();
 
     app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "DriveOS.Api" }));
     Log.Information("{Application} started successfully", LoggingConstants.ApplicationName);

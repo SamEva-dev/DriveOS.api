@@ -1,8 +1,10 @@
-﻿using DriveOS.Modules.Contracts.Infrastructure.Persistence;
-using DriveOS.Modules.CRM.Infrastructure.Persistence;
+﻿using DriveOS.Modules.CRM.Infrastructure.Persistence;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using DriveOS.Modules.Students.Infrastructure.Persistence;
+using DriveOS.Modules.FundingBilling.Infrastructure.Persistence;
+using DriveOS.Modules.Contracts.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Itech.Emailing.Persistence;
 using Serilog;
 
 namespace DriveOS.Api
@@ -35,6 +37,16 @@ namespace DriveOS.Api
                 Log.Information("Applying Contracts database migrations...");
                 contractsDb.Database.Migrate();
                 Log.Information("✅ Contracts database migrated successfully.");
+
+                var fundingBillingDb = scope.ServiceProvider.GetRequiredService<FundingBillingDbContext>();
+                Log.Information("Applying Funding & Billing database migrations...");
+                fundingBillingDb.Database.Migrate();
+                Log.Information("✅ Funding & Billing database migrated successfully.");
+
+                var emailingDb = scope.ServiceProvider.GetRequiredService<EmailingDbContext>();
+                Log.Information("Applying Emailing database migrations...");
+                emailingDb.Database.Migrate();
+                Log.Information("✅ Emailing database migrated successfully.");
 
                 // Apply AuditDbContext migrations
             }

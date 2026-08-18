@@ -17,6 +17,11 @@
     <Project Path="src/Modules/CRM/DriveOS.Modules.CRM.Domain/DriveOS.Modules.CRM.Domain.csproj" Id="21f9955b-c869-4b6b-afba-65f5aff8cc61" />
     <Project Path="src/Modules/CRM/DriveOS.Modules.CRM.Infrastructure/DriveOS.Modules.CRM.Infrastructure.csproj" Id="527a23bc-b0cf-45b7-ac05-a95f4fdb4fdf" />
   </Folder>
+  <Folder Name="/src/Modules/FundingBilling/">
+    <Project Path="src/Modules/FundingBilling/DriveOS.Modules.FundingBilling.Application/DriveOS.Modules.FundingBilling.Application.csproj" Id="bff0c1d5-4fc4-4551-b92c-89dfb4280261" />
+    <Project Path="src/Modules/FundingBilling/DriveOS.Modules.FundingBilling.Domain/DriveOS.Modules.FundingBilling.Domain.csproj" Id="f04bbdb7-22f4-4856-a543-9e16aa17a5f6" />
+    <Project Path="src/Modules/FundingBilling/DriveOS.Modules.FundingBilling.Infrastructure/DriveOS.Modules.FundingBilling.Infrastructure.csproj" Id="7c0855cf-1427-4903-a753-d63aadeda9c0" />
+  </Folder>
   <Folder Name="/src/Modules/Organizations/">
     <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Application/DriveOS.Modules.Organizations.Application.csproj" Id="8baf701c-becb-4b9b-aa0f-34a25edf32d4" />
     <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Contracts/DriveOS.Modules.Organizations.Contracts.csproj" Id="da5190a1-b868-4a06-b05c-df023fa31cab" />

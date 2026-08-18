@@ -1,5 +1,6 @@
 using DriveOS.Application.Abstractions.Time;
 using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness;
+using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
@@ -134,7 +135,25 @@ internal sealed class OrganizationActivationReadinessDataSource(
     {
         DateTimeOffset now = clock.UtcNow;
 
-        return dbContext
+        // Current branch-team model: a branch manager is represented by an active
+        // Primary AdministrativeManager BranchUserAssignment. Keep the historical
+        // BranchManagerAssignment lookup for backward compatibility with existing data.
+        Task<bool> hasCurrentTeamManager = dbContext
+            .BranchUserAssignments.AsNoTracking()
+            .AnyAsync(
+                assignment =>
+                    assignment.OrganizationId == organizationId
+                    && assignment.BranchId == branchId
+                    && assignment.Status == BranchUserAssignmentStatus.Active
+                    && assignment.Role == BranchAssignmentRole.AdministrativeManager
+                    && assignment.AssignmentType == BranchAssignmentType.Primary
+                    && assignment.StartsAtUtc <= now
+                    && (!assignment.PlannedEndAtUtc.HasValue || assignment.PlannedEndAtUtc > now)
+                    && (!assignment.EffectiveEndAtUtc.HasValue || assignment.EffectiveEndAtUtc > now),
+                cancellationToken
+            );
+
+        Task<bool> hasLegacyManager = dbContext
             .BranchManagerAssignments.AsNoTracking()
             .AnyAsync(
                 assignment =>
@@ -149,5 +168,16 @@ internal sealed class OrganizationActivationReadinessDataSource(
                     ),
                 cancellationToken
             );
+
+        return HasAnyManagerAsync(hasCurrentTeamManager, hasLegacyManager);
+    }
+
+    private static async Task<bool> HasAnyManagerAsync(
+        Task<bool> currentTeamManagerTask,
+        Task<bool> legacyManagerTask
+    )
+    {
+        bool hasCurrentTeamManager = await currentTeamManagerTask;
+        return hasCurrentTeamManager || await legacyManagerTask;
     }
 }

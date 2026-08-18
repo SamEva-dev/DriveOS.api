@@ -34,6 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Modules\Contracts\DriveOS.Modules.Contracts.Application\DriveOS.Modules.Contracts.Application.csproj" />
+    <ProjectReference Include="..\Modules\Contracts\DriveOS.Modules.Contracts.Infrastructure\DriveOS.Modules.Contracts.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Organizations\DriveOS.Modules.Organizations.Infrastructure\DriveOS.Modules.Organizations.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\CRM\DriveOS.Modules.CRM.Infrastructure\DriveOS.Modules.CRM.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Students\DriveOS.Modules.Students.Infrastructure\DriveOS.Modules.Students.Infrastructure.csproj" />

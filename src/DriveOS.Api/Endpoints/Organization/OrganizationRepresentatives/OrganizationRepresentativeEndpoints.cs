@@ -99,7 +99,6 @@ public static class OrganizationRepresentativeEndpoints
         Guid organizationId,
         OrganizationRepresentativeStatus? status,
         IMediator mediator,
-        IObjectMapper mapper,
         ICurrentTenant tenant,
         HttpContext context,
         CancellationToken cancellationToken
@@ -125,23 +124,13 @@ public static class OrganizationRepresentativeEndpoints
         if (result.IsFailure)
             return result.Error.ToHttpResult(context);
 
-        return Results.Ok(
-            result
-                .Value.Select(item =>
-                    mapper.Map<
-                        OrganizationRepresentativeListItem,
-                        OrganizationRepresentativeListItemContract
-                    >(item)
-                )
-                .ToArray()
-        );
+        return Results.Ok(result.Value.Select(ToContract).ToArray());
     }
 
     private static async Task<IResult> GetByIdAsync(
         Guid organizationId,
         Guid representativeId,
         IMediator mediator,
-        IObjectMapper mapper,
         ICurrentTenant tenant,
         HttpContext context,
         CancellationToken cancellationToken
@@ -166,14 +155,47 @@ public static class OrganizationRepresentativeEndpoints
         );
 
         return result.IsSuccess
-            ? Results.Ok(
-                mapper.Map<
-                    OrganizationRepresentativeResponse,
-                    OrganizationRepresentativeResponseContract
-                >(result.Value)
-            )
+            ? Results.Ok(ToContract(result.Value))
             : result.Error.ToHttpResult(context);
     }
+
+
+    private static OrganizationRepresentativeListItemContract ToContract(
+        OrganizationRepresentativeListItem item
+    ) =>
+        new(
+            item.Id.Value,
+            item.PersonId.Value,
+            item.UserId?.Value,
+            item.RepresentativeType.ToString(),
+            item.AuthorityScope,
+            item.IsPrimaryOwner,
+            item.EffectiveFrom,
+            item.EffectiveTo,
+            item.Status.ToString(),
+            item.Revision
+        );
+
+    private static OrganizationRepresentativeResponseContract ToContract(
+        OrganizationRepresentativeResponse item
+    ) =>
+        new(
+            item.Id.Value,
+            item.OrganizationId.Value,
+            item.PersonId.Value,
+            item.UserId?.Value,
+            item.RepresentativeType.ToString(),
+            item.AuthorityScope,
+            item.IsPrimaryOwner,
+            item.EffectiveFrom,
+            item.EffectiveTo,
+            item.Status.ToString(),
+            item.Revision,
+            item.CreatedAtUtc,
+            item.CreatedByUserId?.Value,
+            item.LastModifiedAtUtc,
+            item.LastModifiedByUserId?.Value
+        );
 
     private static async Task<IResult> CreateAsync(
         Guid organizationId,

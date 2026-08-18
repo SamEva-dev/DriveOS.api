@@ -1,7 +1,8 @@
-﻿using DriveOS.Application.Abstractions.Authentication;
+using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.Organizations;
@@ -13,6 +14,7 @@ internal sealed class CreateBranchUserAssignmentCommandHandler(
     IOrganizationRepository organizationRepository,
     IBranchRepository branchRepository,
     IBranchUserAssignmentRepository assignmentRepository,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
     IClock clock
@@ -123,6 +125,7 @@ internal sealed class CreateBranchUserAssignmentCommandHandler(
         await assignmentRepository.AddAsync(assignmentResult.Value, cancellationToken);
 
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
 
         return Result.Success(assignmentResult.Value.Id);
     }

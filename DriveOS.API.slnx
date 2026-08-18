@@ -3,74 +3,34 @@
     <Project Path="src/DriveOS.Api/DriveOS.Api.csproj" Id="529a0d7b-10eb-43fc-829a-84d6e0a989da" />
   </Folder>
   <Folder Name="/src/BuildingBlocks/">
-    <Project
-      Path="src/BuildingBlocks/DriveOS.Application.Abstractions/DriveOS.Application.Abstractions.csproj"
-      Id="e741b6c4-008f-49c6-bf8c-b99ac3d7fdb5"
-    />
-    <Project
-      Path="src/BuildingBlocks/DriveOS.SharedKernel/DriveOS.SharedKernel.csproj"
-      Id="10ee4dcc-496b-4b35-920c-288294743c40"
-    />
+    <Project Path="src/BuildingBlocks/DriveOS.Application.Abstractions/DriveOS.Application.Abstractions.csproj" Id="e741b6c4-008f-49c6-bf8c-b99ac3d7fdb5" />
+    <Project Path="src/BuildingBlocks/DriveOS.SharedKernel/DriveOS.SharedKernel.csproj" Id="10ee4dcc-496b-4b35-920c-288294743c40" />
   </Folder>
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Contracts/">
+    <Project Path="src/Modules/Contracts/DriveOS.Modules.Contracts.Application/DriveOS.Modules.Contracts.Application.csproj" Id="275922f4-65c3-4689-a4ca-d6f923470dd6" />
+    <Project Path="src/Modules/Contracts/DriveOS.Modules.Contracts.Domain/DriveOS.Modules.Contracts.Domain.csproj" Id="467d15d8-a970-46c9-9894-40b1ada34753" />
+    <Project Path="src/Modules/Contracts/DriveOS.Modules.Contracts.Infrastructure/DriveOS.Modules.Contracts.Infrastructure.csproj" Id="e23d11ae-cead-4bec-b559-ff3896400f65" />
+  </Folder>
   <Folder Name="/src/Modules/CRM/">
-    <Project
-      Path="src/Modules/CRM/DriveOS.Modules.CRM.Application/DriveOS.Modules.CRM.Application.csproj"
-      Id="77f4dc4c-1097-4c79-be07-6831d945814f"
-    />
-    <Project
-      Path="src/Modules/CRM/DriveOS.Modules.CRM.Domain/DriveOS.Modules.CRM.Domain.csproj"
-      Id="21f9955b-c869-4b6b-afba-65f5aff8cc61"
-    />
-    <Project
-      Path="src/Modules/CRM/DriveOS.Modules.CRM.Infrastructure/DriveOS.Modules.CRM.Infrastructure.csproj"
-      Id="527a23bc-b0cf-45b7-ac05-a95f4fdb4fdf"
-    />
+    <Project Path="src/Modules/CRM/DriveOS.Modules.CRM.Application/DriveOS.Modules.CRM.Application.csproj" Id="77f4dc4c-1097-4c79-be07-6831d945814f" />
+    <Project Path="src/Modules/CRM/DriveOS.Modules.CRM.Domain/DriveOS.Modules.CRM.Domain.csproj" Id="21f9955b-c869-4b6b-afba-65f5aff8cc61" />
+    <Project Path="src/Modules/CRM/DriveOS.Modules.CRM.Infrastructure/DriveOS.Modules.CRM.Infrastructure.csproj" Id="527a23bc-b0cf-45b7-ac05-a95f4fdb4fdf" />
   </Folder>
   <Folder Name="/src/Modules/Organizations/">
-    <Project
-      Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Application/DriveOS.Modules.Organizations.Application.csproj"
-      Id="8baf701c-becb-4b9b-aa0f-34a25edf32d4"
-    />
-    <Project
-      Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Contracts/DriveOS.Modules.Organizations.Contracts.csproj"
-      Id="da5190a1-b868-4a06-b05c-df023fa31cab"
-    />
-    <Project
-      Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Domain/DriveOS.Modules.Organizations.Domain.csproj"
-      Id="112bbccb-e436-4a28-8b99-b7374768d669"
-    />
-    <Project
-      Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Infrastructure/DriveOS.Modules.Organizations.Infrastructure.csproj"
-      Id="5cbf3bf1-0066-4423-b44a-9a5ec1dd85bb"
-    />
+    <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Application/DriveOS.Modules.Organizations.Application.csproj" Id="8baf701c-becb-4b9b-aa0f-34a25edf32d4" />
+    <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Contracts/DriveOS.Modules.Organizations.Contracts.csproj" Id="da5190a1-b868-4a06-b05c-df023fa31cab" />
+    <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Domain/DriveOS.Modules.Organizations.Domain.csproj" Id="112bbccb-e436-4a28-8b99-b7374768d669" />
+    <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Infrastructure/DriveOS.Modules.Organizations.Infrastructure.csproj" Id="5cbf3bf1-0066-4423-b44a-9a5ec1dd85bb" />
   </Folder>
   <Folder Name="/src/Modules/Students/">
-    <Project
-      Path="src/Modules/Students/DriveOS.Modules.Students.Application/DriveOS.Modules.Students.Application.csproj"
-      Id="24c4f76e-484e-47a8-9b38-875c8bafc2cf"
-    />
-    <Project
-      Path="src/Modules/Students/DriveOS.Modules.Students.Domain/DriveOS.Modules.Students.Domain.csproj"
-      Id="50c23ed2-f5c2-4f18-8a47-fb0a247c4d67"
-    />
-    <Project
-      Path="src/Modules/Students/DriveOS.Modules.Students.Infrastructure/DriveOS.Modules.Students.Infrastructure.csproj"
-      Id="0081c277-2a61-4617-ba56-8242cd039eb9"
-    />
+    <Project Path="src/Modules/Students/DriveOS.Modules.Students.Application/DriveOS.Modules.Students.Application.csproj" Id="24c4f76e-484e-47a8-9b38-875c8bafc2cf" />
+    <Project Path="src/Modules/Students/DriveOS.Modules.Students.Domain/DriveOS.Modules.Students.Domain.csproj" Id="50c23ed2-f5c2-4f18-8a47-fb0a247c4d67" />
+    <Project Path="src/Modules/Students/DriveOS.Modules.Students.Infrastructure/DriveOS.Modules.Students.Infrastructure.csproj" Id="0081c277-2a61-4617-ba56-8242cd039eb9" />
   </Folder>
   <Folder Name="/Tests/">
-    <Project
-      Path="tests/DriveOS.ArchitectureTests/DriveOS.ArchitectureTests.csproj"
-      Id="bf3894b6-baf2-4af6-95cf-8a731425195e"
-    />
-    <Project
-      Path="tests/DriveOS.IntegrationTests/DriveOS.IntegrationTests.csproj"
-      Id="9529a569-71c9-42d2-bdb2-e54efe2f57f2"
-    />
-    <Project
-      Path="tests/DriveOS.UnitTests/DriveOS.UnitTests.csproj"
-      Id="df3bf9aa-2d16-4ff6-9268-a368d369e4a1"
-    />
+    <Project Path="tests/DriveOS.ArchitectureTests/DriveOS.ArchitectureTests.csproj" Id="bf3894b6-baf2-4af6-95cf-8a731425195e" />
+    <Project Path="tests/DriveOS.IntegrationTests/DriveOS.IntegrationTests.csproj" Id="9529a569-71c9-42d2-bdb2-e54efe2f57f2" />
+    <Project Path="tests/DriveOS.UnitTests/DriveOS.UnitTests.csproj" Id="df3bf9aa-2d16-4ff6-9268-a368d369e4a1" />
   </Folder>
 </Solution>

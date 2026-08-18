@@ -1,5 +1,4 @@
 using DriveOS.Application.Abstractions.Messaging;
-using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Models;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Results;
@@ -8,8 +7,7 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationActivationReadin
 
 internal sealed class GetOrganizationActivationReadinessQueryHandler(
     IOrganizationRepository organizationRepository,
-    IOrganizationActivationReadinessService readinessService,
-    IOrganizationActivationReadinessReportCache readinessCache
+    IOrganizationActivationReadinessService readinessService
 ) : IQueryHandler<GetOrganizationActivationReadinessQuery, OrganizationActivationReadinessReport>
 {
     public async Task<Result<OrganizationActivationReadinessReport>> Handle(
@@ -30,9 +28,8 @@ internal sealed class GetOrganizationActivationReadinessQueryHandler(
             );
         }
 
-        OrganizationActivationReadinessReport report = await readinessCache.GetOrCreateAsync(
+        OrganizationActivationReadinessReport report = await readinessService.EvaluateAsync(
             query.OrganizationId,
-            token => readinessService.EvaluateAsync(query.OrganizationId, token),
             cancellationToken
         );
 

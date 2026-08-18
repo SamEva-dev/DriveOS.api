@@ -17,14 +17,6 @@ public sealed class OrganizationRepresentativesApiMappingProfile : MappingProfil
     public override void Configure(IMappingConfiguration configuration)
     {
         configuration.CreateMap<
-            OrganizationRepresentativeResponse,
-            OrganizationRepresentativeResponseContract
-        >();
-        configuration.CreateMap<
-            OrganizationRepresentativeListItem,
-            OrganizationRepresentativeListItemContract
-        >();
-        configuration.CreateMap<
             CreateOrganizationRepresentativeApiModel,
             CreateOrganizationRepresentativeCommand
         >();

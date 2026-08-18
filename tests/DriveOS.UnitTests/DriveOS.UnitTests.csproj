@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\BuildingBlocks\DriveOS.SharedKernel\DriveOS.SharedKernel.csproj" />
     <ProjectReference Include="..\..\src\DriveOS.Api\DriveOS.Api.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Contracts\DriveOS.Modules.Contracts.Domain\DriveOS.Modules.Contracts.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Organizations\DriveOS.Modules.Organizations.Application\DriveOS.Modules.Organizations.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Organizations\DriveOS.Modules.Organizations.Domain\DriveOS.Modules.Organizations.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Students\DriveOS.Modules.Students.Domain\DriveOS.Modules.Students.Domain.csproj" />

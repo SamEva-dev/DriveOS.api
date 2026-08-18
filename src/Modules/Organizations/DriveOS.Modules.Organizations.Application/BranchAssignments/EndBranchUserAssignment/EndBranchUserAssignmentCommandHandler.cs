@@ -1,7 +1,8 @@
-﻿using DriveOS.Application.Abstractions.Authentication;
+using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Results;
@@ -10,6 +11,7 @@ namespace DriveOS.Modules.Organizations.Application.BranchAssignments.EndBranchU
 
 internal sealed class EndBranchUserAssignmentCommandHandler(
     IBranchUserAssignmentRepository assignmentRepository,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
     IClock clock
@@ -53,6 +55,7 @@ internal sealed class EndBranchUserAssignmentCommandHandler(
         }
 
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
 
         return Result.Success();
     }

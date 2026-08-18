@@ -1,4 +1,5 @@
-﻿using DriveOS.Modules.CRM.Infrastructure.Persistence;
+﻿using DriveOS.Modules.Contracts.Infrastructure.Persistence;
+using DriveOS.Modules.CRM.Infrastructure.Persistence;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using DriveOS.Modules.Students.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,11 @@ namespace DriveOS.Api
                 Log.Information("Applying Students database migrations...");
                 studentsDb.Database.Migrate();
                 Log.Information("✅ Students database migrated successfully.");
+
+                var contractsDb = scope.ServiceProvider.GetRequiredService<ContractsDbContext>();
+                Log.Information("Applying Contracts database migrations...");
+                contractsDb.Database.Migrate();
+                Log.Information("✅ Contracts database migrated successfully.");
 
                 // Apply AuditDbContext migrations
             }

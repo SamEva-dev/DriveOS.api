@@ -69,7 +69,7 @@ internal sealed class StudentOverviewReadService(StudentsDbContext db) : IStuden
                 new OverviewActivity(
                     "EnrollmentCreated",
                     activeEnrollment.StartedAtUtc,
-                    "students.overview.activity.enrollmentCreated"
+                    "students.overview.activities.enrollmentCreated"
                 ),
             ];
         return new StudentOverviewResponse(

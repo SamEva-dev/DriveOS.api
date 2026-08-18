@@ -2,6 +2,7 @@ using DomainRelay.Validation;
 using DriveOS.Api;
 using DriveOS.Api.Configuration;
 using DriveOS.Api.Endpoints.Crm;
+using DriveOS.Api.Endpoints.Contracts;
 using DriveOS.Api.Endpoints.Organization.AccessManagement;
 using DriveOS.Api.Endpoints.Organization.BranchAssignments;
 using DriveOS.Api.Endpoints.Organization.BranchConfigurationOverrides;
@@ -19,9 +20,13 @@ using DriveOS.Api.Endpoints.Students;
 using DriveOS.Api.Errors;
 using DriveOS.Api.Infrastructure.Logging;
 using DriveOS.Api.Integrations.Students;
+using DriveOS.Api.Integrations.Contracts;
 using DriveOS.Modules.CRM.Application;
 using DriveOS.Modules.CRM.Application.Leads.ConvertLead;
 using DriveOS.Modules.CRM.Infrastructure;
+using DriveOS.Modules.Contracts.Application;
+using DriveOS.Modules.Contracts.Application.TrainingContracts.Create;
+using DriveOS.Modules.Contracts.Infrastructure;
 using DriveOS.Modules.Organizations.Application;
 using DriveOS.Modules.Organizations.Infrastructure;
 using DriveOS.Modules.Students.Application;
@@ -88,9 +93,12 @@ try
         .AddCrmApplication()
         .AddCrmInfrastructure(builder.Configuration)
         .AddStudentsApplication()
-        .AddStudentsInfrastructure(builder.Configuration);
+        .AddStudentsInfrastructure(builder.Configuration)
+        .AddContractsApplication()
+        .AddContractsInfrastructure(builder.Configuration);
 
     builder.Services.AddScoped<IStudentProvisioningGateway, StudentProvisioningGateway>();
+    builder.Services.AddScoped<ITrainingContractSourceGateway, TrainingContractSourceGateway>();
 
     builder.Services.AddDomainRelayValidation();
     builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
@@ -208,6 +216,7 @@ try
     app.MapAssessmentAppointmentEndpoints();
     app.MapCommercialOfferEndpoints();
     app.MapStudentDashboardEndpoints();
+    app.MapTrainingContractEndpoints();
 
     app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "DriveOS.Api" }));
     Log.Information("{Application} started successfully", LoggingConstants.ApplicationName);

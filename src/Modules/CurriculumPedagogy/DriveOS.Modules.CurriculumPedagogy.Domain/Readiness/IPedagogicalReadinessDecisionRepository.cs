@@ -1,0 +1,3 @@
+using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.CurriculumPedagogy.Domain.Readiness;
+public interface IPedagogicalReadinessDecisionRepository{Task AddAsync(PedagogicalReadinessDecision decision,CancellationToken cancellationToken=default);}

@@ -17,6 +17,11 @@
     <Project Path="src/Modules/CRM/DriveOS.Modules.CRM.Domain/DriveOS.Modules.CRM.Domain.csproj" Id="21f9955b-c869-4b6b-afba-65f5aff8cc61" />
     <Project Path="src/Modules/CRM/DriveOS.Modules.CRM.Infrastructure/DriveOS.Modules.CRM.Infrastructure.csproj" Id="527a23bc-b0cf-45b7-ac05-a95f4fdb4fdf" />
   </Folder>
+  <Folder Name="/src/Modules/CurriculumPedagogy/">
+    <Project Path="src/Modules/CurriculumPedagogy/DriveOS.Modules.CurriculumPedagogy.Application/DriveOS.Modules.CurriculumPedagogy.Application.csproj" Id="cbd1a9ff-33cd-4d30-b74a-e3177284b93a" />
+    <Project Path="src/Modules/CurriculumPedagogy/DriveOS.Modules.CurriculumPedagogy.Domain/DriveOS.Modules.CurriculumPedagogy.Domain.csproj" Id="4f8aa51b-6f71-4038-bb13-177e093a91d5" />
+    <Project Path="src/Modules/CurriculumPedagogy/DriveOS.Modules.CurriculumPedagogy.Infrastructure/DriveOS.Modules.CurriculumPedagogy.Infrastructure.csproj" Id="be190865-6234-4789-8237-b2ebc148c62a" />
+  </Folder>
   <Folder Name="/src/Modules/FundingBilling/">
     <Project Path="src/Modules/FundingBilling/DriveOS.Modules.FundingBilling.Application/DriveOS.Modules.FundingBilling.Application.csproj" Id="bff0c1d5-4fc4-4551-b92c-89dfb4280261" />
     <Project Path="src/Modules/FundingBilling/DriveOS.Modules.FundingBilling.Domain/DriveOS.Modules.FundingBilling.Domain.csproj" Id="f04bbdb7-22f4-4856-a543-9e16aa17a5f6" />

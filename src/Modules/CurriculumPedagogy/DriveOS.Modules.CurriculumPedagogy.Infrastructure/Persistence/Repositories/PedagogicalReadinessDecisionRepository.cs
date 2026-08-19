@@ -1,0 +1,3 @@
+using DriveOS.Modules.CurriculumPedagogy.Domain.Readiness;
+namespace DriveOS.Modules.CurriculumPedagogy.Infrastructure.Persistence.Repositories;
+internal sealed class PedagogicalReadinessDecisionRepository(CurriculumPedagogyDbContext db):IPedagogicalReadinessDecisionRepository{public async Task AddAsync(PedagogicalReadinessDecision decision,CancellationToken ct=default)=>await db.PedagogicalReadinessDecisions.AddAsync(decision,ct);}

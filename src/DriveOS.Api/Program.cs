@@ -3,6 +3,7 @@ using DriveOS.Api;
 using DriveOS.Api.Configuration;
 using DriveOS.Api.Endpoints.Crm;
 using DriveOS.Api.Endpoints.Contracts;
+using DriveOS.Api.Endpoints.CurriculumPedagogy;
 using DriveOS.Api.Endpoints.FundingBilling;
 using DriveOS.Api.Endpoints.Organization.AccessManagement;
 using DriveOS.Api.Endpoints.Organization.BranchAssignments;
@@ -23,12 +24,16 @@ using DriveOS.Api.Infrastructure.Logging;
 using DriveOS.Api.Integrations.Students;
 using DriveOS.Api.Integrations.Contracts;
 using DriveOS.Api.Integrations.FundingBilling;
+using DriveOS.Api.Integrations.CurriculumPedagogy;
 using DriveOS.Modules.CRM.Application;
 using DriveOS.Modules.CRM.Application.Leads.ConvertLead;
 using DriveOS.Modules.CRM.Infrastructure;
 using DriveOS.Modules.Contracts.Application;
 using DriveOS.Modules.Contracts.Application.TrainingContracts.Create;
 using DriveOS.Modules.Contracts.Infrastructure;
+using DriveOS.Modules.CurriculumPedagogy.Application;
+using DriveOS.Modules.CurriculumPedagogy.Infrastructure;
+using DriveOS.Modules.CurriculumPedagogy.Application.TrainingPaths;
 using DriveOS.Modules.FundingBilling.Application;
 using DriveOS.Modules.FundingBilling.Application.BillingAccounts.Create;
 using DriveOS.Modules.FundingBilling.Application.Invoices.Issue;
@@ -45,6 +50,7 @@ using Itech.Emailing.Webhooks;
 using Itech.Emailing.Workers;
 using Serilog;
 using Serilog.Events;
+
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -109,11 +115,14 @@ try
         .AddContractsApplication()
         .AddContractsInfrastructure(builder.Configuration)
         .AddFundingBillingApplication()
-        .AddFundingBillingInfrastructure(builder.Configuration);
+        .AddFundingBillingInfrastructure(builder.Configuration)
+        .AddCurriculumPedagogyApplication()
+        .AddCurriculumPedagogyInfrastructure(builder.Configuration);
 
     builder.Services.AddScoped<IStudentProvisioningGateway, StudentProvisioningGateway>();
     builder.Services.AddScoped<ITrainingContractSourceGateway, TrainingContractSourceGateway>();
     builder.Services.AddScoped<IBillingAccountStudentGateway, BillingAccountStudentGateway>();
+    builder.Services.AddScoped<ITrainingPathStudentGateway, TrainingPathStudentGateway>();
     builder.Services.AddScoped<IInvoiceNumberGenerator, InvoiceNumberGenerator>();
     builder.Services.AddScoped<ICreditNoteNumberGenerator, CreditNoteNumberGenerator>();
     builder.Services.AddScoped<IFinancialNotificationGateway, LocaGuestFinancialNotificationGateway>();
@@ -121,7 +130,7 @@ try
     string driveOsConnectionString = builder.Configuration.GetConnectionString("DriveOS")
         ?? throw new InvalidOperationException("The DriveOS database connection string is missing.");
     builder.Services.AddItechEmailing(builder.Configuration, emailing =>
-        emailing.UsePostgres(driveOsConnectionString, typeof(LocaGuestFinancialNotificationGateway).Assembly.GetName().Name));
+        emailing.UsePostgres(driveOsConnectionString, typeof(IFinancialNotificationGateway).Assembly.GetName().Name));
     builder.Services.AddHostedService<EmailDispatcherWorker>();
 
     builder.Services.AddDomainRelayValidation();
@@ -255,6 +264,7 @@ try
     app.MapTrainingCreditAccountEndpoints();
     app.MapStudentFinancialOverviewEndpoints();
     app.MapFinancialAuditEndpoints();
+    app.MapCurriculumPedagogyEndpoints();
 
     app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "DriveOS.Api" }));
     Log.Information("{Application} started successfully", LoggingConstants.ApplicationName);

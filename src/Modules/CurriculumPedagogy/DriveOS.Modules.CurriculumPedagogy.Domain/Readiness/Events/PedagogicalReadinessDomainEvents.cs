@@ -1,0 +1,4 @@
+using DriveOS.SharedKernel.Domain;using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.CurriculumPedagogy.Domain.Readiness.Events;
+public sealed record PedagogicalReadinessDecisionRecordedDomainEvent(PedagogicalReadinessDecisionId DecisionId,OrganizationId OrganizationId,PersonId StudentId,TrainingPathId TrainingPathId,PedagogicalReadinessDecisionStatus Decision,UserId ReviewerId):DomainEvent;
+public sealed record StudentMarkedPedagogicallyReadyDomainEvent(PedagogicalReadinessDecisionId DecisionId,OrganizationId OrganizationId,PersonId StudentId,TrainingPathId TrainingPathId,UserId ReviewerId):DomainEvent;

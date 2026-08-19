@@ -1,0 +1,7 @@
+using DriveOS.Modules.CurriculumPedagogy.Domain.Curricula;using DriveOS.SharedKernel.Identifiers;using FluentAssertions;
+namespace DriveOS.UnitTests.Modules.CurriculumPedagogy.Curricula;
+public sealed class CurriculumPublicationTests
+{
+ [Fact] public void PublishVersion_FreezesStructure(){var actor=new UserId(Guid.NewGuid());var created=Curriculum.Create(CurriculumId.New(),new OrganizationId(Guid.NewGuid()),"FR-B","Permis B",null,"FR","B");var c=created.Value;var v=c.CreateVersion(CurriculumVersionId.New(),new DateOnly(2026,1,1),null,"Initial",actor,DateTimeOffset.UtcNow).Value;var m=c.AddModule(v.Id,CurriculumModuleId.New(),"M1","Module 1",null,1).Value;c.AddCompetency(v.Id,m.Id,CompetencyId.New(),"C1","Compétence 1",null,"Maîtriser la compétence",1,true).IsSuccess.Should().BeTrue();c.PublishVersion(v.Id,actor,DateTimeOffset.UtcNow).IsSuccess.Should().BeTrue();c.AddModule(v.Id,CurriculumModuleId.New(),"M2","Module 2",null,2).IsFailure.Should().BeTrue();v.Status.Should().Be(CurriculumVersionStatus.Published);}
+ [Fact] public void PublishVersion_RejectsEmptyModule(){var actor=new UserId(Guid.NewGuid());var c=Curriculum.Create(CurriculumId.New(),new OrganizationId(Guid.NewGuid()),"FR-B","Permis B",null,"FR","B").Value;var v=c.CreateVersion(CurriculumVersionId.New(),new DateOnly(2026,1,1),null,null,actor,DateTimeOffset.UtcNow).Value;c.AddModule(v.Id,CurriculumModuleId.New(),"M1","Module 1",null,1);c.PublishVersion(v.Id,actor,DateTimeOffset.UtcNow).Error.Should().Be(CurriculumErrors.VersionEmpty);}
+}

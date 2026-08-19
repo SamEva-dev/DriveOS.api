@@ -1,0 +1,6 @@
+using DriveOS.SharedKernel.Domain;using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.CurriculumPedagogy.Domain.RemediationPlans.Events;
+public sealed record RemediationPlanCreatedDomainEvent(RemediationPlanId PlanId,OrganizationId OrganizationId,PersonId StudentId,TrainingPathId TrainingPathId,UserId ResponsibleUserId):DomainEvent;
+public sealed record RemediationPlanActivatedDomainEvent(RemediationPlanId PlanId,TrainingPathId TrainingPathId):DomainEvent;
+public sealed record RemediationPlanCompletedDomainEvent(RemediationPlanId PlanId,TrainingPathId TrainingPathId,DateTimeOffset CompletedAtUtc):DomainEvent;
+public sealed record RemediationPlanCancelledDomainEvent(RemediationPlanId PlanId,TrainingPathId TrainingPathId,string Reason):DomainEvent;

@@ -1,0 +1,14 @@
+using DriveOS.Application.Abstractions.Messaging;using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.CurriculumPedagogy.Application.Curricula;
+public sealed record CreateCurriculumCommand(OrganizationId OrganizationId,string Code,string Name,string? Description,string CountryCode,string LicenseCategoryCode,UserId ActorUserId):ICommand<CurriculumId>;
+public sealed record CreateCurriculumVersionCommand(OrganizationId OrganizationId,CurriculumId CurriculumId,DateOnly EffectiveFrom,DateOnly? EffectiveTo,string? ChangeSummary,UserId ActorUserId):ICommand<CurriculumVersionId>;
+public sealed record AddCurriculumModuleCommand(OrganizationId OrganizationId,CurriculumId CurriculumId,CurriculumVersionId VersionId,string Code,string Name,string? Description,int Order):ICommand<CurriculumModuleId>;
+public sealed record AddCompetencyCommand(OrganizationId OrganizationId,CurriculumId CurriculumId,CurriculumVersionId VersionId,CurriculumModuleId ModuleId,string Code,string Name,string? Description,string LearningObjective,int Order,bool IsRequired):ICommand<CompetencyId>;
+public sealed record PublishCurriculumVersionCommand(OrganizationId OrganizationId,CurriculumId CurriculumId,CurriculumVersionId VersionId,UserId ActorUserId):ICommand;
+public sealed record CurriculumListItem(Guid Id,string Code,string Name,string CountryCode,string LicenseCategoryCode,string Status,int LatestVersionNumber);
+public sealed record CompetencyResponse(Guid Id,string Code,string Name,string? Description,string LearningObjective,int Order,bool IsRequired);
+public sealed record CurriculumModuleResponse(Guid Id,string Code,string Name,string? Description,int Order,IReadOnlyCollection<CompetencyResponse> Competencies);
+public sealed record CurriculumVersionResponse(Guid Id,int VersionNumber,Guid? SourceVersionId,string Status,DateOnly EffectiveFrom,DateOnly? EffectiveTo,string? ChangeSummary,DateTimeOffset CreatedAtUtc,DateTimeOffset? PublishedAtUtc,IReadOnlyCollection<CurriculumModuleResponse> Modules);
+public sealed record CurriculumDetailResponse(Guid Id,string Code,string Name,string? Description,string CountryCode,string LicenseCategoryCode,string Status,IReadOnlyCollection<CurriculumVersionResponse> Versions);
+public sealed record LicenseCategoryListItem(Guid Id,string CountryCode,string Code,string Name,string Status);
+public interface ICurriculumReadService{Task<IReadOnlyCollection<LicenseCategoryListItem>> ListLicenseCategoriesAsync(OrganizationId organizationId,CancellationToken cancellationToken=default);Task<IReadOnlyCollection<CurriculumListItem>> ListAsync(OrganizationId organizationId,CancellationToken cancellationToken=default);Task<CurriculumDetailResponse?> GetAsync(OrganizationId organizationId,CurriculumId curriculumId,CancellationToken cancellationToken=default);}

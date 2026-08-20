@@ -1,9 +1,10 @@
-﻿using DriveOS.Modules.CRM.Infrastructure.Persistence;
+using DriveOS.Modules.CRM.Infrastructure.Persistence;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using DriveOS.Modules.Students.Infrastructure.Persistence;
 using DriveOS.Modules.FundingBilling.Infrastructure.Persistence;
 using DriveOS.Modules.Contracts.Infrastructure.Persistence;
 using DriveOS.Modules.CurriculumPedagogy.Infrastructure.Persistence;
+using DriveOS.Modules.SchedulingCapacity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Itech.Emailing.Persistence;
 using Serilog;
@@ -48,6 +49,11 @@ namespace DriveOS.Api
                 Log.Information("Applying Curriculum & Pedagogy database migrations...");
                 curriculumDb.Database.Migrate();
                 Log.Information("✅ Curriculum & Pedagogy database migrated successfully.");
+
+                var schedulingDb = scope.ServiceProvider.GetRequiredService<SchedulingCapacityDbContext>();
+                Log.Information("Applying Scheduling & Capacity database migrations...");
+                schedulingDb.Database.Migrate();
+                Log.Information("✅ Scheduling & Capacity database migrated successfully.");
 
                 var emailingDb = scope.ServiceProvider.GetRequiredService<EmailingDbContext>();
                 Log.Information("Applying Emailing database migrations...");

@@ -29,9 +29,13 @@
   </Folder>
   <Folder Name="/src/Modules/Organizations/">
     <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Application/DriveOS.Modules.Organizations.Application.csproj" Id="8baf701c-becb-4b9b-aa0f-34a25edf32d4" />
-    <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Contracts/DriveOS.Modules.Organizations.Contracts.csproj" Id="da5190a1-b868-4a06-b05c-df023fa31cab" />
     <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Domain/DriveOS.Modules.Organizations.Domain.csproj" Id="112bbccb-e436-4a28-8b99-b7374768d669" />
     <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Infrastructure/DriveOS.Modules.Organizations.Infrastructure.csproj" Id="5cbf3bf1-0066-4423-b44a-9a5ec1dd85bb" />
+  </Folder>
+  <Folder Name="/src/Modules/SchedulingCapacity/">
+    <Project Path="src/Modules/SchedulingCapacity/DriveOS.Modules.SchedulingCapacity.Application/DriveOS.Modules.SchedulingCapacity.Application.csproj" Id="905356f0-6626-498b-b3b1-ed474d24f8e0" />
+    <Project Path="src/Modules/SchedulingCapacity/DriveOS.Modules.SchedulingCapacity.Domain/DriveOS.Modules.SchedulingCapacity.Domain.csproj" Id="405d7a82-f030-4ac6-b279-c0a12b2a6ada" />
+    <Project Path="src/Modules/SchedulingCapacity/DriveOS.Modules.SchedulingCapacity.Infrastructure/DriveOS.Modules.SchedulingCapacity.Infrastructure.csproj" Id="1d4d072d-8e52-4b48-b565-ebc55bd093b6" />
   </Folder>
   <Folder Name="/src/Modules/Students/">
     <Project Path="src/Modules/Students/DriveOS.Modules.Students.Application/DriveOS.Modules.Students.Application.csproj" Id="24c4f76e-484e-47a8-9b38-875c8bafc2cf" />

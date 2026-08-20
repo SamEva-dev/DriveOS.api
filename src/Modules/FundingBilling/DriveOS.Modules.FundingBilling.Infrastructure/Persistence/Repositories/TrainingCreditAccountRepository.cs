@@ -17,6 +17,10 @@ internal sealed class TrainingCreditAccountRepository(FundingBillingDbContext db
     public Task<bool> MovementReferenceExistsAsync(TrainingCreditAccountId accountId, string reference, CancellationToken cancellationToken = default) =>
         dbContext.TrainingCreditMovements.AsNoTracking().AnyAsync(x => x.TrainingCreditAccountId == accountId && x.Reference == reference, cancellationToken);
 
+    public Task<TrainingCreditMovement?> GetMovementByReferenceAsync(TrainingCreditAccountId accountId, string reference, CancellationToken cancellationToken = default) =>
+        dbContext.TrainingCreditMovements.AsNoTracking().SingleOrDefaultAsync(
+            x => x.TrainingCreditAccountId == accountId && x.Reference == reference, cancellationToken);
+
     public Task AddAsync(TrainingCreditAccount account, CancellationToken cancellationToken = default) =>
         dbContext.TrainingCreditAccounts.AddAsync(account, cancellationToken).AsTask();
 }

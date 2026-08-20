@@ -82,6 +82,7 @@ public static class DependencyInjection
         services.AddScoped<IAdministrationService, AdministrationService>();
         services.AddScoped<IGuardianService, GuardianService>();
         services.AddScoped<IStudentRelationshipService, StudentRelationshipService>();
+        services.AddScoped<IEnrollmentPrerequisiteSnapshotProvider, NullEnrollmentPrerequisiteSnapshotProvider>();
         services.AddScoped<IEnrollmentChecklistService, EnrollmentChecklistService>();
         services.AddScoped<IStudentDocumentService, StudentDocumentService>();
         services.AddScoped<IStudentStatusService, StudentStatusService>();

@@ -36,8 +36,25 @@ internal sealed class RecordTrainingCreditMovementCommandHandler(ITrainingCredit
         TrainingCreditAccount? account = await accounts.GetByIdAsync(command.AccountId, cancellationToken);
         if (account is null || account.OrganizationId != command.OrganizationId)
             return Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.NotFound);
-        if (await accounts.MovementReferenceExistsAsync(account.Id, command.Reference.Trim(), cancellationToken))
-            return Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.MovementReferenceDuplicate);
+        string normalizedReference = command.Reference.Trim();
+        TrainingCreditMovement? existingMovement = await accounts.GetMovementByReferenceAsync(account.Id, normalizedReference, cancellationToken);
+        if (existingMovement is not null)
+        {
+            TrainingCreditMovementType expectedType = command.Operation switch
+            {
+                TrainingCreditOperation.Purchase => TrainingCreditMovementType.Purchase,
+                TrainingCreditOperation.Reserve => TrainingCreditMovementType.Reservation,
+                TrainingCreditOperation.Release => TrainingCreditMovementType.Release,
+                TrainingCreditOperation.Consume => TrainingCreditMovementType.Consumption,
+                TrainingCreditOperation.Adjust => TrainingCreditMovementType.Adjustment,
+                _ => 0
+            };
+
+            decimal expectedQuantity = decimal.Round(command.Quantity, 2, MidpointRounding.AwayFromZero);
+            return existingMovement.Type == expectedType && existingMovement.Quantity == expectedQuantity
+                ? Result.Success(existingMovement.Id)
+                : Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.MovementReferenceDuplicate);
+        }
 
         DateTimeOffset now = clock.UtcNow;
         TrainingCreditMovementId movementId = TrainingCreditMovementId.New();

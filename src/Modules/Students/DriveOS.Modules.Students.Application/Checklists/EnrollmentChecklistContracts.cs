@@ -19,8 +19,12 @@ public sealed record ChecklistItemResponse(
     Guid RuleId,
     string Code,
     string LabelKey,
+    string DescriptionKey,
+    string ImpactKey,
+    string ActionLabelKey,
     ChecklistCategory Category,
     bool IsBlocking,
+    bool IsDerived,
     string TargetRoute,
     ChecklistItemStatus Status,
     Guid? ResponsibleUserId,
@@ -131,5 +135,9 @@ public static class EnrollmentChecklistApplicationErrors
     public static readonly Error RuleNotFound = Error.NotFound(
         "Students.Checklist.Rule.NotFound",
         "errors.students.checklist.rule.notFound"
+    );
+    public static readonly Error DerivedStatusManualChangeForbidden = Error.Conflict(
+        "Students.Checklist.DerivedStatus.ManualChangeForbidden",
+        "errors.students.checklist.derivedStatus.manualChangeForbidden"
     );
 }

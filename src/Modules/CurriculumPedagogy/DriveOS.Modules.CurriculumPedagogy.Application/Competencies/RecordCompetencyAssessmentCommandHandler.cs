@@ -43,6 +43,24 @@ public sealed class RecordCompetencyAssessmentCommandHandler(
             await competencyRecords.AddAsync(record, cancellationToken);
         }
 
+        if (command.SourceSessionId.HasValue)
+        {
+            CompetencyAssessment? existing = record.Assessments.SingleOrDefault(x => x.SourceSessionId == command.SourceSessionId);
+            if (existing is not null)
+            {
+                string normalizedLevel = (command.LevelCode ?? string.Empty).Trim().ToUpperInvariant();
+                string? normalizedComment = string.IsNullOrWhiteSpace(command.Comment) ? null : command.Comment.Trim();
+                if (string.Equals(existing.LevelCode, normalizedLevel, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(existing.Comment, normalizedComment, StringComparison.Ordinal)
+                    && existing.IsVisibleToStudent == command.IsVisibleToStudent)
+                {
+                    return Result.Success(existing.Id);
+                }
+
+                return Result.Failure<CompetencyAssessmentId>(RecordCompetencyAssessmentErrors.SourceSessionConflict);
+            }
+        }
+
         DateTimeOffset now = clock.UtcNow;
         DateTimeOffset assessedAt = command.AssessedAtUtc?.ToUniversalTime() ?? now;
         if (assessedAt > now.AddMinutes(5))

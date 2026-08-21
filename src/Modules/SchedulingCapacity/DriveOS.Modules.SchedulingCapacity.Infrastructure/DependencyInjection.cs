@@ -57,6 +57,7 @@ public static class DependencyInjection
         services.AddScoped<IWaitingListMatchingService, WaitingListMatchingService>();
         services.AddScoped<IWaitingListSlotLock, WaitingListSlotLock>();
         services.AddScoped<IBookingConflictAssessmentService, BookingConflictAssessmentService>();
+        services.AddScoped<IBookingExecutionReadinessService, BookingExecutionReadinessService>();
         services.AddScoped<IBookingCapacityLock, BookingCapacityLock>();
         services.AddScoped<IBookingCreationIdempotencyLock, BookingCreationIdempotencyLock>();
         services.AddScoped<IInstructorReplacementService, InstructorReplacementService>();

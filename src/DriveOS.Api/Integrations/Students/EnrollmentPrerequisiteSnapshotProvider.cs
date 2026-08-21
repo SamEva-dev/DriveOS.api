@@ -1,4 +1,5 @@
 using DomainRelay.Abstractions;
+using DriveOS.Application.Abstractions.Time;
 using DriveOS.Modules.Contracts.Application.TrainingContracts.Read;
 using DriveOS.Modules.CRM.Application.Assessments.GetAssessments;
 using DriveOS.Modules.CurriculumPedagogy.Application.TrainingPaths;
@@ -20,6 +21,7 @@ internal sealed class EnrollmentPrerequisiteSnapshotProvider(
     ITrainingPathReadService trainingPathReadService,
     IStudentFinancialOverviewReadService financialOverviewReadService,
     IMediator mediator,
+    IClock clock,
     ILogger<EnrollmentPrerequisiteSnapshotProvider> logger)
     : IEnrollmentPrerequisiteSnapshotProvider
 {
@@ -41,7 +43,7 @@ internal sealed class EnrollmentPrerequisiteSnapshotProvider(
                 await financialOverviewReadService.GetAsync(
                     organizationId,
                     studentId,
-                    DateOnly.FromDateTime(DateTime.UtcNow),
+                    DateOnly.FromDateTime(clock.UtcNow.UtcDateTime),
                     cancellationToken)));
 
         PrerequisiteEvaluation? learningPath = await SafeAsync(
@@ -76,6 +78,10 @@ internal sealed class EnrollmentPrerequisiteSnapshotProvider(
         try
         {
             return await read();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception exception)
         {

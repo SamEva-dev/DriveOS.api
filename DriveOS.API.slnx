@@ -42,6 +42,11 @@
     <Project Path="src/Modules/Students/DriveOS.Modules.Students.Domain/DriveOS.Modules.Students.Domain.csproj" Id="50c23ed2-f5c2-4f18-8a47-fb0a247c4d67" />
     <Project Path="src/Modules/Students/DriveOS.Modules.Students.Infrastructure/DriveOS.Modules.Students.Infrastructure.csproj" Id="0081c277-2a61-4617-ba56-8242cd039eb9" />
   </Folder>
+  <Folder Name="/src/Modules/TrainingDelivery/">
+    <Project Path="src/Modules/TrainingDelivery/DriveOS.Modules.TrainingDelivery.Application/DriveOS.Modules.TrainingDelivery.Application.csproj" Id="a9454fe4-75f9-456c-bf04-3c3f6d51be16" />
+    <Project Path="src/Modules/TrainingDelivery/DriveOS.Modules.TrainingDelivery.Domain/DriveOS.Modules.TrainingDelivery.Domain.csproj" Id="d0d5e5f0-a21a-4c23-88f8-3126caaf6da6" />
+    <Project Path="src/Modules/TrainingDelivery/DriveOS.Modules.TrainingDelivery.Infrastructure/DriveOS.Modules.TrainingDelivery.Infrastructure.csproj" Id="161ef94a-2072-4dfd-a7e8-1dd1e3622228" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="tests/DriveOS.ArchitectureTests/DriveOS.ArchitectureTests.csproj" Id="bf3894b6-baf2-4af6-95cf-8a731425195e" />
     <Project Path="tests/DriveOS.IntegrationTests/DriveOS.IntegrationTests.csproj" Id="9529a569-71c9-42d2-bdb2-e54efe2f57f2" />

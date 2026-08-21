@@ -1,5 +1,4 @@
 using DriveOS.Modules.CRM.Domain.Activities;
-using DriveOS.Modules.CRM.Domain.Leads;
 using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.UnitTests.Modules.CRM.Activities;

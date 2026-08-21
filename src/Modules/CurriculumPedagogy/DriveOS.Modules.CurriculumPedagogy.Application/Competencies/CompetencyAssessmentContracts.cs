@@ -44,6 +44,10 @@ public static class RecordCompetencyAssessmentErrors
     public static readonly Error CompetencyNotFound = Error.NotFound(
         "CurriculumPedagogy.CompetencyAssessment.Competency.NotFound",
         "errors.curriculumPedagogy.competencyAssessment.competency.notFound");
+
+    public static readonly Error SourceSessionConflict = Error.Conflict(
+        "CurriculumPedagogy.CompetencyAssessment.SourceSession.Conflict",
+        "errors.curriculumPedagogy.competencyAssessment.sourceSession.conflict");
 }
 
 public sealed record CompetencyAssessmentResponse(

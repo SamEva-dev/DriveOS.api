@@ -1,0 +1,4 @@
+using DriveOS.Modules.TrainingDelivery.Application.Incidents; using DriveOS.SharedKernel.Identifiers; using Microsoft.EntityFrameworkCore;
+namespace DriveOS.Modules.TrainingDelivery.Infrastructure.Persistence;
+internal sealed class TrainingIncidentExecutionLock(TrainingDeliveryDbContext db):ITrainingIncidentExecutionLock
+{public async Task AcquireAsync(OrganizationId organizationId,TrainingIncidentId incidentId,CancellationToken cancellationToken=default){if(!db.HasActiveTransaction)throw new InvalidOperationException("A Training Delivery transaction must be active before acquiring an incident lock.");await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM training_delivery.training_incidents WHERE \"OrganizationId\" = {organizationId.Value} AND \"Id\" = {incidentId.Value} FOR UPDATE",cancellationToken);}}

@@ -115,3 +115,20 @@ public interface IBookingCreationIdempotencyLock
         string idempotencyKey,
         CancellationToken cancellationToken = default);
 }
+
+public sealed record BookingExecutionReadinessResponse(
+    bool Exists,
+    bool IsConfirmed,
+    bool IsConflictFree,
+    IReadOnlyCollection<BookingConflictResponse> Conflicts)
+{
+    public bool IsReady => Exists && IsConfirmed && IsConflictFree;
+}
+
+public interface IBookingExecutionReadinessService
+{
+    Task<BookingExecutionReadinessResponse> CheckAsync(
+        OrganizationId organizationId,
+        BookingId bookingId,
+        CancellationToken cancellationToken = default);
+}

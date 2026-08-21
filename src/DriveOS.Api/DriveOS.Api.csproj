@@ -48,5 +48,8 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-  </ItemGroup>
+      <ProjectReference Include="..\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Application\DriveOS.Modules.TrainingDelivery.Application.csproj" />
+    <ProjectReference Include="..\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Domain\DriveOS.Modules.TrainingDelivery.Domain.csproj" />
+    <ProjectReference Include="..\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Infrastructure\DriveOS.Modules.TrainingDelivery.Infrastructure.csproj" />
+</ItemGroup>
 </Project>

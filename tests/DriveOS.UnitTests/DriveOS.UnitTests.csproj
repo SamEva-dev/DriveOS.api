@@ -18,14 +18,35 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\BuildingBlocks\DriveOS.Application.Abstractions\DriveOS.Application.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\BuildingBlocks\DriveOS.SharedKernel\DriveOS.SharedKernel.csproj" />
     <ProjectReference Include="..\..\src\DriveOS.Api\DriveOS.Api.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Contracts\DriveOS.Modules.Contracts.Application\DriveOS.Modules.Contracts.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Contracts\DriveOS.Modules.Contracts.Infrastructure\DriveOS.Modules.Contracts.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\CRM\DriveOS.Modules.CRM.Application\DriveOS.Modules.CRM.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\CRM\DriveOS.Modules.CRM.Domain\DriveOS.Modules.CRM.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\CRM\DriveOS.Modules.CRM.Infrastructure\DriveOS.Modules.CRM.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\CurriculumPedagogy\DriveOS.Modules.CurriculumPedagogy.Application\DriveOS.Modules.CurriculumPedagogy.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\CurriculumPedagogy\DriveOS.Modules.CurriculumPedagogy.Infrastructure\DriveOS.Modules.CurriculumPedagogy.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\FundingBilling\DriveOS.Modules.FundingBilling.Application\DriveOS.Modules.FundingBilling.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\FundingBilling\DriveOS.Modules.FundingBilling.Infrastructure\DriveOS.Modules.FundingBilling.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Modules\Organizations\DriveOS.Modules.Organizations.Application\DriveOS.Modules.Organizations.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Organizations\DriveOS.Modules.Organizations.Domain\DriveOS.Modules.Organizations.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Organizations\DriveOS.Modules.Organizations.Infrastructure\DriveOS.Modules.Organizations.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SchedulingCapacity\DriveOS.Modules.SchedulingCapacity.Application\DriveOS.Modules.SchedulingCapacity.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SchedulingCapacity\DriveOS.Modules.SchedulingCapacity.Domain\DriveOS.Modules.SchedulingCapacity.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SchedulingCapacity\DriveOS.Modules.SchedulingCapacity.Infrastructure\DriveOS.Modules.SchedulingCapacity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Students\DriveOS.Modules.Students.Application\DriveOS.Modules.Students.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Students\DriveOS.Modules.Students.Domain\DriveOS.Modules.Students.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Contracts\DriveOS.Modules.Contracts.Domain\DriveOS.Modules.Contracts.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\FundingBilling\DriveOS.Modules.FundingBilling.Domain\DriveOS.Modules.FundingBilling.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\CurriculumPedagogy\DriveOS.Modules.CurriculumPedagogy.Domain\DriveOS.Modules.CurriculumPedagogy.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Students\DriveOS.Modules.Students.Infrastructure\DriveOS.Modules.Students.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Application\DriveOS.Modules.TrainingDelivery.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Domain\DriveOS.Modules.TrainingDelivery.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Infrastructure\DriveOS.Modules.TrainingDelivery.Infrastructure.csproj" />
+    <ProjectReference Include="..\DriveOS.ArchitectureTests\DriveOS.ArchitectureTests.csproj" />
+    <ProjectReference Include="..\DriveOS.IntegrationTests\DriveOS.IntegrationTests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

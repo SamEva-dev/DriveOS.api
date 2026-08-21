@@ -73,3 +73,93 @@ internal sealed class RecordTrainingCreditMovementCommandHandler(ITrainingCredit
         return result;
     }
 }
+
+public sealed record ConsumeReservedTrainingCreditCommand(
+    OrganizationId OrganizationId,
+    TrainingCreditAccountId AccountId,
+    decimal Quantity,
+    string ReservationReference,
+    string ConsumptionReference,
+    UserId ActorUserId) : ICommand<TrainingCreditMovementId>;
+
+internal sealed class ConsumeReservedTrainingCreditCommandHandler(
+    ITrainingCreditAccountRepository accounts,
+    IFundingBillingUnitOfWork unitOfWork,
+    IClock clock) : ICommandHandler<ConsumeReservedTrainingCreditCommand, TrainingCreditMovementId>
+{
+    public async Task<Result<TrainingCreditMovementId>> Handle(ConsumeReservedTrainingCreditCommand command, CancellationToken cancellationToken)
+    {
+        TrainingCreditAccount? account = await accounts.GetByIdAsync(command.AccountId, cancellationToken);
+        if (account is null || account.OrganizationId != command.OrganizationId)
+            return Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.NotFound);
+
+        string reservationReference = command.ReservationReference.Trim();
+        string consumptionReference = command.ConsumptionReference.Trim();
+        TrainingCreditMovement? existingConsumption = account.Movements.SingleOrDefault(x => x.Reference == consumptionReference);
+        if (existingConsumption is not null)
+            return existingConsumption.Type == TrainingCreditMovementType.Consumption && existingConsumption.Quantity == decimal.Round(command.Quantity, 2, MidpointRounding.AwayFromZero)
+                ? Result.Success(existingConsumption.Id)
+                : Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.MovementReferenceDuplicate);
+
+        TrainingCreditMovement? reservation = account.Movements.SingleOrDefault(x => x.Reference == reservationReference);
+        if (reservation is null || reservation.Type != TrainingCreditMovementType.Reservation || reservation.Quantity < decimal.Round(command.Quantity, 2, MidpointRounding.AwayFromZero))
+            return Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.InsufficientReserved);
+
+        DateTimeOffset now = clock.UtcNow;
+        TrainingCreditMovementId movementId = TrainingCreditMovementId.New();
+        Result<TrainingCreditMovementId> consumed = account.Consume(
+            movementId,
+            command.Quantity,
+            consumptionReference,
+            $"Consumption of reservation {reservationReference}",
+            command.ActorUserId,
+            now);
+        if (consumed.IsFailure) return consumed;
+        account.SetModifiedAudit(now, command.ActorUserId);
+        await unitOfWork.CommitAsync(cancellationToken);
+        return consumed;
+    }
+}
+
+
+public sealed record ReleaseReservedTrainingCreditCommand(
+    OrganizationId OrganizationId,
+    TrainingCreditAccountId AccountId,
+    decimal Quantity,
+    string ReservationReference,
+    string ReleaseReference,
+    UserId ActorUserId) : ICommand<TrainingCreditMovementId>;
+
+internal sealed class ReleaseReservedTrainingCreditCommandHandler(
+    ITrainingCreditAccountRepository accounts,
+    IFundingBillingUnitOfWork unitOfWork,
+    IClock clock) : ICommandHandler<ReleaseReservedTrainingCreditCommand, TrainingCreditMovementId>
+{
+    public async Task<Result<TrainingCreditMovementId>> Handle(ReleaseReservedTrainingCreditCommand command, CancellationToken cancellationToken)
+    {
+        TrainingCreditAccount? account = await accounts.GetByIdAsync(command.AccountId, cancellationToken);
+        if (account is null || account.OrganizationId != command.OrganizationId)
+            return Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.NotFound);
+
+        string reservationReference = command.ReservationReference.Trim();
+        string releaseReference = command.ReleaseReference.Trim();
+        TrainingCreditMovement? existingRelease = account.Movements.SingleOrDefault(x => x.Reference == releaseReference);
+        if (existingRelease is not null)
+            return existingRelease.Type == TrainingCreditMovementType.Release && existingRelease.Quantity == decimal.Round(command.Quantity, 2, MidpointRounding.AwayFromZero)
+                ? Result.Success(existingRelease.Id)
+                : Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.MovementReferenceDuplicate);
+
+        TrainingCreditMovement? reservation = account.Movements.SingleOrDefault(x => x.Reference == reservationReference);
+        if (reservation is null || reservation.Type != TrainingCreditMovementType.Reservation || reservation.Quantity < decimal.Round(command.Quantity, 2, MidpointRounding.AwayFromZero))
+            return Result.Failure<TrainingCreditMovementId>(TrainingCreditAccountErrors.InsufficientReserved);
+
+        DateTimeOffset now = clock.UtcNow;
+        TrainingCreditMovementId movementId = TrainingCreditMovementId.New();
+        Result<TrainingCreditMovementId> released = account.Release(movementId, command.Quantity, releaseReference,
+            $"Release of reservation {reservationReference}", command.ActorUserId, now);
+        if (released.IsFailure) return released;
+        account.SetModifiedAudit(now, command.ActorUserId);
+        await unitOfWork.CommitAsync(cancellationToken);
+        return released;
+    }
+}

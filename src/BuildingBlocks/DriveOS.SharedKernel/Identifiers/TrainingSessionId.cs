@@ -1,0 +1,9 @@
+namespace DriveOS.SharedKernel.Identifiers;
+
+public readonly record struct TrainingSessionId(Guid Value)
+{
+    public static TrainingSessionId New() => new(Guid.NewGuid());
+    public static TrainingSessionId Empty => new(Guid.Empty);
+    public bool IsEmpty => Value == Guid.Empty;
+    public override string ToString() => Value.ToString();
+}

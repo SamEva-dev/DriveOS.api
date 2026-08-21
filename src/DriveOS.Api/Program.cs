@@ -1,3 +1,11 @@
+using DriveOS.Modules.TrainingDelivery.Application;
+using DriveOS.Modules.TrainingDelivery.Infrastructure;
+using DriveOS.Modules.TrainingDelivery.Application.Sessions;
+using DriveOS.Modules.TrainingDelivery.Application.GroupSessions;
+using DriveOS.Modules.TrainingDelivery.Application.Consequences;
+using DriveOS.Modules.TrainingDelivery.Application.CancellationConsequences;
+using DriveOS.Api.Integrations.TrainingDelivery;
+using DriveOS.Api.Endpoints.TrainingDelivery;
 using DriveOS.Modules.SchedulingCapacity.Application.Bookings;
 using DriveOS.Modules.SchedulingCapacity.Application.Replacements;
 using DriveOS.Modules.SchedulingCapacity.Application.Travel;
@@ -26,7 +34,6 @@ using DriveOS.Api.Endpoints.Students;
 using DriveOS.Api.Errors;
 using DriveOS.Api.Infrastructure.Logging;
 using DriveOS.Api.Integrations.Students;
-using DriveOS.Modules.Students.Application.Checklists;
 using DriveOS.Api.Integrations.SchedulingCapacity;
 using DriveOS.Api.Integrations.Contracts;
 using DriveOS.Api.Integrations.FundingBilling;
@@ -129,9 +136,10 @@ try
         .AddCurriculumPedagogyApplication()
         .AddCurriculumPedagogyInfrastructure(builder.Configuration)
         .AddSchedulingCapacityApplication()
-        .AddSchedulingCapacityInfrastructure(builder.Configuration);
+        .AddSchedulingCapacityInfrastructure(builder.Configuration)
+        .AddTrainingDeliveryApplication()
+        .AddTrainingDeliveryInfrastructure(builder.Configuration);
 
-    builder.Services.AddScoped<IEnrollmentPrerequisiteSnapshotProvider, EnrollmentPrerequisiteSnapshotProvider>();
     builder.Services.AddScoped<IStudentProvisioningGateway, StudentProvisioningGateway>();
     builder.Services.AddScoped<ITrainingContractSourceGateway, TrainingContractSourceGateway>();
     builder.Services.AddScoped<IBillingAccountStudentGateway, BillingAccountStudentGateway>();
@@ -143,6 +151,15 @@ try
     builder.Services.AddScoped<ISlotSearchInstructorContextGateway, SlotSearchInstructorContextGateway>();
     builder.Services.AddScoped<IVehicleReplacementEligibilityGateway, VehicleReplacementEligibilityGateway>();
     builder.Services.AddScoped<ITravelRoutingGateway, TravelRoutingGateway>();
+    builder.Services.AddScoped<IConfirmedBookingSessionSourceGateway, ConfirmedBookingSessionSourceGateway>();
+    builder.Services.AddScoped<IConfirmedGroupBookingSourceGateway, ConfirmedGroupBookingSourceGateway>();
+    builder.Services.AddScoped<ITrainingSessionExecutionReadinessGateway, TrainingSessionExecutionReadinessGateway>();
+    builder.Services.AddScoped<ITrainingSessionVehicleComplianceGateway, TrainingSessionVehicleComplianceGateway>();
+    builder.Services.AddScoped<ITrainingDeliveryDashboardReadService, TrainingDeliveryDashboardReadService>();
+    builder.Services.AddScoped<ITrainingDeliveryPendingReportsReadService, TrainingDeliveryPendingReportsReadService>();
+    builder.Services.AddScoped<ITrainingSessionPedagogyGateway, TrainingSessionPedagogyGateway>();
+    builder.Services.AddScoped<ITrainingSessionCompletionConsequenceGateway, TrainingSessionCompletionConsequenceGateway>();
+    builder.Services.AddScoped<ITrainingSessionCancellationConsequenceGateway, TrainingSessionCancellationConsequenceGateway>();
     builder.Services.AddScoped<IInvoiceNumberGenerator, InvoiceNumberGenerator>();
     builder.Services.AddScoped<ICreditNoteNumberGenerator, CreditNoteNumberGenerator>();
     builder.Services.AddScoped<IFinancialNotificationGateway, LocaGuestFinancialNotificationGateway>();
@@ -287,6 +304,8 @@ try
     app.MapFinancialAuditEndpoints();
     app.MapCurriculumPedagogyEndpoints();
     app.MapSchedulingCapacityEndpoints();
+    app.MapTrainingDeliveryEndpoints();
+app.MapGroupTrainingSessionEndpoints();
 
     app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "DriveOS.Api" }));
     Log.Information("{Application} started successfully", LoggingConstants.ApplicationName);

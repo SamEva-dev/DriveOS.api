@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -37,6 +37,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Modules\CurriculumPedagogy\DriveOS.Modules.CurriculumPedagogy.Infrastructure\DriveOS.Modules.CurriculumPedagogy.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\FleetResources\DriveOS.Modules.FleetResources.Application\DriveOS.Modules.FleetResources.Application.csproj" />
+    <ProjectReference Include="..\Modules\FleetResources\DriveOS.Modules.FleetResources.Domain\DriveOS.Modules.FleetResources.Domain.csproj" />
+    <ProjectReference Include="..\Modules\FleetResources\DriveOS.Modules.FleetResources.Infrastructure\DriveOS.Modules.FleetResources.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Organizations\DriveOS.Modules.Organizations.Infrastructure\DriveOS.Modules.Organizations.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\CRM\DriveOS.Modules.CRM.Infrastructure\DriveOS.Modules.CRM.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\SchedulingCapacity\DriveOS.Modules.SchedulingCapacity.Application\DriveOS.Modules.SchedulingCapacity.Application.csproj" />
@@ -51,5 +54,7 @@
       <ProjectReference Include="..\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Application\DriveOS.Modules.TrainingDelivery.Application.csproj" />
     <ProjectReference Include="..\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Domain\DriveOS.Modules.TrainingDelivery.Domain.csproj" />
     <ProjectReference Include="..\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Infrastructure\DriveOS.Modules.TrainingDelivery.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\ExamsCertification\DriveOS.Modules.ExamsCertification.Application\DriveOS.Modules.ExamsCertification.Application.csproj" />
+    <ProjectReference Include="..\Modules\ExamsCertification\DriveOS.Modules.ExamsCertification.Infrastructure\DriveOS.Modules.ExamsCertification.Infrastructure.csproj" />
 </ItemGroup>
 </Project>

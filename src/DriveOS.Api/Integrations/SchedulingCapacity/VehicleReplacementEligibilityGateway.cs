@@ -1,24 +1,18 @@
+using DriveOS.Modules.FleetResources.Application.Vehicles;
 using DriveOS.Modules.SchedulingCapacity.Application.Replacements;
 using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Api.Integrations.SchedulingCapacity;
 
-// Anti-corruption boundary for Fleet & Resources. The current solution has no Fleet bounded context yet,
-// therefore technical/compliance facts are never inferred from client input or CalendarResource display metadata.
-internal sealed class VehicleReplacementEligibilityGateway : IVehicleReplacementEligibilityGateway
+internal sealed class VehicleReplacementEligibilityGateway(IFleetVehicleComplianceReadService fleet) : IVehicleReplacementEligibilityGateway
 {
-    public Task<VehicleReplacementEligibility> EvaluateAsync(OrganizationId organizationId, Guid vehicleId, BranchId? branchId,
+    public async Task<VehicleReplacementEligibility> EvaluateAsync(OrganizationId organizationId, Guid vehicleId, BranchId? branchId,
         VehicleReplacementRequirements requirements, DateTimeOffset startAtUtc, DateTimeOffset endAtUtc, CancellationToken cancellationToken = default)
     {
-        IReadOnlyCollection<string> reviews =
-        [
-            "fleet.vehicle.compatibility.external-review",
-            "fleet.vehicle.insurance.external-review",
-            "fleet.vehicle.maintenance.external-review",
-            "fleet.vehicle.location.external-review",
-            "fleet.vehicle.ownership.external-review"
-        ];
-        return Task.FromResult(new VehicleReplacementEligibility(false, false, false, false, false, false,
-            ["fleet.vehicle.authoritative-data-unavailable"], reviews));
+        FleetVehicleComplianceEvaluation r = await fleet.EvaluateAsync(organizationId, new VehicleId(vehicleId), branchId,
+            new FleetVehicleComplianceRequirement(requirements.TrainingCategory, requirements.TransmissionType, requirements.DualControlRequired,
+                requirements.RequiredAdaptations, requirements.EnergyType), startAtUtc, endAtUtc, cancellationToken);
+        return new VehicleReplacementEligibility(r.IsEligible, r.TechnicalCompatibilityVerified, r.InsuranceVerified, r.MaintenanceVerified,
+            r.BranchVerified, r.OwnershipVerified, r.BlockingReasons, r.Reviews);
     }
 }

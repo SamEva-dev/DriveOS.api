@@ -1,74 +1,119 @@
-using DriveOS.Modules.CRM.Infrastructure.Persistence;
-using DriveOS.Modules.Organizations.Infrastructure.Persistence;
-using DriveOS.Modules.Students.Infrastructure.Persistence;
-using DriveOS.Modules.FundingBilling.Infrastructure.Persistence;
 using DriveOS.Modules.Contracts.Infrastructure.Persistence;
+using DriveOS.Modules.CRM.Infrastructure.Persistence;
 using DriveOS.Modules.CurriculumPedagogy.Infrastructure.Persistence;
+using DriveOS.Modules.ExamsCertification.Infrastructure.Persistence;
+using DriveOS.Modules.FleetResources.Infrastructure.Persistence;
+using DriveOS.Modules.FundingBilling.Infrastructure.Persistence;
+using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using DriveOS.Modules.SchedulingCapacity.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using DriveOS.Modules.Students.Infrastructure.Persistence;
+using DriveOS.Modules.TrainingDelivery.Infrastructure.Persistence;
 using Itech.Emailing.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
-namespace DriveOS.Api
+namespace DriveOS.Api;
+
+public static class MigrationManager
 {
-    public static class MigrationManager
+    public static IHost ApplyMigrations(this IHost host)
     {
-        public static IHost ApplyMigrations(this IHost host)
+        using var scope = host.Services.CreateScope();
+
+        try
         {
-            using var scope = host.Services.CreateScope();
+            ApplyMigration<OrganizationsDbContext>(
+                scope.ServiceProvider,
+                "Organizations");
 
-            try
-            {
-                // Apply OrganizationsDbContext migrations
-                var orgDb = scope.ServiceProvider.GetRequiredService<OrganizationsDbContext>();
-                Log.Information("Applying Organizations database migrations...");
-                orgDb.Database.Migrate();
-                Log.Information("✅ Organizations database migrated successfully.");
+            ApplyMigration<CrmDbContext>(
+                scope.ServiceProvider,
+                "CRM");
 
-                var crmDb = scope.ServiceProvider.GetRequiredService<CrmDbContext>();
-                Log.Information("Applying CRM database migrations...");
-                crmDb.Database.Migrate();
-                Log.Information("✅ CRM database migrated successfully.");
+            ApplyMigration<StudentsDbContext>(
+                scope.ServiceProvider,
+                "Students");
 
-                var studentsDb = scope.ServiceProvider.GetRequiredService<StudentsDbContext>();
-                Log.Information("Applying Students database migrations...");
-                studentsDb.Database.Migrate();
-                Log.Information("✅ Students database migrated successfully.");
+            ApplyMigration<ContractsDbContext>(
+                scope.ServiceProvider,
+                "Contracts");
 
-                var contractsDb = scope.ServiceProvider.GetRequiredService<ContractsDbContext>();
-                Log.Information("Applying Contracts database migrations...");
-                contractsDb.Database.Migrate();
-                Log.Information("✅ Contracts database migrated successfully.");
+            ApplyMigration<FundingBillingDbContext>(
+                scope.ServiceProvider,
+                "Funding & Billing");
 
-                var fundingBillingDb = scope.ServiceProvider.GetRequiredService<FundingBillingDbContext>();
-                Log.Information("Applying Funding & Billing database migrations...");
-                fundingBillingDb.Database.Migrate();
-                Log.Information("✅ Funding & Billing database migrated successfully.");
+            ApplyMigration<CurriculumPedagogyDbContext>(
+                scope.ServiceProvider,
+                "Curriculum & Pedagogy");
 
-                var curriculumDb = scope.ServiceProvider.GetRequiredService<CurriculumPedagogyDbContext>();
-                Log.Information("Applying Curriculum & Pedagogy database migrations...");
-                curriculumDb.Database.Migrate();
-                Log.Information("✅ Curriculum & Pedagogy database migrated successfully.");
+            ApplyMigration<SchedulingCapacityDbContext>(
+                scope.ServiceProvider,
+                "Scheduling & Capacity");
 
-                var schedulingDb = scope.ServiceProvider.GetRequiredService<SchedulingCapacityDbContext>();
-                Log.Information("Applying Scheduling & Capacity database migrations...");
-                schedulingDb.Database.Migrate();
-                Log.Information("✅ Scheduling & Capacity database migrated successfully.");
+            ApplyMigration<TrainingDeliveryDbContext>(
+                scope.ServiceProvider,
+                "Training Delivery");
 
-                var emailingDb = scope.ServiceProvider.GetRequiredService<EmailingDbContext>();
-                Log.Information("Applying Emailing database migrations...");
-                emailingDb.Database.Migrate();
-                Log.Information("✅ Emailing database migrated successfully.");
+            ApplyMigration<FleetResourcesDbContext>(
+                scope.ServiceProvider,
+                "Fleet & Resources");
 
-                // Apply AuditDbContext migrations
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "❌ Migration failed.");
-                throw;
-            }
+            ApplyMigration<ExamsCertificationDbContext>(
+                scope.ServiceProvider,
+                "Exams & Certification");
 
-            return host;
+            ApplyMigration<EmailingDbContext>(
+                scope.ServiceProvider,
+                "Emailing");
         }
+        catch (Exception ex)
+        {
+            Log.Error(
+                ex,
+                "❌ Database migration process failed.");
+
+            throw;
+        }
+
+        return host;
+    }
+
+    private static void ApplyMigration<TDbContext>(
+        IServiceProvider serviceProvider,
+        string moduleName)
+        where TDbContext : DbContext
+    {
+        Log.Information(
+            "Applying {ModuleName} database migrations...",
+            moduleName);
+
+        var dbContext =
+            serviceProvider.GetRequiredService<TDbContext>();
+
+        var pendingMigrations =
+            dbContext.Database
+                .GetPendingMigrations()
+                .ToArray();
+
+        if (pendingMigrations.Length == 0)
+        {
+            Log.Information(
+                "✅ {ModuleName}: database is already up to date.",
+                moduleName);
+
+            return;
+        }
+
+        Log.Information(
+            "{ModuleName}: {PendingMigrationCount} pending migration(s): {PendingMigrations}",
+            moduleName,
+            pendingMigrations.Length,
+            string.Join(", ", pendingMigrations));
+
+        dbContext.Database.Migrate();
+
+        Log.Information(
+            "✅ {ModuleName} database migrated successfully.",
+            moduleName);
     }
 }

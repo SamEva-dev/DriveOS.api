@@ -4,6 +4,7 @@ using DriveOS.Modules.TrainingDelivery.Domain.Sessions;
 using DriveOS.Modules.TrainingDelivery.Infrastructure.Persistence;
 using DriveOS.SharedKernel.Identifiers;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace DriveOS.Api.Integrations.TrainingDelivery;
 
@@ -104,13 +105,18 @@ internal sealed class TrainingDeliveryPendingReportsReadService(
 
         if (sessionIds.Length > 0)
         {
-            var incidents = await trainingDeliveryDb.TrainingIncidents
-                .AsNoTracking()
-                .Where(x =>
-                    x.OrganizationId == organizationId &&
-                    sessionIds.Contains(x.TrainingSessionId.Value) &&
-                    x.Status != TrainingIncidentStatus.Resolved &&
-                    x.Status != TrainingIncidentStatus.Closed)
+            TrainingSessionId[] typedSessionIds = sessionIds.Select(static id => new TrainingSessionId(id)).ToArray();
+            var incidentQuery = WhereStrongIdIn(
+                trainingDeliveryDb.TrainingIncidents
+                    .AsNoTracking()
+                    .Where(x =>
+                        x.OrganizationId == organizationId &&
+                        x.Status != TrainingIncidentStatus.Resolved &&
+                        x.Status != TrainingIncidentStatus.Closed),
+                x => x.TrainingSessionId,
+                typedSessionIds);
+
+            var incidents = await incidentQuery
                 .Select(x => new { SessionId = x.TrainingSessionId.Value, Severity = (int)x.Severity })
                 .ToListAsync(cancellationToken);
 
@@ -122,16 +128,26 @@ internal sealed class TrainingDeliveryPendingReportsReadService(
         }
 
         Guid[] studentIds = rows.Select(x => x.StudentId).Distinct().ToArray();
-        Dictionary<Guid, string> studentNames = studentIds.Length == 0
-            ? []
-            : await studentsDb.Students
-                .AsNoTracking()
-                .Where(x => x.OrganizationId == organizationId && studentIds.Contains(x.Id.Value))
+        Dictionary<Guid, string> studentNames;
+        if (studentIds.Length == 0)
+        {
+            studentNames = [];
+        }
+        else
+        {
+            PersonId[] typedStudentIds = studentIds.Select(static id => new PersonId(id)).ToArray();
+            var studentQuery = WhereStrongIdIn(
+                studentsDb.Students.AsNoTracking().Where(x => x.OrganizationId == organizationId),
+                x => x.Id,
+                typedStudentIds);
+
+            studentNames = await studentQuery
                 .Select(x => new { Id = x.Id.Value, x.FirstName, x.LastName })
                 .ToDictionaryAsync(
                     x => x.Id,
                     x => string.Join(' ', new[] { x.FirstName, x.LastName }.Where(v => !string.IsNullOrWhiteSpace(v))),
                     cancellationToken);
+        }
 
         TrainingDeliveryPendingReportItem[] items = rows
             .Select(x =>
@@ -185,6 +201,25 @@ internal sealed class TrainingDeliveryPendingReportsReadService(
             items.Count(x => x.IsOverdue));
 
         return new TrainingDeliveryPendingReportsResponse(nowUtc, personalScope, summary, items);
+    }
+
+    private static IQueryable<TEntity> WhereStrongIdIn<TEntity, TId>(
+        IQueryable<TEntity> query,
+        Expression<Func<TEntity, TId>> selector,
+        IReadOnlyCollection<TId> values)
+    {
+        if (values.Count == 0)
+            return query.Where(_ => false);
+
+        Expression body = Expression.Constant(false);
+        foreach (TId value in values)
+        {
+            body = Expression.OrElse(
+                body,
+                Expression.Equal(selector.Body, Expression.Constant(value, typeof(TId))));
+        }
+
+        return query.Where(Expression.Lambda<Func<TEntity, bool>>(body, selector.Parameters));
     }
 
     private static string ResolveStudentName(IReadOnlyDictionary<Guid, string> names, Guid studentId) =>

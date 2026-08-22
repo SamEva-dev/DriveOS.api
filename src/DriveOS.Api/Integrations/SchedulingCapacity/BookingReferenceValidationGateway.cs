@@ -8,6 +8,7 @@ using DriveOS.Modules.Students.Infrastructure.Persistence;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace DriveOS.Api.Integrations.SchedulingCapacity;
 
@@ -40,10 +41,15 @@ internal sealed class BookingReferenceValidationGateway(
         }
 
         Guid[] resourceIds = resources.Select(x => x.CalendarResourceId).Distinct().ToArray();
-        CalendarResource[] calendarResources = await schedulingDbContext.CalendarResources
-            .AsNoTracking()
-            .Where(x => x.OrganizationId == organizationId && resourceIds.Contains(x.Id.Value))
-            .ToArrayAsync(cancellationToken);
+        CalendarResourceId[] typedResourceIds = resourceIds.Select(static id => new CalendarResourceId(id)).ToArray();
+        var calendarResourceQuery = WhereStrongIdIn(
+            schedulingDbContext.CalendarResources
+                .AsNoTracking()
+                .Where(x => x.OrganizationId == organizationId),
+            x => x.Id,
+            typedResourceIds);
+
+        CalendarResource[] calendarResources = await calendarResourceQuery.ToArrayAsync(cancellationToken);
 
         if (calendarResources.Length != resourceIds.Length)
             return BookingReferenceValidationErrors.CalendarResourceNotFound;
@@ -66,9 +72,15 @@ internal sealed class BookingReferenceValidationGateway(
 
         if (studentIds.Length > 0)
         {
-            Guid[] existingStudentIds = await studentsDbContext.Students
-                .AsNoTracking()
-                .Where(x => x.OrganizationId == organizationId && x.Status != StudentStatus.Archived && studentIds.Contains(x.Id.Value))
+            PersonId[] typedStudentIds = studentIds.Select(static id => new PersonId(id)).ToArray();
+            var studentQuery = WhereStrongIdIn(
+                studentsDbContext.Students
+                    .AsNoTracking()
+                    .Where(x => x.OrganizationId == organizationId && x.Status != StudentStatus.Archived),
+                x => x.Id,
+                typedStudentIds);
+
+            Guid[] existingStudentIds = await studentQuery
                 .Select(x => x.Id.Value)
                 .ToArrayAsync(cancellationToken);
 
@@ -116,4 +128,23 @@ internal sealed class BookingReferenceValidationGateway(
 
         return null;
     }
+    private static IQueryable<TEntity> WhereStrongIdIn<TEntity, TId>(
+        IQueryable<TEntity> query,
+        Expression<Func<TEntity, TId>> selector,
+        IReadOnlyCollection<TId> values)
+    {
+        if (values.Count == 0)
+            return query.Where(_ => false);
+
+        Expression body = Expression.Constant(false);
+        foreach (TId value in values)
+        {
+            body = Expression.OrElse(
+                body,
+                Expression.Equal(selector.Body, Expression.Constant(value, typeof(TId))));
+        }
+
+        return query.Where(Expression.Lambda<Func<TEntity, bool>>(body, selector.Parameters));
+    }
+
 }

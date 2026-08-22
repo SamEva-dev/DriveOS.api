@@ -1,25 +1,17 @@
+using DriveOS.Modules.FleetResources.Application.Vehicles;
 using DriveOS.Modules.TrainingDelivery.Application.Sessions;
 using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Api.Integrations.TrainingDelivery;
 
-/// <summary>
-/// Conservative bridge used until BC-14 Fleet et Resources becomes the authoritative vehicle-compliance source.
-/// A vehicle-based training session is intentionally blocked rather than being declared compliant from Scheduling-only data.
-/// </summary>
-internal sealed class TrainingSessionVehicleComplianceGateway : ITrainingSessionVehicleComplianceGateway
+internal sealed class TrainingSessionVehicleComplianceGateway(IFleetVehicleComplianceReadService fleet) : ITrainingSessionVehicleComplianceGateway
 {
-    public Task<TrainingSessionVehicleCompliance> CheckAsync(
-        OrganizationId organizationId,
-        Guid vehicleId,
-        BranchId? branchId,
-        string? trainingCategory,
-        DateTimeOffset plannedStartAtUtc,
-        DateTimeOffset plannedEndAtUtc,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult(new TrainingSessionVehicleCompliance(
-            false,
-            false,
-            ["fleet.vehicle.authoritative-data-unavailable"],
-            ["fleet.vehicle.compliance-integration-required"]));
+    public async Task<TrainingSessionVehicleCompliance> CheckAsync(OrganizationId organizationId, Guid vehicleId, BranchId? branchId,
+        string? trainingCategory, DateTimeOffset plannedStartAtUtc, DateTimeOffset plannedEndAtUtc, CancellationToken cancellationToken = default)
+    {
+        FleetVehicleComplianceEvaluation r = await fleet.EvaluateAsync(organizationId, new VehicleId(vehicleId), branchId,
+            new FleetVehicleComplianceRequirement(trainingCategory ?? string.Empty, null, true, [], null), plannedStartAtUtc, plannedEndAtUtc, cancellationToken);
+        return new TrainingSessionVehicleCompliance(r.TechnicalCompatibilityVerified && r.InsuranceVerified && r.MaintenanceVerified && r.DocumentsVerified,
+            r.IsEligible, r.BlockingReasons, r.Reviews);
+    }
 }

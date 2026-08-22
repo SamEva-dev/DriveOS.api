@@ -22,6 +22,16 @@
     <Project Path="src/Modules/CurriculumPedagogy/DriveOS.Modules.CurriculumPedagogy.Domain/DriveOS.Modules.CurriculumPedagogy.Domain.csproj" Id="4f8aa51b-6f71-4038-bb13-177e093a91d5" />
     <Project Path="src/Modules/CurriculumPedagogy/DriveOS.Modules.CurriculumPedagogy.Infrastructure/DriveOS.Modules.CurriculumPedagogy.Infrastructure.csproj" Id="be190865-6234-4789-8237-b2ebc148c62a" />
   </Folder>
+  <Folder Name="/src/Modules/ExamsCertification/">
+    <Project Path="src/Modules/ExamsCertification/DriveOS.Modules.ExamsCertification.Application/DriveOS.Modules.ExamsCertification.Application.csproj" Id="8bc56a2b-58ff-44db-9c15-f720c827b251" />
+    <Project Path="src/Modules/ExamsCertification/DriveOS.Modules.ExamsCertification.Domain/DriveOS.Modules.ExamsCertification.Domain.csproj" Id="8a02bfdb-92d6-453f-9ffe-d56382845bdd" />
+    <Project Path="src/Modules/ExamsCertification/DriveOS.Modules.ExamsCertification.Infrastructure/DriveOS.Modules.ExamsCertification.Infrastructure.csproj" Id="2216ab75-bafc-47ea-821a-4ec18cb0a4f5" />
+  </Folder>
+  <Folder Name="/src/Modules/FleetResources/">
+    <Project Path="src/Modules/FleetResources/DriveOS.Modules.FleetResources.Application/DriveOS.Modules.FleetResources.Application.csproj" Id="da48075b-2c43-43a1-a68a-763b9a625dde" />
+    <Project Path="src/Modules/FleetResources/DriveOS.Modules.FleetResources.Domain/DriveOS.Modules.FleetResources.Domain.csproj" Id="6370487d-92e8-4a23-a5b0-0e27203c8d4d" />
+    <Project Path="src/Modules/FleetResources/DriveOS.Modules.FleetResources.Infrastructure/DriveOS.Modules.FleetResources.Infrastructure.csproj" Id="b8c7ca58-afce-4a69-9ee5-983e6c83b56d" />
+  </Folder>
   <Folder Name="/src/Modules/FundingBilling/">
     <Project Path="src/Modules/FundingBilling/DriveOS.Modules.FundingBilling.Application/DriveOS.Modules.FundingBilling.Application.csproj" Id="bff0c1d5-4fc4-4551-b92c-89dfb4280261" />
     <Project Path="src/Modules/FundingBilling/DriveOS.Modules.FundingBilling.Domain/DriveOS.Modules.FundingBilling.Domain.csproj" Id="f04bbdb7-22f4-4856-a543-9e16aa17a5f6" />

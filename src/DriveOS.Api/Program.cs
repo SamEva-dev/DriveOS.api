@@ -1,3 +1,11 @@
+using DriveOS.Api.Integrations.Workforce;
+using DriveOS.Modules.Workforce.Application.BranchAssignments;
+using DriveOS.Modules.Workforce.Application.WorkingTime;
+using DriveOS.Api.Endpoints.Workforce;
+using DriveOS.Modules.Workforce.Application;
+using DriveOS.Modules.Workforce.Infrastructure;
+using DriveOS.Modules.RegulatoryIntegrations.Infrastructure;
+using DriveOS.Application.Abstractions.Integrations.RegulatoryTrainingRecords;
 using DriveOS.Api.Endpoints.FleetResources;
 using DriveOS.Modules.FleetResources.Infrastructure;
 using DriveOS.Modules.FleetResources.Application;
@@ -40,12 +48,14 @@ using DriveOS.Api.Endpoints.Organization.Networks;
 using DriveOS.Api.Endpoints.Organization.OrganizationConfigurations;
 using DriveOS.Api.Endpoints.Organization.OrganizationLegalProfiles;
 using DriveOS.Api.Endpoints.Organization.OrganizationRepresentatives;
+using DriveOS.Api.Endpoints.Organization.RegulatoryIntegrations;
 using DriveOS.Api.Endpoints.Organization.Organizations;
 using DriveOS.Api.Endpoints.Organization.OrganizationSequences;
 using DriveOS.Api.Endpoints.Organization.OrganizationSettings;
 using DriveOS.Api.Endpoints.Organization.OrganizationSubscriptions;
 using DriveOS.Api.Endpoints.Provisioning;
 using DriveOS.Api.Endpoints.Students;
+using DriveOS.Api.Endpoints.Students.RegulatoryIdentities;
 using DriveOS.Api.Errors;
 using DriveOS.Api.Infrastructure.Logging;
 using DriveOS.Api.Integrations.Students;
@@ -157,8 +167,12 @@ try
         .AddExamsCertificationApplication()
         .AddExamsCertificationInfrastructure(builder.Configuration)
         .AddFleetResourcesApplication()
-        .AddFleetResourcesInfrastructure(builder.Configuration);
+        .AddFleetResourcesInfrastructure(builder.Configuration)
+        .AddWorkforceApplication()
+        .AddWorkforceInfrastructure(builder.Configuration)
+        .AddRegulatoryIntegrationsInfrastructure(builder.Configuration);
 
+    builder.Services.AddScoped<IWorkforceBranchDirectory, WorkforceBranchDirectory>();
     builder.Services.AddScoped<IStudentProvisioningGateway, StudentProvisioningGateway>();
     builder.Services.AddScoped<ITrainingContractSourceGateway, TrainingContractSourceGateway>();
     builder.Services.AddScoped<IBillingAccountStudentGateway, BillingAccountStudentGateway>();
@@ -170,6 +184,8 @@ try
     builder.Services.AddScoped<ISlotSearchInstructorContextGateway, SlotSearchInstructorContextGateway>();
     builder.Services.AddScoped<IVehicleReplacementEligibilityGateway, VehicleReplacementEligibilityGateway>();
     builder.Services.AddScoped<ITravelRoutingGateway, TravelRoutingGateway>();
+    builder.Services.AddScoped<IInstructorWorkforceAvailabilityGateway, InstructorWorkforceAvailabilityGateway>();
+    builder.Services.AddScoped<IWorkingTimeProjectionGateway, WorkingTimeProjectionGateway>();
     builder.Services.AddScoped<IConfirmedBookingSessionSourceGateway, ConfirmedBookingSessionSourceGateway>();
     builder.Services.AddScoped<IConfirmedGroupBookingSourceGateway, ConfirmedGroupBookingSourceGateway>();
     builder.Services.AddScoped<ITrainingSessionExecutionReadinessGateway, TrainingSessionExecutionReadinessGateway>();
@@ -181,6 +197,11 @@ try
     builder.Services.AddScoped<ITrainingSessionCancellationConsequenceGateway, TrainingSessionCancellationConsequenceGateway>();
     builder.Services.AddScoped<IExamReadinessSnapshotGateway, ExamReadinessSnapshotGateway>();
     builder.Services.AddScoped<IExamRegistrationFileSnapshotGateway, ExamRegistrationFileSnapshotGateway>();
+    builder.Services.AddScoped<IRegulatoryTrainingRecordProvider, FrenchLivretNumeriqueProvider>();
+    builder.Services.AddScoped<DriveOS.Api.Integrations.RegulatoryTrainingRecords.France.IFrenchLivretNumeriqueOfficialClient, DriveOS.Api.Integrations.RegulatoryTrainingRecords.France.FrenchLivretNumeriqueOfficialClientUnavailable>();
+    builder.Services.AddScoped<IRegulatoryTrainingRecordTransportProvider, DriveOS.Api.Integrations.RegulatoryTrainingRecords.France.FrenchLivretNumeriqueTransportProvider>();
+    builder.Services.AddScoped<IRegulatoryTrainingRecordGateway, RegulatoryTrainingRecordGateway>();
+    builder.Services.AddScoped<IRegulatoryTrainingSessionProjector, DriveOS.Api.Integrations.RegulatoryTrainingRecords.RegulatoryTrainingSessionProjector>();
     builder.Services.AddScoped<IRegulatoryExamFileRequirementGateway, RegulatoryExamFileRequirementGateway>();
     builder.Services.AddScoped<IExamReadinessOpinionContextGateway, ExamReadinessOpinionContextGateway>();
     builder.Services.AddScoped<IExamOperationalPlanningGateway, ExamOperationalPlanningGateway>();
@@ -309,6 +330,7 @@ try
     app.MapOrganizationSequenceEndpoints();
     app.MapOrganizationRepresentativeEndpoints();
     app.MapOrganizationLegalProfileEndpoints();
+    app.MapRegulatoryIntegrationEndpoints();
     app.MapLeadEndpoints();
     app.MapCrmTaskEndpoints();
     app.MapCrmActivityEndpoints();
@@ -317,6 +339,7 @@ try
     app.MapAssessmentAppointmentEndpoints();
     app.MapCommercialOfferEndpoints();
     app.MapStudentDashboardEndpoints();
+    app.MapStudentRegulatoryIdentityEndpoints();
     app.MapTrainingContractEndpoints();
     app.MapBillingAccountEndpoints();
     app.MapInvoiceEndpoints();
@@ -340,6 +363,19 @@ try
     app.MapExamConvocationEndpoints();
     app.MapExamOperationalPlanningEndpoints();
     app.MapFleetVehicleEndpoints();
+    app.MapEmployeeEndpoints();
+    app.MapJobPositionEndpoints();
+    app.MapLeavePolicyEndpoints();
+    app.MapLeaveRequestEndpoints();
+    app.MapWorkingTimeEndpoints();
+    app.MapTimesheetEndpoints();
+    app.MapEquipmentAssignmentEndpoints();
+    app.MapPerformanceReviewEndpoints();
+    app.MapEmployeeDocumentEndpoints();
+    app.MapWorkforceDashboardEndpoints();
+    app.MapWorkforceAnalyticsEndpoints();
+    app.MapProfessionalRestrictionEndpoints();
+    app.MapOffboardingEndpoints();
     app.MapExamResourceAssignmentEndpoints();
     app.MapExamPreparationEndpoints();
     app.MapExamAttemptEndpoints();
@@ -349,7 +385,7 @@ try
     app.MapExamRemediationEndpoints();
     app.MapExamAttestationEndpoints();
     app.MapExamAnalyticsEndpoints();
-app.MapGroupTrainingSessionEndpoints();
+    app.MapGroupTrainingSessionEndpoints();
 
     app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "DriveOS.Api" }));
     Log.Information("{Application} started successfully", LoggingConstants.ApplicationName);

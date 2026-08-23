@@ -56,5 +56,11 @@
     <ProjectReference Include="..\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Infrastructure\DriveOS.Modules.TrainingDelivery.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\ExamsCertification\DriveOS.Modules.ExamsCertification.Application\DriveOS.Modules.ExamsCertification.Application.csproj" />
     <ProjectReference Include="..\Modules\ExamsCertification\DriveOS.Modules.ExamsCertification.Infrastructure\DriveOS.Modules.ExamsCertification.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Workforce\DriveOS.Modules.Workforce.Application\DriveOS.Modules.Workforce.Application.csproj" />
+    <ProjectReference Include="..\Modules\Workforce\DriveOS.Modules.Workforce.Domain\DriveOS.Modules.Workforce.Domain.csproj" />
+    <ProjectReference Include="..\Modules\Workforce\DriveOS.Modules.Workforce.Infrastructure\DriveOS.Modules.Workforce.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\RegulatoryIntegrations\DriveOS.Modules.RegulatoryIntegrations.Application\DriveOS.Modules.RegulatoryIntegrations.Application.csproj" />
+    <ProjectReference Include="..\Modules\RegulatoryIntegrations\DriveOS.Modules.RegulatoryIntegrations.Domain\DriveOS.Modules.RegulatoryIntegrations.Domain.csproj" />
+    <ProjectReference Include="..\Modules\RegulatoryIntegrations\DriveOS.Modules.RegulatoryIntegrations.Infrastructure\DriveOS.Modules.RegulatoryIntegrations.Infrastructure.csproj" />
 </ItemGroup>
 </Project>

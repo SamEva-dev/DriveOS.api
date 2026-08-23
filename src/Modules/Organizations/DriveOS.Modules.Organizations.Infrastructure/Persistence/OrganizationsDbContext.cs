@@ -7,6 +7,8 @@ using DriveOS.Modules.Organizations.Domain.OrganizationClosures;
 using DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
+using DriveOS.Modules.Organizations.Domain.RegulatoryIntegrations;
+using DriveOS.Modules.Organizations.Domain.InstructorRegulatoryCredentials;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Domain.OrganizationSequences;
 using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
@@ -53,6 +55,10 @@ public sealed class OrganizationsDbContext : DbContext, IUnitOfWork
         Set<OrganizationLegalProfile>();
 
     public DbSet<OrganizationClosure> OrganizationClosures => Set<OrganizationClosure>();
+
+    public DbSet<RegulatoryIntegrationConnection> RegulatoryIntegrationConnections => Set<RegulatoryIntegrationConnection>();
+
+    public DbSet<InstructorRegulatoryCredential> InstructorRegulatoryCredentials => Set<InstructorRegulatoryCredential>();
 
     public DbSet<NetworkOrganizationMembership> NetworkOrganizationMemberships =>
         Set<NetworkOrganizationMembership>();

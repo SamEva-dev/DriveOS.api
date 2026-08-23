@@ -415,6 +415,91 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                     b.ToTable("branch_status_history", "organizations");
                 });
 
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.InstructorRegulatoryCredentials.InstructorRegulatoryCredential", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<string>("CredentialType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("DecisionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("DeclaredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DeclaredByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("ExpiresOn")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Identifier")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<Guid>("InstructorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("IssuedOn")
+                        .HasColumnType("date");
+
+                    b.Property<string>("IssuingAuthority")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<string>("JurisdictionCode")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("SupersededAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("SupersededById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VerificationMethod")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset?>("VerifiedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("VerifiedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "InstructorUserId");
+
+                    b.HasIndex("OrganizationId", "InstructorUserId", "CountryCode", "CredentialType")
+                        .IsUnique()
+                        .HasDatabaseName("ux_instructor_regulatory_credentials_current")
+                        .HasFilter("\"Status\" IN (0, 1)");
+
+                    b.ToTable("instructor_regulatory_credentials", "organization");
+                });
+
             modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Networks.NetworkOrganizationMembership", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1009,6 +1094,89 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_organization_status_history_org_date");
 
                     b.ToTable("organization_status_history", "organization");
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.RegulatoryIntegrations.RegulatoryIntegrationConnection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character(2)")
+                        .HasColumnName("country_code")
+                        .IsFixedLength();
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("ExternalAccountReference")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("external_account_reference");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_modified_at_utc");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by_user_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("ProviderCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("provider_code");
+
+                    b.Property<int>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer")
+                        .HasColumnName("revision");
+
+                    b.Property<string>("ScopeKey")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("scope_key");
+
+                    b.Property<string>("SecretReference")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("secret_reference");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "CountryCode", "ProviderCode", "Status")
+                        .HasDatabaseName("ix_regulatory_integration_connection_resolve");
+
+                    b.HasIndex("OrganizationId", "ScopeKey", "CountryCode", "ProviderCode")
+                        .IsUnique()
+                        .HasDatabaseName("ux_regulatory_integration_connection_scope_provider");
+
+                    b.ToTable("regulatory_integration_connections", "organization");
                 });
 
             modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.Subscriptions.OrganizationSubscription", b =>
@@ -1610,6 +1778,15 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                 {
                     b.HasOne("DriveOS.Modules.Organizations.Domain.Organizations.Organization", null)
                         .WithMany("StatusHistory")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DriveOS.Modules.Organizations.Domain.RegulatoryIntegrations.RegulatoryIntegrationConnection", b =>
+                {
+                    b.HasOne("DriveOS.Modules.Organizations.Domain.Organizations.Organization", null)
+                        .WithMany()
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

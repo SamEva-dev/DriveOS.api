@@ -1,0 +1,13 @@
+using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Modules.Workforce.Domain.EmploymentContracts;
+using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.Workforce.Application.EmploymentContracts;
+public sealed record GetEmploymentContractsQuery(OrganizationId OrganizationId,EmployeeId EmployeeId):IQuery<IReadOnlyList<EmploymentContractResponse>>;
+public sealed record AddEmploymentContractCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,EmploymentContractId ContractId,EmploymentContractType ContractType,DateOnly StartDate,DateOnly? EndDate,decimal? ContractualWeeklyHours,JobPositionId? PrimaryJobPositionId,UserId ActorUserId):ICommand<EmploymentContractId>;
+public sealed record UpdateEmploymentContractTermsCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,EmploymentContractId ContractId,DateOnly StartDate,DateOnly? EndDate,decimal? ContractualWeeklyHours,JobPositionId? PrimaryJobPositionId,UserId ActorUserId):ICommand;
+public sealed record LinkEmploymentContractDocumentCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,EmploymentContractId ContractId,ContractDocumentId ContractDocumentId,SignatureProcessId? SignatureProcessId,UserId ActorUserId):ICommand;
+public sealed record MarkEmploymentContractSignedCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,EmploymentContractId ContractId,SignatureProcessId SignatureProcessId,UserId ActorUserId):ICommand;
+public sealed record ActivateEmploymentContractCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,EmploymentContractId ContractId,DateOnly ActivationDate,UserId ActorUserId):ICommand;
+public sealed record TerminateEmploymentContractCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,EmploymentContractId ContractId,DateOnly EndDate,UserId ActorUserId):ICommand;
+public sealed record CancelEmploymentContractCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,EmploymentContractId ContractId,UserId ActorUserId):ICommand;
+public sealed record EmploymentContractResponse(Guid Id,string ContractType,DateOnly StartDate,DateOnly? EndDate,decimal? ContractualWeeklyHours,Guid? PrimaryJobPositionId,string Status,Guid? ContractDocumentId,Guid? SignatureProcessId,DateTimeOffset CreatedAtUtc,DateTimeOffset? LastModifiedAtUtc);

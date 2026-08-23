@@ -38,7 +38,7 @@ public sealed class FinishTrainingSessionCommandHandler(
                 session.OrganizationId, session.StudentOwnerOrganizationId, session.PerformingOrganizationId, session.Id, session.SourceBookingId,
                 session.StudentId, session.TrainingPathId, session.ActualInstructorId ?? session.ReadyInstructorId ?? session.InstructorId,
                 session.ActualVehicleId ?? session.ReadyVehicleId ?? session.VehicleId, session.ActualBranchId ?? session.ReadyBranchId ?? session.BranchId,
-                session.ActualStartAtUtc!.Value, session.ActualEndAtUtc!.Value, session.DeliveredDurationMinutes!.Value, session.DistanceKilometers,
+                session.TrainingCategory, session.ActualStartAtUtc!.Value, session.ActualEndAtUtc!.Value, session.DeliveredDurationMinutes!.Value, session.DistanceKilometers,
                 session.StartEnergyLevelPercent, session.EndEnergyLevelPercent ?? session.LatestEnergyLevelPercent, session.FuelAddedLiters, session.ChargedEnergyKwh,
                 session.PricingReference, session.TrainingCreditAccountId, session.CreditQuantity, session.CreditReservationReference, command.OperationId,
                 command.ActorUserId, session.CompletedAtUtc ?? clock.UtcNow);

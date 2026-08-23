@@ -5,9 +5,11 @@ using DriveOS.Modules.ExamsCertification.Infrastructure.Persistence;
 using DriveOS.Modules.FleetResources.Infrastructure.Persistence;
 using DriveOS.Modules.FundingBilling.Infrastructure.Persistence;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
+using DriveOS.Modules.RegulatoryIntegrations.Infrastructure.Persistence;
 using DriveOS.Modules.SchedulingCapacity.Infrastructure.Persistence;
 using DriveOS.Modules.Students.Infrastructure.Persistence;
 using DriveOS.Modules.TrainingDelivery.Infrastructure.Persistence;
+using DriveOS.Modules.Workforce.Infrastructure.Persistence;
 using Itech.Emailing.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -61,6 +63,14 @@ public static class MigrationManager
             ApplyMigration<ExamsCertificationDbContext>(
                 scope.ServiceProvider,
                 "Exams & Certification");
+
+            ApplyMigration<WorkforceDbContext>(
+                scope.ServiceProvider,
+                "Workforce & HR");
+
+            ApplyMigration<RegulatoryIntegrationsDbContext>(
+                scope.ServiceProvider,
+                "Regulatory Integrations");
 
             ApplyMigration<EmailingDbContext>(
                 scope.ServiceProvider,

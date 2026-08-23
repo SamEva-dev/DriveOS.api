@@ -56,6 +56,7 @@ public sealed class CompleteTrainingSessionCommandHandler(
                 session.ActualInstructorId ?? session.ReadyInstructorId ?? session.InstructorId,
                 session.ActualVehicleId ?? session.ReadyVehicleId ?? session.VehicleId,
                 session.ActualBranchId ?? session.ReadyBranchId ?? session.BranchId,
+                session.TrainingCategory,
                 session.ActualStartAtUtc!.Value,
                 report.ActualEndAtUtc,
                 report.DeliveredDurationMinutes,

@@ -1,0 +1,12 @@
+using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Modules.Workforce.Domain.EquipmentAssignments;
+using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.Workforce.Application.EquipmentAssignments;
+public sealed record CreateEquipmentAssignmentCommand(OrganizationId OrganizationId,EquipmentAssignmentId Id,EmployeeId EmployeeId,EquipmentResourceType ResourceType,Guid ResourceId,DateOnly StartDate,DateOnly? PlannedEndDate,UserId ActorUserId):ICommand<EquipmentAssignmentId>;
+public sealed record UpdateEquipmentAssignmentPlanCommand(OrganizationId OrganizationId,EquipmentAssignmentId Id,DateOnly StartDate,DateOnly? PlannedEndDate,UserId ActorUserId):ICommand;
+public sealed record HandOverEquipmentAssignmentCommand(OrganizationId OrganizationId,EquipmentAssignmentId Id,EquipmentCondition Condition,string? Notes,UserId ActorUserId):ICommand;
+public sealed record ReturnEquipmentAssignmentCommand(OrganizationId OrganizationId,EquipmentAssignmentId Id,DateOnly ReturnedOn,EquipmentCondition Condition,string? Notes,UserId ActorUserId):ICommand;
+public sealed record CancelEquipmentAssignmentCommand(OrganizationId OrganizationId,EquipmentAssignmentId Id,string Reason,UserId ActorUserId):ICommand;
+public sealed record GetEquipmentAssignmentQuery(OrganizationId OrganizationId,EquipmentAssignmentId Id):IQuery<EquipmentAssignmentResponse>;
+public sealed record GetEquipmentAssignmentsQuery(OrganizationId OrganizationId,EmployeeId? EmployeeId,EquipmentAssignmentStatus? Status,EquipmentResourceType? ResourceType):IQuery<IReadOnlyList<EquipmentAssignmentResponse>>;
+public sealed record EquipmentAssignmentResponse(Guid Id,Guid EmployeeId,string ResourceType,Guid ResourceId,DateOnly StartDate,DateOnly? PlannedEndDate,DateOnly? ReturnedOn,string Status,string HandoverCondition,string? HandoverNotes,DateTimeOffset? HandedOverAtUtc,Guid? HandedOverByUserId,string ReturnCondition,string? ReturnNotes,DateTimeOffset? ReturnedAtUtc,Guid? ReturnedByUserId,string? CancellationReason);

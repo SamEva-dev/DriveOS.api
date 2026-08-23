@@ -9,7 +9,8 @@ public enum TrainingSessionConsequenceKind
     ProfessionalServiceEntry = 3,
     VehicleUsage = 4,
     AnalyticsMetrics = 5,
-    SessionSummaryCommunication = 6
+    SessionSummaryCommunication = 6,
+    RegulatoryTrainingRecordSubmission = 7
 }
 
 public enum TrainingSessionConsequenceStatus
@@ -33,6 +34,7 @@ public sealed record TrainingSessionCompletionSnapshot(
     UserId InstructorId,
     Guid? VehicleId,
     BranchId? BranchId,
+    string? TrainingCategory,
     DateTimeOffset ActualStartAtUtc,
     DateTimeOffset ActualEndAtUtc,
     int DeliveredDurationMinutes,

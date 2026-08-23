@@ -1,0 +1,10 @@
+using DriveOS.SharedKernel.Domain;
+using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.Workforce.Domain.Events;
+public sealed record LeaveRequestCreatedDomainEvent(Guid EventId, DateTimeOffset OccurredAtUtc, LeaveRequestId LeaveRequestId, OrganizationId OrganizationId, EmployeeId EmployeeId, LeavePolicyId LeavePolicyId) : IDomainEvent;
+public sealed record LeaveRequestUpdatedDomainEvent(Guid EventId, DateTimeOffset OccurredAtUtc, LeaveRequestId LeaveRequestId, OrganizationId OrganizationId, EmployeeId EmployeeId, UserId ActorUserId) : IDomainEvent;
+public sealed record LeaveRequestSubmittedDomainEvent(Guid EventId, DateTimeOffset OccurredAtUtc, LeaveRequestId LeaveRequestId, OrganizationId OrganizationId, EmployeeId EmployeeId, UserId ActorUserId) : IDomainEvent;
+public sealed record LeaveRequestAutoApprovedDomainEvent(Guid EventId, DateTimeOffset OccurredAtUtc, LeaveRequestId LeaveRequestId, OrganizationId OrganizationId, EmployeeId EmployeeId, UserId ActorUserId) : IDomainEvent;
+public sealed record LeaveRequestApprovedDomainEvent(Guid EventId, DateTimeOffset OccurredAtUtc, LeaveRequestId LeaveRequestId, OrganizationId OrganizationId, EmployeeId EmployeeId, UserId ActorUserId) : IDomainEvent;
+public sealed record LeaveRequestRejectedDomainEvent(Guid EventId, DateTimeOffset OccurredAtUtc, LeaveRequestId LeaveRequestId, OrganizationId OrganizationId, EmployeeId EmployeeId, UserId ActorUserId, string Reason) : IDomainEvent;
+public sealed record LeaveRequestCancelledDomainEvent(Guid EventId, DateTimeOffset OccurredAtUtc, LeaveRequestId LeaveRequestId, OrganizationId OrganizationId, EmployeeId EmployeeId, UserId ActorUserId) : IDomainEvent;

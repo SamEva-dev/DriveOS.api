@@ -31,7 +31,7 @@ public static class BookingConflictDetector
 
             if (resource.EffectiveCapacity <= 0)
             {
-                conflicts.Add(new BookingConflict(BookingConflictType.OutsideAvailability, requested.CalendarResourceId, null, requested.Quantity, 0));
+                conflicts.Add(new BookingConflict(BookingConflictType.OutsideAvailability, requested.CalendarResourceId, null, requested.Quantity, 0, resource.UnavailabilityReason));
                 continue;
             }
 

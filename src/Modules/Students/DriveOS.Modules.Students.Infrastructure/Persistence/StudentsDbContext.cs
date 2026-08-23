@@ -1,3 +1,4 @@
+using DriveOS.Modules.Students.Domain.RegulatoryIdentities;
 using DriveOS.Modules.Students.Application.Abstractions.Persistence;
 using DriveOS.Modules.Students.Domain.Administration;
 using DriveOS.Modules.Students.Domain.Branches;
@@ -24,6 +25,7 @@ public sealed class StudentsDbContext(DbContextOptions<StudentsDbContext> option
 {
     private IDbContextTransaction? currentTransaction;
     public DbSet<Student> Students => Set<Student>();
+    public DbSet<StudentRegulatoryIdentity> StudentRegulatoryIdentities => Set<StudentRegulatoryIdentity>();
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
     public DbSet<StudentIdentityAuditEntry> StudentIdentityAuditEntries =>
         Set<StudentIdentityAuditEntry>();

@@ -1571,6 +1571,94 @@ namespace DriveOS.Modules.Students.Infrastructure.Persistence.Migrastions
                     b.ToTable("student_instructor_portfolios", "students");
                 });
 
+            modelBuilder.Entity("DriveOS.Modules.Students.Domain.RegulatoryIdentities.StudentRegulatoryIdentity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("country_code");
+
+                    b.Property<string>("DecisionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("decision_reason");
+
+                    b.Property<DateTimeOffset>("DeclaredAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("declared_at_utc");
+
+                    b.Property<Guid>("DeclaredByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("declared_by_user_id");
+
+                    b.Property<string>("IdentifierType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("identifier_type");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<DateTimeOffset?>("SupersededAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("superseded_at_utc");
+
+                    b.Property<Guid?>("SupersededById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("superseded_by_id");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("identifier_value");
+
+                    b.Property<string>("VerificationMethod")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("verification_method");
+
+                    b.Property<DateTimeOffset?>("VerifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("verified_at_utc");
+
+                    b.Property<Guid?>("VerifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("verified_by_user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "StudentId", "CountryCode", "IdentifierType")
+                        .IsUnique()
+                        .HasDatabaseName("ux_student_regulatory_identities_current")
+                        .HasFilter("status IN ('Declared', 'Verified')");
+
+                    b.ToTable("student_regulatory_identities", "students");
+                });
+
             modelBuilder.Entity("DriveOS.Modules.Students.Domain.Relationships.StudentRelationship", b =>
                 {
                     b.Property<Guid>("Id")

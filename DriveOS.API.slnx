@@ -42,6 +42,11 @@
     <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Domain/DriveOS.Modules.Organizations.Domain.csproj" Id="112bbccb-e436-4a28-8b99-b7374768d669" />
     <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Infrastructure/DriveOS.Modules.Organizations.Infrastructure.csproj" Id="5cbf3bf1-0066-4423-b44a-9a5ec1dd85bb" />
   </Folder>
+  <Folder Name="/src/Modules/RegulatoryIntegrations/">
+    <Project Path="src/Modules/RegulatoryIntegrations/DriveOS.Modules.RegulatoryIntegrations.Application/DriveOS.Modules.RegulatoryIntegrations.Application.csproj" Id="f267b866-7a5d-4268-ba68-7333bcb721a8" />
+    <Project Path="src/Modules/RegulatoryIntegrations/DriveOS.Modules.RegulatoryIntegrations.Domain/DriveOS.Modules.RegulatoryIntegrations.Domain.csproj" Id="d676e754-04fe-482f-9af0-4f1811ce448e" />
+    <Project Path="src/Modules/RegulatoryIntegrations/DriveOS.Modules.RegulatoryIntegrations.Infrastructure/DriveOS.Modules.RegulatoryIntegrations.Infrastructure.csproj" Id="aa6a725b-66d8-4096-9e4f-84f1ade48d11" />
+  </Folder>
   <Folder Name="/src/Modules/SchedulingCapacity/">
     <Project Path="src/Modules/SchedulingCapacity/DriveOS.Modules.SchedulingCapacity.Application/DriveOS.Modules.SchedulingCapacity.Application.csproj" Id="905356f0-6626-498b-b3b1-ed474d24f8e0" />
     <Project Path="src/Modules/SchedulingCapacity/DriveOS.Modules.SchedulingCapacity.Domain/DriveOS.Modules.SchedulingCapacity.Domain.csproj" Id="405d7a82-f030-4ac6-b279-c0a12b2a6ada" />
@@ -56,6 +61,11 @@
     <Project Path="src/Modules/TrainingDelivery/DriveOS.Modules.TrainingDelivery.Application/DriveOS.Modules.TrainingDelivery.Application.csproj" Id="a9454fe4-75f9-456c-bf04-3c3f6d51be16" />
     <Project Path="src/Modules/TrainingDelivery/DriveOS.Modules.TrainingDelivery.Domain/DriveOS.Modules.TrainingDelivery.Domain.csproj" Id="d0d5e5f0-a21a-4c23-88f8-3126caaf6da6" />
     <Project Path="src/Modules/TrainingDelivery/DriveOS.Modules.TrainingDelivery.Infrastructure/DriveOS.Modules.TrainingDelivery.Infrastructure.csproj" Id="161ef94a-2072-4dfd-a7e8-1dd1e3622228" />
+  </Folder>
+  <Folder Name="/src/Modules/Workforce/">
+    <Project Path="src/Modules/Workforce/DriveOS.Modules.Workforce.Application/DriveOS.Modules.Workforce.Application.csproj" Id="95ed89ec-15aa-4009-b0fc-2dd67283d07a" />
+    <Project Path="src/Modules/Workforce/DriveOS.Modules.Workforce.Domain/DriveOS.Modules.Workforce.Domain.csproj" Id="b6cec400-e23e-4138-9365-2598b9beed36" />
+    <Project Path="src/Modules/Workforce/DriveOS.Modules.Workforce.Infrastructure/DriveOS.Modules.Workforce.Infrastructure.csproj" Id="f2509b97-db47-4623-9d19-d8267cccff85" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="tests/DriveOS.ArchitectureTests/DriveOS.ArchitectureTests.csproj" Id="bf3894b6-baf2-4af6-95cf-8a731425195e" />

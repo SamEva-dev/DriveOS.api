@@ -17,6 +17,8 @@ using DriveOS.Modules.Organizations.Application.OrganizationConfigurations.Effec
 using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles;
 using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Compliance;
 using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives;
+using DriveOS.Modules.Organizations.Application.RegulatoryIntegrations;
+using DriveOS.Modules.Organizations.Application.InstructorRegulatoryCredentials;
 using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.AccessSynchronization;
 using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.Expiration;
 using DriveOS.Modules.Organizations.Application.OrganizationSequences;
@@ -30,6 +32,7 @@ using DriveOS.Modules.Organizations.Domain.OrganizationClosures;
 using DriveOS.Modules.Organizations.Domain.OrganizationConfigurations;
 using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
+using DriveOS.Modules.Organizations.Domain.RegulatoryIntegrations;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Domain.OrganizationSequences;
 using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
@@ -46,6 +49,8 @@ using DriveOS.Modules.Organizations.Infrastructure.OrganizationLegalProfiles.Com
 using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives;
 using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.AccessSynchronization;
 using DriveOS.Modules.Organizations.Infrastructure.OrganizationRepresentatives.Expiration;
+using DriveOS.Modules.Organizations.Infrastructure.RegulatoryIntegrations;
+using DriveOS.Modules.Organizations.Infrastructure.InstructorRegulatoryCredentials;
 using DriveOS.Modules.Organizations.Infrastructure.OrganizationSequences;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence;
 using DriveOS.Modules.Organizations.Infrastructure.Persistence.Interceptors;
@@ -152,6 +157,11 @@ public static class DependencyInjection
         >();
 
         services.AddScoped<IOrganizationClosureRepository, OrganizationClosureRepository>();
+
+        services.AddScoped<IRegulatoryIntegrationConnectionRepository, RegulatoryIntegrationConnectionRepository>();
+        services.AddScoped<IRegulatoryIntegrationConnectionReadService, RegulatoryIntegrationConnectionReadService>();
+        services.AddScoped<IInstructorRegulatoryCredentialService, InstructorRegulatoryCredentialService>();
+        services.AddScoped<IInstructorRegulatoryCredentialReadService, InstructorRegulatoryCredentialService>();
 
         services.AddScoped<IBranchRepository, BranchRepository>();
         services.AddScoped<

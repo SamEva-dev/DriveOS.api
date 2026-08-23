@@ -1,0 +1,15 @@
+using DriveOS.Application.Abstractions.Messaging; using DriveOS.Modules.Workforce.Domain.PerformanceReviews; using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.Workforce.Application.PerformanceReviews;
+public sealed record CreatePerformanceReviewCommand(OrganizationId OrganizationId,PerformanceReviewId Id,EmployeeId EmployeeId,UserId EvaluatorUserId,DateOnly PeriodFrom,DateOnly PeriodTo,string Title,UserId ActorUserId):ICommand<PerformanceReviewId>;
+public sealed record StartPerformanceReviewCommand(OrganizationId OrganizationId,PerformanceReviewId Id,UserId ActorUserId):ICommand;
+public sealed record AddPerformanceReviewCriterionCommand(OrganizationId OrganizationId,PerformanceReviewId ReviewId,PerformanceReviewCriterionId CriterionId,string Code,string Label,int Weight,string? Comment,UserId ActorUserId):ICommand<PerformanceReviewCriterionId>;
+public sealed record RatePerformanceReviewCriterionCommand(OrganizationId OrganizationId,PerformanceReviewId ReviewId,PerformanceReviewCriterionId CriterionId,int Rating,string? Comment,UserId ActorUserId):ICommand;
+public sealed record SetPerformanceReviewSummaryCommand(OrganizationId OrganizationId,PerformanceReviewId Id,string OverallAssessment,string? Objectives,UserId ActorUserId):ICommand;
+public sealed record SubmitPerformanceReviewCommand(OrganizationId OrganizationId,PerformanceReviewId Id,UserId ActorUserId):ICommand;
+public sealed record AcknowledgePerformanceReviewCommand(OrganizationId OrganizationId,PerformanceReviewId Id,string? EmployeeComment,UserId ActorUserId):ICommand;
+public sealed record CompletePerformanceReviewCommand(OrganizationId OrganizationId,PerformanceReviewId Id,UserId ActorUserId):ICommand;
+public sealed record CancelPerformanceReviewCommand(OrganizationId OrganizationId,PerformanceReviewId Id,string Reason,UserId ActorUserId):ICommand;
+public sealed record GetPerformanceReviewQuery(OrganizationId OrganizationId,PerformanceReviewId Id):IQuery<PerformanceReviewResponse>;
+public sealed record GetPerformanceReviewsQuery(OrganizationId OrganizationId,EmployeeId? EmployeeId,PerformanceReviewStatus? Status):IQuery<IReadOnlyList<PerformanceReviewResponse>>;
+public sealed record PerformanceReviewCriterionResponse(Guid Id,string Code,string Label,int Weight,int? Rating,string? Comment);
+public sealed record PerformanceReviewResponse(Guid Id,Guid EmployeeId,Guid EvaluatorUserId,DateOnly PeriodFrom,DateOnly PeriodTo,string Title,string Status,string? OverallAssessment,string? Objectives,DateTimeOffset? SubmittedAtUtc,DateTimeOffset? AcknowledgedAtUtc,Guid? AcknowledgedByUserId,string? EmployeeComment,DateTimeOffset? CompletedAtUtc,string? CancellationReason,IReadOnlyList<PerformanceReviewCriterionResponse> Criteria);

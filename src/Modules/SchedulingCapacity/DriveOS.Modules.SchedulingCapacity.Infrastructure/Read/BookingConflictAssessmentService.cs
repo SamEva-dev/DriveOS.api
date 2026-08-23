@@ -11,7 +11,8 @@ namespace DriveOS.Modules.SchedulingCapacity.Infrastructure.Read;
 
 internal sealed class BookingConflictAssessmentService(
     SchedulingCapacityDbContext dbContext,
-    IOptions<SchedulingTransitionOptions> transitionOptions)
+    IOptions<SchedulingTransitionOptions> transitionOptions,
+    IInstructorWorkforceAvailabilityGateway workforceAvailability)
     : IBookingConflictAssessmentService
 {
     public async Task<BookingConflictAssessment> AssessAsync(Booking booking, CancellationToken cancellationToken = default)
@@ -55,9 +56,19 @@ internal sealed class BookingConflictAssessmentService(
                 existingBooking.BranchId))
             .ToArrayAsync(cancellationToken);
 
-        CalendarResourceSchedulingSnapshot[] snapshots = resources
-            .Select(resource => CreateSnapshot(resource, plans, booking.StartAtUtc, booking.EndAtUtc))
-            .ToArray();
+        var snapshots = new List<CalendarResourceSchedulingSnapshot>(resources.Length);
+        foreach (CalendarResource resource in resources)
+        {
+            CalendarResourceSchedulingSnapshot snapshot = CreateSnapshot(resource, plans, booking.StartAtUtc, booking.EndAtUtc);
+            if (resource.ResourceType == CalendarResourceType.Instructor && resource.ExternalResourceId != Guid.Empty)
+            {
+                InstructorWorkforceAvailabilityResult availability = await workforceAvailability.CheckAsync(
+                    booking.OrganizationId, new UserId(resource.ExternalResourceId), booking.StartAtUtc, booking.EndAtUtc, booking.BranchId.HasValue ? booking.BranchId.Value : default, resource.TimeZoneId, cancellationToken);
+                if (availability.IsUnavailable)
+                    snapshot = snapshot with { EffectiveCapacity = 0, UnavailabilityReason = availability.Reason };
+            }
+            snapshots.Add(snapshot);
+        }
 
         return BookingConflictDetector.Assess(booking, snapshots, reservations, policy);
     }

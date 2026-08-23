@@ -1,0 +1,5 @@
+using DriveOS.SharedKernel.Domain;
+using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.Workforce.Domain.Events;
+public sealed record OffboardingStartedDomainEvent(Guid EventId,DateTimeOffset OccurredAtUtc,OffboardingProcessId OffboardingProcessId,EmployeeId EmployeeId,OrganizationId OrganizationId,DateOnly PlannedEndDate,UserId? LinkedUserId,UserId ActorUserId):IDomainEvent;
+public sealed record OffboardingCompletedDomainEvent(Guid EventId,DateTimeOffset OccurredAtUtc,OffboardingProcessId OffboardingProcessId,EmployeeId EmployeeId,OrganizationId OrganizationId,DateOnly EndDate,UserId? LinkedUserId,UserId ActorUserId):IDomainEvent;

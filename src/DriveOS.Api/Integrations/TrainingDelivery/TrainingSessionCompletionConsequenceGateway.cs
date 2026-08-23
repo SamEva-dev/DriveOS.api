@@ -1,11 +1,16 @@
 using DomainRelay.Abstractions;
 using DriveOS.Modules.FundingBilling.Application.TrainingCredits.Manage;
+using DriveOS.Application.Abstractions.Integrations.RegulatoryTrainingRecords;
+using DriveOS.Modules.RegulatoryIntegrations.Application.Submissions;
 using DriveOS.Modules.TrainingDelivery.Application.Consequences;
 using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Api.Integrations.TrainingDelivery;
 
-internal sealed class TrainingSessionCompletionConsequenceGateway(IMediator mediator) : ITrainingSessionCompletionConsequenceGateway
+internal sealed class TrainingSessionCompletionConsequenceGateway(
+    IMediator mediator,
+    IRegulatoryTrainingSessionProjector regulatoryProjector,
+    IRegulatoryTrainingRecordSubmissionService regulatorySubmissions) : ITrainingSessionCompletionConsequenceGateway
 {
     public async Task<TrainingSessionConsequenceDispatchResult> DispatchAsync(TrainingSessionConsequenceEnvelope consequence, CancellationToken cancellationToken = default)
     {
@@ -44,6 +49,30 @@ internal sealed class TrainingSessionCompletionConsequenceGateway(IMediator medi
                 return TrainingSessionConsequenceDispatchResult.Deferred("analytics.session-metrics.module-not-implemented");
             case TrainingSessionConsequenceKind.SessionSummaryCommunication:
                 return TrainingSessionConsequenceDispatchResult.Deferred("communication.session-summary.module-not-implemented");
+            case TrainingSessionConsequenceKind.RegulatoryTrainingRecordSubmission:
+            {
+                var projectionResult = await regulatoryProjector.ProjectAsync(new RegulatoryTrainingSessionProjectionSource(
+                    snapshot.OrganizationId,
+                    snapshot.StudentOwnerOrganizationId,
+                    snapshot.PerformingOrganizationId,
+                    snapshot.SessionId,
+                    snapshot.StudentId,
+                    snapshot.TrainingPathId,
+                    snapshot.InstructorId,
+                    snapshot.BranchId,
+                    snapshot.VehicleId,
+                    snapshot.TrainingCategory,
+                    snapshot.ActualStartAtUtc,
+                    snapshot.ActualEndAtUtc,
+                    snapshot.DeliveredDurationMinutes,
+                    snapshot.CompletedAtUtc), cancellationToken);
+
+                if (projectionResult.IsFailure)
+                    return TrainingSessionConsequenceDispatchResult.Retry(projectionResult.Error.Code, projectionResult.Error.MessageKey);
+
+                await regulatorySubmissions.EnsureAsync(projectionResult.Value, cancellationToken);
+                return TrainingSessionConsequenceDispatchResult.Processed();
+            }
             default:
                 return TrainingSessionConsequenceDispatchResult.PermanentFailure("training-delivery.consequence-kind-unsupported");
         }

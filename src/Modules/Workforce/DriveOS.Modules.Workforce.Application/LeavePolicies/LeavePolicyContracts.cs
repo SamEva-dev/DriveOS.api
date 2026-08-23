@@ -1,0 +1,11 @@
+using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Modules.Workforce.Domain.LeavePolicies;
+using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.Workforce.Application.LeavePolicies;
+public sealed record CreateLeavePolicyCommand(OrganizationId OrganizationId,LeavePolicyId LeavePolicyId,string CountryCode,string Code,string Name,LeaveCategory Category,bool IsPaid,bool RequiresApproval,bool RequiresEvidence,bool AllowHalfDay,int? MinimumNoticeDays,int? MaximumConsecutiveDays,UserId ActorUserId):ICommand<LeavePolicyId>;
+public sealed record UpdateLeavePolicyCommand(OrganizationId OrganizationId,LeavePolicyId LeavePolicyId,string CountryCode,string Code,string Name,LeaveCategory Category,bool IsPaid,bool RequiresApproval,bool RequiresEvidence,bool AllowHalfDay,int? MinimumNoticeDays,int? MaximumConsecutiveDays,UserId ActorUserId):ICommand;
+public sealed record DeactivateLeavePolicyCommand(OrganizationId OrganizationId,LeavePolicyId LeavePolicyId,UserId ActorUserId):ICommand;
+public sealed record ReactivateLeavePolicyCommand(OrganizationId OrganizationId,LeavePolicyId LeavePolicyId,UserId ActorUserId):ICommand;
+public sealed record GetLeavePoliciesQuery(OrganizationId OrganizationId,string? CountryCode,LeavePolicyStatus? Status):IQuery<IReadOnlyList<LeavePolicyResponse>>;
+public sealed record GetLeavePolicyQuery(OrganizationId OrganizationId,LeavePolicyId LeavePolicyId):IQuery<LeavePolicyResponse>;
+public sealed record LeavePolicyResponse(Guid Id,string CountryCode,string Code,string Name,string Category,bool IsPaid,bool RequiresApproval,bool RequiresEvidence,bool AllowHalfDay,int? MinimumNoticeDays,int? MaximumConsecutiveDays,string Status);

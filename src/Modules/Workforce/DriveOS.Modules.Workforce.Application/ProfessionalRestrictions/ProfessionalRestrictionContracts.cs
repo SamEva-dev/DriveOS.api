@@ -1,0 +1,12 @@
+using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Modules.Workforce.Domain.ProfessionalRestrictions;
+using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.Workforce.Application.ProfessionalRestrictions;
+public sealed record CreateProfessionalRestrictionCommand(OrganizationId OrganizationId,ProfessionalRestrictionId Id,EmployeeId EmployeeId,ProfessionalRestrictionActivity Activity,ProfessionalRestrictionSource Source,DateOnly StartDate,DateOnly? EndDate,string Reason,string? CountryCode,string? LicenseCategoryCode,BranchId? BranchId,Guid? SupportingDocumentReferenceId,UserId ActorUserId):ICommand<ProfessionalRestrictionId>;
+public sealed record UpdateProfessionalRestrictionCommand(OrganizationId OrganizationId,ProfessionalRestrictionId Id,DateOnly StartDate,DateOnly? EndDate,string Reason,string? CountryCode,string? LicenseCategoryCode,BranchId? BranchId,Guid? SupportingDocumentReferenceId,UserId ActorUserId):ICommand;
+public sealed record ActivateProfessionalRestrictionCommand(OrganizationId OrganizationId,ProfessionalRestrictionId Id,UserId ActorUserId):ICommand;
+public sealed record LiftProfessionalRestrictionCommand(OrganizationId OrganizationId,ProfessionalRestrictionId Id,string Reason,UserId ActorUserId):ICommand;
+public sealed record CancelProfessionalRestrictionCommand(OrganizationId OrganizationId,ProfessionalRestrictionId Id,string Reason,UserId ActorUserId):ICommand;
+public sealed record GetProfessionalRestrictionQuery(OrganizationId OrganizationId,ProfessionalRestrictionId Id):IQuery<ProfessionalRestrictionResponse>;
+public sealed record GetProfessionalRestrictionsQuery(OrganizationId OrganizationId,EmployeeId? EmployeeId,ProfessionalRestrictionStatus? Status,ProfessionalRestrictionActivity? Activity):IQuery<IReadOnlyList<ProfessionalRestrictionResponse>>;
+public sealed record ProfessionalRestrictionResponse(Guid Id,Guid EmployeeId,string Activity,string Source,DateOnly StartDate,DateOnly? EndDate,string Reason,string? CountryCode,string? LicenseCategoryCode,Guid? BranchId,Guid? SupportingDocumentReferenceId,string Status,DateTimeOffset? ActivatedAtUtc,DateTimeOffset? LiftedAtUtc,string? LiftReason,string? CancellationReason);

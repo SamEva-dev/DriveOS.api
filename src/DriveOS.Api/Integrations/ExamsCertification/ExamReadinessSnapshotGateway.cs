@@ -1,6 +1,8 @@
 using DriveOS.Application.Abstractions.Time;
 using DriveOS.Modules.Contracts.Application.TrainingContracts.Read;
+using DriveOS.Application.Abstractions.Integrations.RegulatoryTrainingRecords;
 using DriveOS.Modules.CurriculumPedagogy.Application.Readiness;
+using DriveOS.Modules.CurriculumPedagogy.Application.TrainingPaths;
 using DriveOS.Modules.ExamsCertification.Application.Readiness;
 using DriveOS.Modules.ExamsCertification.Domain.Readiness;
 using DriveOS.Modules.ExamsCertification.Domain.Readiness.Opinions;
@@ -24,6 +26,8 @@ internal sealed class ExamReadinessSnapshotGateway(
     ITrainingContractReadService contracts,
     TrainingDeliveryDbContext trainingDelivery,
     IExamReadinessOpinionRepository opinions,
+    ITrainingPathReadService trainingPaths,
+    IRegulatoryTrainingRecordGateway regulatoryTrainingRecords,
     IClock clock) : IExamReadinessSnapshotGateway
 {
     public async Task<Result<ExamReadinessSnapshot>> EvaluateAsync(
@@ -74,7 +78,23 @@ internal sealed class ExamReadinessSnapshotGateway(
             clock,
             checks,
             cancellationToken);
-        ExamReadinessCheckStatus regulatoryStatus = EvaluateRegulatory(student, checks);
+        TrainingPathDetailResponse? trainingPath = await trainingPaths.GetAsync(
+            organizationId,
+            trainingPathId,
+            cancellationToken);
+
+        if (trainingPath is null || trainingPath.StudentId != studentId.Value)
+            return Result.Failure<ExamReadinessSnapshot>(ExamReadinessApplicationErrors.TrainingPathNotFound);
+
+        ExamReadinessCheckStatus regulatoryStatus = await EvaluateRegulatoryAsync(
+            organizationId,
+            studentId,
+            trainingPathId,
+            student,
+            trainingPath,
+            regulatoryTrainingRecords,
+            checks,
+            cancellationToken);
 
         var delivery = await trainingDelivery.TrainingSessions
             .AsNoTracking()
@@ -272,25 +292,79 @@ internal sealed class ExamReadinessSnapshotGateway(
         return status;
     }
 
-    private static ExamReadinessCheckStatus EvaluateRegulatory(
+    private static async Task<ExamReadinessCheckStatus> EvaluateRegulatoryAsync(
+        OrganizationId organizationId,
+        PersonId studentId,
+        TrainingPathId trainingPathId,
         StudentStatusesResponse student,
-        ICollection<ExamReadinessSourceCheck> checks)
+        TrainingPathDetailResponse trainingPath,
+        IRegulatoryTrainingRecordGateway regulatoryTrainingRecords,
+        ICollection<ExamReadinessSourceCheck> checks,
+        CancellationToken cancellationToken)
     {
         bool explicitExamBlock = student.CurrentlyBlockedActions.HasFlag(StudentBlockingAction.PresentExam);
-        ExamReadinessCheckStatus status = explicitExamBlock
-            ? ExamReadinessCheckStatus.Blocked
-            : ExamReadinessCheckStatus.Unknown;
+        if (explicitExamBlock)
+        {
+            checks.Add(new ExamReadinessSourceCheck(
+                "regulatory-training-record",
+                "exams.readiness.regulatory.blocked",
+                ExamReadinessCheckStatus.Blocked,
+                "RegulatoryTrainingRecord",
+                "Student PresentExam block is active."));
+            return ExamReadinessCheckStatus.Blocked;
+        }
+
+        Result<RegulatoryTrainingRecordEvaluation> evaluationResult = await regulatoryTrainingRecords.EvaluateAsync(
+            new RegulatoryTrainingRecordContext(
+                organizationId,
+                studentId,
+                trainingPathId,
+                trainingPath.CountryCode,
+                "Readiness",
+                trainingPath.LicenseCategoryCode),
+            cancellationToken);
+
+        if (evaluationResult.IsFailure)
+        {
+            checks.Add(new ExamReadinessSourceCheck(
+                "regulatory-training-record",
+                "exams.readiness.regulatory.unavailable",
+                ExamReadinessCheckStatus.Warning,
+                "RegulatoryTrainingRecord",
+                $"error={evaluationResult.Error.Code}"));
+            return ExamReadinessCheckStatus.Warning;
+        }
+
+        RegulatoryTrainingRecordEvaluation evaluation = evaluationResult.Value;
+        ExamReadinessCheckStatus status = evaluation.Required
+            ? evaluation.Status switch
+            {
+                RegulatoryTrainingRecordStatus.Compliant => ExamReadinessCheckStatus.Satisfied,
+                RegulatoryTrainingRecordStatus.Blocked => ExamReadinessCheckStatus.Blocked,
+                RegulatoryTrainingRecordStatus.Warning => ExamReadinessCheckStatus.Warning,
+                RegulatoryTrainingRecordStatus.NotApplicable => ExamReadinessCheckStatus.NotApplicable,
+                _ => ExamReadinessCheckStatus.Warning
+            }
+            : evaluation.Status == RegulatoryTrainingRecordStatus.NotApplicable
+                ? ExamReadinessCheckStatus.NotApplicable
+                : ExamReadinessCheckStatus.Unknown;
+
+        string messageKey = status switch
+        {
+            ExamReadinessCheckStatus.Satisfied => "exams.readiness.regulatory.satisfied",
+            ExamReadinessCheckStatus.Blocked => "exams.readiness.regulatory.blocked",
+            ExamReadinessCheckStatus.NotApplicable => "exams.readiness.regulatory.notApplicable",
+            ExamReadinessCheckStatus.Warning when evaluation.Status == RegulatoryTrainingRecordStatus.Warning => "exams.readiness.regulatory.warning",
+            ExamReadinessCheckStatus.Warning => "exams.readiness.regulatory.pending",
+            _ => "exams.readiness.regulatory.providerPending"
+        };
 
         checks.Add(new ExamReadinessSourceCheck(
             "regulatory-training-record",
-            explicitExamBlock
-                ? "exams.readiness.regulatory.blocked"
-                : "exams.readiness.regulatory.providerPending",
+            messageKey,
             status,
             "RegulatoryTrainingRecord",
-            explicitExamBlock
-                ? "Student PresentExam block is active."
-                : "No authoritative national training-record provider is connected yet."));
+            $"required={evaluation.Required.ToString().ToLowerInvariant()};provider={evaluation.ProviderCode};status={evaluation.Status};externalReference={evaluation.ExternalReference ?? "none"};{evaluation.Evidence}"));
 
         return status;
     }

@@ -19,7 +19,8 @@ internal sealed class TrainingSessionCompletionConsequenceStore(TrainingDelivery
         {
             TrainingSessionConsequenceKind.BillingServiceRecognition,
             TrainingSessionConsequenceKind.AnalyticsMetrics,
-            TrainingSessionConsequenceKind.SessionSummaryCommunication
+            TrainingSessionConsequenceKind.SessionSummaryCommunication,
+            TrainingSessionConsequenceKind.RegulatoryTrainingRecordSubmission
         };
 
         if (snapshot.TrainingCreditAccountId.HasValue

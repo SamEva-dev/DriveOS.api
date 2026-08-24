@@ -11,7 +11,7 @@ public interface IInstructorWorkforceAvailabilityGateway
         UserId instructorUserId,
         DateTimeOffset startAtUtc,
         DateTimeOffset endAtUtc,
-        BranchId branchId,
+        BranchId? branchId,
         string timeZoneId,
         CancellationToken cancellationToken = default);
 }

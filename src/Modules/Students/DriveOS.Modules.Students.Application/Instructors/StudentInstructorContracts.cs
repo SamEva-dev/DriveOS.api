@@ -50,6 +50,23 @@ public sealed record InstructorSuggestionItem(
 
 public sealed record InstructorEligibility(bool IsEligible, IReadOnlyList<string> Warnings);
 
+/// <summary>
+/// Cross-bounded-context Workforce decision used by Students without taking a dependency on Workforce.
+/// The API composition root supplies the authoritative implementation.
+/// </summary>
+public sealed record InstructorWorkforceEligibility(bool IsEligible, string? ReasonCode);
+
+public interface IInstructorWorkforceEligibilityGateway
+{
+    Task<InstructorWorkforceEligibility> VerifyAsync(
+        OrganizationId organizationId,
+        UserId instructorId,
+        BranchId? branchId,
+        string trainingCategory,
+        DateOnly effectiveDate,
+        CancellationToken ct = default);
+}
+
 public sealed record GetStudentInstructorsQuery(OrganizationId OrganizationId, PersonId StudentId)
     : IQuery<StudentInstructorsResponse>;
 

@@ -198,6 +198,8 @@ public sealed class Employee : AggregateRoot<EmployeeId>, IAuditableEntity
     {
         if (Status == EmploymentStatus.Ended)
             return Result.Failure<EmployeeBranchAssignmentId>(EmployeeBranchAssignmentErrors.EmployeeEnded);
+        if (!IsWithinEmploymentPeriod(startDate, endDate))
+            return Result.Failure<EmployeeBranchAssignmentId>(EmployeeBranchAssignmentErrors.PeriodOutsideEmployment);
 
         if (HasSameBranchOverlap(branchId, startDate, endDate, null))
             return Result.Failure<EmployeeBranchAssignmentId>(EmployeeBranchAssignmentErrors.SameBranchPeriodOverlap);
@@ -217,6 +219,7 @@ public sealed class Employee : AggregateRoot<EmployeeId>, IAuditableEntity
     {
         EmployeeBranchAssignment? assignment = _branchAssignments.SingleOrDefault(x => x.Id == assignmentId);
         if (assignment is null) return Result.Failure(EmployeeBranchAssignmentErrors.NotFound);
+        if (!IsWithinEmploymentPeriod(startDate, endDate)) return Result.Failure(EmployeeBranchAssignmentErrors.PeriodOutsideEmployment);
         if (HasSameBranchOverlap(assignment.BranchId, startDate, endDate, assignmentId)) return Result.Failure(EmployeeBranchAssignmentErrors.SameBranchPeriodOverlap);
         if (isPrimary && HasPrimaryOverlap(startDate, endDate, assignmentId)) return Result.Failure(EmployeeBranchAssignmentErrors.PrimaryPeriodOverlap);
         if (WouldOrphanJobPositionAssignments(assignment.BranchId, startDate, endDate)) return Result.Failure(EmployeeBranchAssignmentErrors.JobPositionDependsOnAssignment);
@@ -256,6 +259,7 @@ public sealed class Employee : AggregateRoot<EmployeeId>, IAuditableEntity
     public Result<EmployeeJobPositionAssignmentId> AddJobPositionAssignment(EmployeeJobPositionAssignmentId assignmentId, JobPositionId jobPositionId, BranchId? branchId, DateOnly startDate, DateOnly? endDate, bool isPrimary, DateOnly today, DateTimeOffset nowUtc, UserId actorUserId)
     {
         if (Status == EmploymentStatus.Ended) return Result.Failure<EmployeeJobPositionAssignmentId>(EmployeeJobPositionAssignmentErrors.EmployeeEnded);
+        if (!IsWithinEmploymentPeriod(startDate, endDate)) return Result.Failure<EmployeeJobPositionAssignmentId>(EmployeeJobPositionAssignmentErrors.PeriodOutsideEmployment);
         if (HasJobPositionOverlap(jobPositionId, branchId, startDate, endDate, null)) return Result.Failure<EmployeeJobPositionAssignmentId>(EmployeeJobPositionAssignmentErrors.PeriodOverlap);
         if (isPrimary && HasPrimaryJobPositionOverlap(startDate, endDate, null)) return Result.Failure<EmployeeJobPositionAssignmentId>(EmployeeJobPositionAssignmentErrors.PrimaryPeriodOverlap);
         if (branchId is { } scopedBranch && !HasBranchCoverage(scopedBranch, startDate, endDate)) return Result.Failure<EmployeeJobPositionAssignmentId>(EmployeeJobPositionAssignmentErrors.BranchAssignmentRequired);
@@ -272,6 +276,7 @@ public sealed class Employee : AggregateRoot<EmployeeId>, IAuditableEntity
     {
         EmployeeJobPositionAssignment? assignment = _jobPositionAssignments.SingleOrDefault(x => x.Id == assignmentId);
         if (assignment is null) return Result.Failure(EmployeeJobPositionAssignmentErrors.NotFound);
+        if (!IsWithinEmploymentPeriod(startDate, endDate)) return Result.Failure(EmployeeJobPositionAssignmentErrors.PeriodOutsideEmployment);
         if (HasJobPositionOverlap(assignment.JobPositionId, assignment.BranchId, startDate, endDate, assignmentId)) return Result.Failure(EmployeeJobPositionAssignmentErrors.PeriodOverlap);
         if (isPrimary && HasPrimaryJobPositionOverlap(startDate, endDate, assignmentId)) return Result.Failure(EmployeeJobPositionAssignmentErrors.PrimaryPeriodOverlap);
         if (assignment.BranchId is { } scopedBranch && !HasBranchCoverage(scopedBranch, startDate, endDate)) return Result.Failure(EmployeeJobPositionAssignmentErrors.BranchAssignmentRequired);
@@ -357,6 +362,7 @@ public sealed class Employee : AggregateRoot<EmployeeId>, IAuditableEntity
     public Result<EmploymentContractId> AddEmploymentContract(EmploymentContractId contractId, EmploymentContractType contractType, DateOnly startDate, DateOnly? endDate, decimal? contractualWeeklyHours, JobPositionId? primaryJobPositionId, DateTimeOffset nowUtc, UserId actorUserId)
     {
         if (Status == EmploymentStatus.Ended) return Result.Failure<EmploymentContractId>(EmploymentContractErrors.EmployeeEnded);
+        if (!IsWithinEmploymentPeriod(startDate, endDate)) return Result.Failure<EmploymentContractId>(EmploymentContractErrors.PeriodOutsideEmployment);
         if (_employmentContracts.Any(x => x.Status is not EmploymentContractStatus.Cancelled and not EmploymentContractStatus.Terminated and not EmploymentContractStatus.Completed && PeriodsOverlap(x.StartDate, x.EndDate, startDate, endDate)))
             return Result.Failure<EmploymentContractId>(EmploymentContractErrors.PeriodOverlap);
         var created = EmploymentContract.Create(contractId, contractType, startDate, endDate, contractualWeeklyHours, primaryJobPositionId, nowUtc, actorUserId);
@@ -368,6 +374,7 @@ public sealed class Employee : AggregateRoot<EmployeeId>, IAuditableEntity
     {
         var contract = _employmentContracts.SingleOrDefault(x => x.Id == contractId);
         if (contract is null) return Result.Failure(EmploymentContractErrors.NotFound);
+        if (!IsWithinEmploymentPeriod(startDate, endDate)) return Result.Failure(EmploymentContractErrors.PeriodOutsideEmployment);
         if (_employmentContracts.Any(x => x.Id != contractId && x.Status is not EmploymentContractStatus.Cancelled and not EmploymentContractStatus.Terminated and not EmploymentContractStatus.Completed && PeriodsOverlap(x.StartDate, x.EndDate, startDate, endDate)))
             return Result.Failure(EmploymentContractErrors.PeriodOverlap);
         var r=contract.UpdateTerms(startDate,endDate,contractualWeeklyHours,primaryJobPositionId,nowUtc,actorUserId); if(r.IsSuccess)SetModifiedAudit(nowUtc,actorUserId); return r;
@@ -404,6 +411,10 @@ public sealed class Employee : AggregateRoot<EmployeeId>, IAuditableEntity
 
     private bool HasPrimaryOverlap(DateOnly startDate, DateOnly? endDate, EmployeeBranchAssignmentId? ignoredId)
         => _branchAssignments.Any(x => x.Id != ignoredId && x.IsPrimary && x.Status != EmployeeBranchAssignmentStatus.Cancelled && PeriodsOverlap(x.StartDate, x.EndDate, startDate, endDate));
+
+    private bool IsWithinEmploymentPeriod(DateOnly startDate, DateOnly? endDate)
+        => startDate >= EmploymentStartDate
+            && (!EmploymentEndDate.HasValue || (endDate.HasValue && endDate.Value <= EmploymentEndDate.Value));
 
     private static bool PeriodsOverlap(DateOnly leftStart, DateOnly? leftEnd, DateOnly rightStart, DateOnly? rightEnd)
         => (!leftEnd.HasValue || rightStart <= leftEnd.Value) && (!rightEnd.HasValue || leftStart <= rightEnd.Value);

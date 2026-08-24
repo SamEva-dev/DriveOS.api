@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using DriveOS.Application.Abstractions.Integrations.RegulatoryTrainingRecords;
 using DriveOS.Modules.CurriculumPedagogy.Application.TrainingPaths;
-using DriveOS.Modules.Organizations.Application.InstructorRegulatoryCredentials;
+using DriveOS.Modules.Workforce.Application.Qualifications;
 using DriveOS.Modules.Students.Application.RegulatoryIdentities;
 using DriveOS.SharedKernel.Results;
 
@@ -10,13 +10,13 @@ namespace DriveOS.Api.Integrations.RegulatoryTrainingRecords;
 
 /// <summary>
 /// Anti-corruption projector that composes authoritative facts from Students,
-/// Curriculum/Pedagogy, Training Delivery and the temporary instructor credential bridge.
+/// Curriculum/Pedagogy, Training Delivery and BC-12 Workforce, the professional source of truth.
 /// It produces a provider-independent immutable snapshot; no external API is called here.
 /// </summary>
 internal sealed class RegulatoryTrainingSessionProjector(
     ITrainingPathReadService trainingPaths,
     IStudentRegulatoryIdentityReadService studentIdentities,
-    IInstructorRegulatoryCredentialReadService instructorCredentials)
+    IWorkforceInstructorAuthorizationReadService instructorAuthorizations)
     : IRegulatoryTrainingSessionProjector
 {
     private const int CurrentSchemaVersion = 1;
@@ -46,7 +46,7 @@ internal sealed class RegulatoryTrainingSessionProjector(
         var issues = new List<RegulatoryTrainingSessionProjectionIssue>();
 
         StudentRegulatoryIdentifierSnapshot? studentIdentifier = null;
-        InstructorRegulatoryCredentialSnapshot? instructorCredential = null;
+        InstructorAuthorizationSnapshot? instructorCredential = null;
 
         if (countryCode == France)
         {
@@ -57,11 +57,13 @@ internal sealed class RegulatoryTrainingSessionProjector(
                 Neph,
                 cancellationToken);
 
-            instructorCredential = await instructorCredentials.ResolveCurrentAsync(
+            instructorCredential = await instructorAuthorizations.ResolveCurrentAsync(
                 source.PerformingOrganizationId,
                 source.InstructorId,
                 France,
                 TeachingAuthorization,
+                path.LicenseCategoryCode,
+                DateOnly.FromDateTime(source.ActualStartAtUtc.UtcDateTime),
                 cancellationToken);
 
             if (studentIdentifier is null)
@@ -110,7 +112,7 @@ internal sealed class RegulatoryTrainingSessionProjector(
             studentIdentifier is null ? null : Neph,
             studentIdentifier?.Value,
             studentIdentifier?.Verified ?? false,
-            instructorCredential?.CredentialType,
+            instructorCredential?.AuthorizationType,
             instructorCredential?.Identifier,
             instructorCredential?.JurisdictionCode,
             instructorCredential?.Verified ?? false,

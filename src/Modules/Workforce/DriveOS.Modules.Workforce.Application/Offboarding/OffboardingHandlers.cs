@@ -33,7 +33,28 @@ public sealed class RefreshOffboardingCommandHandler(IOffboardingProcessReposito
 }
 public sealed class CompleteOffboardingChecklistItemCommandHandler(IOffboardingProcessRepository repository,IWorkforceUnitOfWork uow,IClock clock):ICommandHandler<CompleteOffboardingChecklistItemCommand>
 {
-    public async Task<Result> Handle(CompleteOffboardingChecklistItemCommand c,CancellationToken ct){var x=await repository.FindCurrentByEmployeeAsync(c.OrganizationId,c.EmployeeId,true,ct);if(x is null)return Result.Failure(OffboardingErrors.NotFound);var r=x.CompleteManualItem(c.Kind,c.Note,clock.UtcNow,c.ActorUserId);if(r.IsFailure)return r;await uow.CommitAsync(ct);return Result.Success();}
+    public async Task<Result> Handle(CompleteOffboardingChecklistItemCommand c,CancellationToken ct)
+    {
+        if(c.Kind==OffboardingChecklistItemKind.AccessRevocationPrepared)
+            return Result.Failure(OffboardingErrors.AccessRevocationMustBeExecuted);
+        var x=await repository.FindCurrentByEmployeeAsync(c.OrganizationId,c.EmployeeId,true,ct);if(x is null)return Result.Failure(OffboardingErrors.NotFound);var r=x.CompleteManualItem(c.Kind,c.Note,clock.UtcNow,c.ActorUserId);if(r.IsFailure)return r;await uow.CommitAsync(ct);return Result.Success();
+    }
+}
+public sealed class RevokeOffboardingAccessCommandHandler(IOffboardingProcessRepository repository,IEmployeeRepository employees,IEmployeeApplicationAccessRevoker revoker,IWorkforceUnitOfWork uow,IClock clock):ICommandHandler<RevokeOffboardingAccessCommand>
+{
+    public async Task<Result> Handle(RevokeOffboardingAccessCommand c,CancellationToken ct)
+    {
+        var process=await repository.FindCurrentByEmployeeAsync(c.OrganizationId,c.EmployeeId,true,ct);if(process is null)return Result.Failure(OffboardingErrors.NotFound);
+        var employee=await employees.GetByIdForUpdateAsync(c.OrganizationId,c.EmployeeId,ct);if(employee is null)return Result.Failure(EmployeeErrors.NotFound);
+        if(employee.UserId is { } linkedUserId)
+        {
+            var revoked=await revoker.RevokeAsync(c.OrganizationId,linkedUserId,c.Reason,ct);
+            if(revoked.IsFailure)return revoked;
+        }
+        var completed=process.CompleteManualItem(OffboardingChecklistItemKind.AccessRevocationPrepared,employee.UserId is null?"No linked AuthGate user account.":"DriveOS application access revoked in AuthGate.",clock.UtcNow,c.ActorUserId);
+        if(completed.IsFailure)return completed;
+        await uow.CommitAsync(ct);return Result.Success();
+    }
 }
 public sealed class WaiveOffboardingChecklistItemCommandHandler(IOffboardingProcessRepository repository,IWorkforceUnitOfWork uow,IClock clock):ICommandHandler<WaiveOffboardingChecklistItemCommand>
 {

@@ -13,3 +13,9 @@ public sealed record RefreshOffboardingCommand(OrganizationId OrganizationId,Emp
 public sealed record CompleteOffboardingChecklistItemCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,OffboardingChecklistItemKind Kind,string? Note,UserId ActorUserId):ICommand;
 public sealed record WaiveOffboardingChecklistItemCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,OffboardingChecklistItemKind Kind,string Reason,UserId ActorUserId):ICommand;
 public sealed record CompleteOffboardingCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,string CompletionReason,UserId ActorUserId):ICommand;
+
+public interface IEmployeeApplicationAccessRevoker
+{
+    Task<DriveOS.SharedKernel.Results.Result> RevokeAsync(OrganizationId organizationId,UserId userId,string reason,CancellationToken ct=default);
+}
+public sealed record RevokeOffboardingAccessCommand(OrganizationId OrganizationId,EmployeeId EmployeeId,string Reason,UserId ActorUserId):ICommand;

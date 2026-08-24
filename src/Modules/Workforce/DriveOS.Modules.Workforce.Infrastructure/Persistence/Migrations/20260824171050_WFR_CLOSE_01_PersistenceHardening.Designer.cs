@@ -3,6 +3,7 @@ using System;
 using DriveOS.Modules.Workforce.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DriveOS.Modules.Workforce.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WorkforceDbContext))]
-    partial class WorkforceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260824171050_WFR_CLOSE_01_PersistenceHardening")]
+    partial class WFR_CLOSE_01_PersistenceHardening
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

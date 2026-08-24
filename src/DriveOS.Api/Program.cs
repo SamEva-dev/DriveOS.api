@@ -1,3 +1,4 @@
+using DriveOS.Modules.Students.Application.Instructors;
 using DriveOS.Api.Integrations.Workforce;
 using DriveOS.Modules.Workforce.Application.BranchAssignments;
 using DriveOS.Modules.Workforce.Application.WorkingTime;
@@ -172,6 +173,7 @@ try
         .AddWorkforceInfrastructure(builder.Configuration)
         .AddRegulatoryIntegrationsInfrastructure(builder.Configuration);
 
+    builder.Services.AddScoped<IInstructorWorkforceEligibilityGateway, InstructorWorkforceEligibilityGateway>();
     builder.Services.AddScoped<IWorkforceBranchDirectory, WorkforceBranchDirectory>();
     builder.Services.AddScoped<IStudentProvisioningGateway, StudentProvisioningGateway>();
     builder.Services.AddScoped<ITrainingContractSourceGateway, TrainingContractSourceGateway>();

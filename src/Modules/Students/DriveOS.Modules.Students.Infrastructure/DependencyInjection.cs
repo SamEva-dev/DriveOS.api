@@ -96,6 +96,7 @@ public static class DependencyInjection
         services.AddScoped<IStudentBranchImpactAnalyzer, StudentBranchImpactAnalyzer>();
         services.AddScoped<IStudentInstructorService, StudentInstructorManagementService>();
         services.AddScoped<IInstructorEligibilityGateway, InstructorEligibilityGateway>();
+        services.AddScoped<IInstructorWorkforceEligibilityGateway, NullInstructorWorkforceEligibilityGateway>();
         services.AddScoped<IInternalTransferService, InternalTransferService>();
         services.AddScoped<IInternalTransferImpactAnalyzer, InternalTransferImpactAnalyzer>();
         services.AddScoped<IExternalTransferService, ExternalTransferService>();

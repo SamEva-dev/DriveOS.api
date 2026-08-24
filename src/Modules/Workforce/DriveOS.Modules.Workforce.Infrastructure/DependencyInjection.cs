@@ -1,3 +1,4 @@
+using DriveOS.Modules.Workforce.Infrastructure.AccessRevocation;
 using DriveOS.Modules.Workforce.Infrastructure.Read;
 using DriveOS.Modules.Workforce.Application.Availability;
 using DriveOS.Modules.Workforce.Application.Persistence;
@@ -45,6 +46,16 @@ public static class DependencyInjection
         services.AddScoped<DriveOS.Modules.Workforce.Application.Dashboard.IWorkforceDashboardReadService, WorkforceDashboardReadService>();
         services.AddScoped<DriveOS.Modules.Workforce.Application.Analytics.IWorkforceAnalyticsReadService, WorkforceAnalyticsReadService>();
         services.AddScoped<IWorkforceInstructorAuthorizationReadService, WorkforceInstructorAuthorizationReadService>();
+        services.Configure<AuthGateWorkforceAccessOptions>(configuration.GetSection(AuthGateWorkforceAccessOptions.SectionName));
+        string? authGateBaseUrl = configuration["AuthGate:BaseUrl"];
+        if (Uri.TryCreate(authGateBaseUrl, UriKind.Absolute, out Uri? authGateUri))
+        {
+            services.AddHttpClient<IEmployeeApplicationAccessRevoker, AuthGateEmployeeApplicationAccessRevoker>(client => client.BaseAddress = authGateUri);
+        }
+        else
+        {
+            services.AddScoped<IEmployeeApplicationAccessRevoker, DisabledEmployeeApplicationAccessRevoker>();
+        }
         return services;
     }
 }

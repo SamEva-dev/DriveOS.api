@@ -4,6 +4,7 @@ public static class EmploymentContractErrors
 {
     public static readonly Error InvalidIdentifier = Error.Validation("Workforce.EmploymentContract.InvalidIdentifier","errors.workforce.employmentContract.invalidIdentifier");
     public static readonly Error InvalidPeriod = Error.Validation("Workforce.EmploymentContract.InvalidPeriod","errors.workforce.employmentContract.invalidPeriod");
+    public static readonly Error PeriodOutsideEmployment = Error.Conflict("Workforce.EmploymentContract.PeriodOutsideEmployment","errors.workforce.employmentContract.periodOutsideEmployment");
     public static readonly Error InvalidWeeklyHours = Error.Validation("Workforce.EmploymentContract.InvalidWeeklyHours","errors.workforce.employmentContract.invalidWeeklyHours");
     public static readonly Error InvalidDocumentReference = Error.Validation("Workforce.EmploymentContract.InvalidDocumentReference","errors.workforce.employmentContract.invalidDocumentReference");
     public static readonly Error InvalidLifecycleTransition = Error.Conflict("Workforce.EmploymentContract.InvalidLifecycleTransition","errors.workforce.employmentContract.invalidLifecycleTransition");

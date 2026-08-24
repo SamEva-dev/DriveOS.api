@@ -240,7 +240,10 @@ internal sealed class StudentInstructorManagementService(
     }
 }
 
-internal sealed class InstructorEligibilityGateway(StudentsDbContext db)
+internal sealed class InstructorEligibilityGateway(
+    StudentsDbContext db,
+    IClock clock,
+    IInstructorWorkforceEligibilityGateway workforceEligibility)
     : IInstructorEligibilityGateway
 {
     public async Task<InstructorEligibility> VerifyAsync(
@@ -259,7 +262,23 @@ internal sealed class InstructorEligibilityGateway(StudentsDbContext db)
             warnings.Add("warnings.students.instructors.branch.notResolved");
         if (matches.Count == 0)
             warnings.Add("errors.students.instructors.instructor.notAssignedToBranch");
-        return new(matches.Count > 0 && !string.IsNullOrWhiteSpace(category), warnings);
+
+        InstructorWorkforceEligibility workforce = await workforceEligibility.VerifyAsync(
+            org,
+            instructor,
+            branch,
+            category,
+            DateOnly.FromDateTime(clock.UtcNow.UtcDateTime),
+            ct);
+
+        if (!workforce.IsEligible)
+            warnings.Add(workforce.ReasonCode ?? "errors.students.instructors.instructor.workforceNotEligible");
+
+        return new(
+            matches.Count > 0 &&
+            !string.IsNullOrWhiteSpace(category) &&
+            workforce.IsEligible,
+            warnings);
     }
 
     public async Task<IReadOnlyList<InstructorSuggestionItem>> SuggestAsync(
@@ -270,9 +289,25 @@ internal sealed class InstructorEligibilityGateway(StudentsDbContext db)
     )
     {
         var rows = await Read(org, branch, null, ct);
-        return rows.Select(x => new InstructorSuggestionItem(
-                x.UserId,
-                x.BranchId,
+        var suggestions = new List<InstructorSuggestionItem>(rows.Count);
+        DateOnly today = DateOnly.FromDateTime(clock.UtcNow.UtcDateTime);
+
+        foreach ((Guid userId, Guid branchId) in rows)
+        {
+            InstructorWorkforceEligibility workforce = await workforceEligibility.VerifyAsync(
+                org,
+                new UserId(userId),
+                new BranchId(branchId),
+                category,
+                today,
+                ct);
+
+            if (!workforce.IsEligible)
+                continue;
+
+            suggestions.Add(new InstructorSuggestionItem(
+                userId,
+                branchId,
                 null,
                 category,
                 true,
@@ -282,9 +317,10 @@ internal sealed class InstructorEligibilityGateway(StudentsDbContext db)
                 null,
                 false,
                 false,
-                ["warnings.students.instructors.metrics.notAvailable"]
-            ))
-            .ToArray();
+                ["warnings.students.instructors.metrics.notAvailable"]));
+        }
+
+        return suggestions;
     }
 
     private async Task<List<(Guid UserId, Guid BranchId)>> Read(

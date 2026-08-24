@@ -19,6 +19,7 @@ public static class EmployeeJobPositionAssignmentErrors
 {
     public static readonly Error InvalidIdentifier = Error.Validation("Workforce.JobPositionAssignment.InvalidIdentifier", "errors.workforce.jobPositionAssignment.invalidIdentifier");
     public static readonly Error InvalidPeriod = Error.Validation("Workforce.JobPositionAssignment.InvalidPeriod", "errors.workforce.jobPositionAssignment.invalidPeriod");
+    public static readonly Error PeriodOutsideEmployment = Error.Conflict("Workforce.JobPositionAssignment.PeriodOutsideEmployment", "errors.workforce.jobPositionAssignment.periodOutsideEmployment");
     public static readonly Error EmployeeEnded = Error.Conflict("Workforce.JobPositionAssignment.EmployeeEnded", "errors.workforce.jobPositionAssignment.employeeEnded");
     public static readonly Error PeriodOverlap = Error.Conflict("Workforce.JobPositionAssignment.PeriodOverlap", "errors.workforce.jobPositionAssignment.periodOverlap");
     public static readonly Error PrimaryPeriodOverlap = Error.Conflict("Workforce.JobPositionAssignment.PrimaryPeriodOverlap", "errors.workforce.jobPositionAssignment.primaryPeriodOverlap");

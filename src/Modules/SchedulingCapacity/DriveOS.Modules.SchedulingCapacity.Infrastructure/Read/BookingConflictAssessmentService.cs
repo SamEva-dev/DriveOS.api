@@ -63,7 +63,7 @@ internal sealed class BookingConflictAssessmentService(
             if (resource.ResourceType == CalendarResourceType.Instructor && resource.ExternalResourceId != Guid.Empty)
             {
                 InstructorWorkforceAvailabilityResult availability = await workforceAvailability.CheckAsync(
-                    booking.OrganizationId, new UserId(resource.ExternalResourceId), booking.StartAtUtc, booking.EndAtUtc, booking.BranchId.HasValue ? booking.BranchId.Value : default, resource.TimeZoneId, cancellationToken);
+                    booking.OrganizationId, new UserId(resource.ExternalResourceId), booking.StartAtUtc, booking.EndAtUtc, booking.BranchId, resource.TimeZoneId, cancellationToken);
                 if (availability.IsUnavailable)
                     snapshot = snapshot with { EffectiveCapacity = 0, UnavailabilityReason = availability.Reason };
             }

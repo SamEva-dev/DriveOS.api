@@ -130,6 +130,9 @@ public static class OffboardingErrors
     public static readonly Error ItemNotFound=Error.NotFound("Workforce.Offboarding.ItemNotFound","errors.workforce.offboarding.itemNotFound");
     public static readonly Error ManualItemExpected=Error.Conflict("Workforce.Offboarding.ManualItemExpected","errors.workforce.offboarding.manualItemExpected");
     public static readonly Error AutomaticItemExpected=Error.Conflict("Workforce.Offboarding.AutomaticItemExpected","errors.workforce.offboarding.automaticItemExpected");
+    public static readonly Error AccessRevocationMustBeExecuted=Error.Conflict("Workforce.Offboarding.AccessRevocationMustBeExecuted","errors.workforce.offboarding.accessRevocationMustBeExecuted");
+    public static readonly Error AccessRevocationUnavailable=Error.Failure("Workforce.Offboarding.AccessRevocationUnavailable","errors.workforce.offboarding.accessRevocationUnavailable");
+    public static readonly Error AccessRevocationFailed=Error.Failure("Workforce.Offboarding.AccessRevocationFailed","errors.workforce.offboarding.accessRevocationFailed");
 }
 
 public interface IOffboardingProcessRepository

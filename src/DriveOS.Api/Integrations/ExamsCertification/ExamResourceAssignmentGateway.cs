@@ -16,6 +16,7 @@ internal sealed class ExamResourceAssignmentGateway(
     ICalendarResourceReadService resources,
     IBookingReadService bookings,
     IInstructorEligibilityGateway instructorEligibility,
+    IInstructorWorkforceAvailabilityGateway workforceAvailability,
     IVehicleReplacementEligibilityGateway vehicleEligibility,
     IMediator mediator) : IExamResourceAssignmentGateway
 {
@@ -27,11 +28,27 @@ internal sealed class ExamResourceAssignmentGateway(
         if (resource is null || !string.Equals(resource.ResourceType, CalendarResourceType.Instructor.ToString(), StringComparison.OrdinalIgnoreCase))
             return Result.Failure<ExamInstructorAssignmentEligibility>(ExamResourceAssignmentErrors.InstructorNotEligible);
 
-        bool available = await IsResourceAvailableAsync(organizationId, calendarResourceId.Value, startAtUtc, endAtUtc, cancellationToken);
+        bool calendarAvailable = await IsResourceAvailableAsync(organizationId, calendarResourceId.Value, startAtUtc, endAtUtc, cancellationToken);
         var instructorId = new UserId(resource.ExternalResourceId);
         InstructorEligibility eligibility = await instructorEligibility.VerifyAsync(organizationId, instructorId, branchId, trainingCategory, cancellationToken);
+
+        BranchId? effectiveBranch = branchId ?? (resource.BranchId.HasValue ? new BranchId(resource.BranchId.Value) : null);
+        InstructorWorkforceAvailabilityResult workforce = await workforceAvailability.CheckAsync(
+            organizationId,
+            instructorId,
+            startAtUtc,
+            endAtUtc,
+            effectiveBranch,
+            resource.TimeZoneId,
+            cancellationToken);
+
+        bool available = calendarAvailable && !workforce.IsUnavailable;
+        IReadOnlyList<string> warnings = workforce.IsUnavailable && !string.IsNullOrWhiteSpace(workforce.Reason)
+            ? eligibility.Warnings.Concat([workforce.Reason]).ToArray()
+            : eligibility.Warnings;
+
         return Result.Success(new ExamInstructorAssignmentEligibility(
-            eligibility.IsEligible && available, instructorId, eligibility.IsEligible, available, eligibility.Warnings));
+            eligibility.IsEligible && available, instructorId, eligibility.IsEligible, available, warnings));
     }
 
     public async Task<Result<ExamVehicleAssignmentEligibility>> EvaluateVehicleAsync(

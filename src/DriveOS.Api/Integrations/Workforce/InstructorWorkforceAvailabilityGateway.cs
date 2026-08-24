@@ -11,7 +11,7 @@ internal sealed class InstructorWorkforceAvailabilityGateway(IWorkforceAvailabil
         UserId instructorUserId,
         DateTimeOffset startAtUtc,
         DateTimeOffset endAtUtc,
-        BranchId branchId,
+        BranchId? branchId,
         string timeZoneId,
         CancellationToken cancellationToken = default)
     {

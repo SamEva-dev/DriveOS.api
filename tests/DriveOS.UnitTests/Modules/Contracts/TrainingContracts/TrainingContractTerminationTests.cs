@@ -60,13 +60,14 @@ public sealed class TrainingContractTerminationTests
     {
         var terms = TrainingContractTermsSnapshot.Create("B", 20m, "services", "payment", "cancellation", "booking", "student", "provider", "exam", "data").Value;
         PersonId student = new(Guid.NewGuid());
+        OrganizationId organization = new(Guid.NewGuid());
         var parties = new[]
         {
             TrainingContractParty.ForPerson(TrainingContractPartyKind.Student, student, "Student").Value,
-            TrainingContractParty.ForOrganization(TrainingContractPartyKind.TrainingProvider, new OrganizationId(Guid.NewGuid()), "School").Value,
+            TrainingContractParty.ForOrganization(TrainingContractPartyKind.TrainingProvider, organization, "School").Value,
         };
         return TrainingContract.CreateDraft(
-            new TrainingContractId(Guid.NewGuid()), new OrganizationId(Guid.NewGuid()), new BranchId(Guid.NewGuid()), student,
+            new TrainingContractId(Guid.NewGuid()), organization, new BranchId(Guid.NewGuid()), student,
             new CommercialOfferId(Guid.NewGuid()), 1, "CTR-001", new DateOnly(2026, 8, 1), new DateOnly(2027, 8, 1),
             1200m, "EUR", terms, parties).Value;
     }

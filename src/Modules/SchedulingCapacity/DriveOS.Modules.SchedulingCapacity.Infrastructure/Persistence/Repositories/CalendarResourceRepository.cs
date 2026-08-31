@@ -15,5 +15,23 @@ internal sealed class CalendarResourceRepository(SchedulingCapacityDbContext dbC
     public Task<bool> ExistsByExternalReferenceAsync(OrganizationId organizationId, CalendarResourceType resourceType, Guid externalResourceId, CancellationToken cancellationToken = default) =>
         dbContext.CalendarResources.AsNoTracking().AnyAsync(x => x.OrganizationId == organizationId && x.ResourceType == resourceType && x.ExternalResourceId == externalResourceId, cancellationToken);
 
+    public Task<CalendarResource?> GetByExternalReferenceAsync(OrganizationId organizationId, CalendarResourceType resourceType, Guid externalResourceId, CancellationToken cancellationToken = default) =>
+        dbContext.CalendarResources.AsNoTracking().SingleOrDefaultAsync(
+            x => x.OrganizationId == organizationId
+                && x.ResourceType == resourceType
+                && x.ExternalResourceId == externalResourceId,
+            cancellationToken);
+
+    public Task<CalendarResource?> GetByExternalReferenceForUpdateAsync(
+        OrganizationId organizationId,
+        CalendarResourceType resourceType,
+        Guid externalResourceId,
+        CancellationToken cancellationToken=default)=>
+        dbContext.CalendarResources.SingleOrDefaultAsync(
+            x=>x.OrganizationId==organizationId&&
+               x.ResourceType==resourceType&&
+               x.ExternalResourceId==externalResourceId,
+            cancellationToken);
+
     public void Add(CalendarResource resource) => dbContext.CalendarResources.Add(resource);
 }

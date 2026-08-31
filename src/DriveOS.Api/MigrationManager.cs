@@ -1,3 +1,5 @@
+using DriveOS.Modules.ProfessionalMarketplace.Infrastructure.Persistence;
+using DriveOS.Modules.CommunicationEngagement.Infrastructure.Persistence;
 using DriveOS.Modules.Contracts.Infrastructure.Persistence;
 using DriveOS.Modules.CRM.Infrastructure.Persistence;
 using DriveOS.Modules.CurriculumPedagogy.Infrastructure.Persistence;
@@ -67,6 +69,14 @@ public static class MigrationManager
             ApplyMigration<WorkforceDbContext>(
                 scope.ServiceProvider,
                 "Workforce & HR");
+
+            ApplyMigration<ProfessionalMarketplaceDbContext>(
+                scope.ServiceProvider,
+                "Professional Marketplace");
+
+            ApplyMigration<CommunicationEngagementDbContext>(
+                scope.ServiceProvider,
+                "Communication & Engagement");
 
             ApplyMigration<RegulatoryIntegrationsDbContext>(
                 scope.ServiceProvider,

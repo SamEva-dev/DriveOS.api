@@ -62,5 +62,11 @@
     <ProjectReference Include="..\Modules\RegulatoryIntegrations\DriveOS.Modules.RegulatoryIntegrations.Application\DriveOS.Modules.RegulatoryIntegrations.Application.csproj" />
     <ProjectReference Include="..\Modules\RegulatoryIntegrations\DriveOS.Modules.RegulatoryIntegrations.Domain\DriveOS.Modules.RegulatoryIntegrations.Domain.csproj" />
     <ProjectReference Include="..\Modules\RegulatoryIntegrations\DriveOS.Modules.RegulatoryIntegrations.Infrastructure\DriveOS.Modules.RegulatoryIntegrations.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\ProfessionalMarketplace\DriveOS.Modules.ProfessionalMarketplace.Application\DriveOS.Modules.ProfessionalMarketplace.Application.csproj" />
+    <ProjectReference Include="..\Modules\ProfessionalMarketplace\DriveOS.Modules.ProfessionalMarketplace.Domain\DriveOS.Modules.ProfessionalMarketplace.Domain.csproj" />
+    <ProjectReference Include="..\Modules\ProfessionalMarketplace\DriveOS.Modules.ProfessionalMarketplace.Infrastructure\DriveOS.Modules.ProfessionalMarketplace.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\CommunicationEngagement\DriveOS.Modules.CommunicationEngagement.Application\DriveOS.Modules.CommunicationEngagement.Application.csproj" />
+    <ProjectReference Include="..\Modules\CommunicationEngagement\DriveOS.Modules.CommunicationEngagement.Domain\DriveOS.Modules.CommunicationEngagement.Domain.csproj" />
+    <ProjectReference Include="..\Modules\CommunicationEngagement\DriveOS.Modules.CommunicationEngagement.Infrastructure\DriveOS.Modules.CommunicationEngagement.Infrastructure.csproj" />
 </ItemGroup>
 </Project>

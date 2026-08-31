@@ -49,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<IAvailabilityPlanReadService, AvailabilityPlanReadService>();
         services.AddScoped<IAvailabilityImpactAssessmentService, AvailabilityImpactAssessmentService>();
         services.AddScoped<IBookingReadService, BookingReadService>();
+        services.AddScoped<IExternalInstructorGlobalScheduleReadService, ExternalInstructorGlobalScheduleReadService>();
         services.AddScoped<IRecurrenceSeriesReadService, RecurrenceSeriesReadService>();
         services.AddScoped<IRecurrencePreviewService, RecurrencePreviewService>();
         services.AddScoped<ISchedulingConflictReadService, SchedulingConflictReadService>();

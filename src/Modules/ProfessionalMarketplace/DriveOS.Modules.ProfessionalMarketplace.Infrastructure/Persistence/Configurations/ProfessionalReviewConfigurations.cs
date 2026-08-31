@@ -1,0 +1,15 @@
+using DriveOS.Modules.ProfessionalMarketplace.Domain.Reviews;
+using DriveOS.SharedKernel.Identifiers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Text.Json;
+namespace DriveOS.Modules.ProfessionalMarketplace.Infrastructure.Persistence.Configurations;
+internal sealed class ProfessionalReviewConfiguration:IEntityTypeConfiguration<ProfessionalReview>
+{
+ public void Configure(EntityTypeBuilder<ProfessionalReview>b){b.ToTable("professional_reviews");b.HasKey(x=>x.Id);b.Property(x=>x.Id).HasConversion(x=>x.Value,x=>new ProfessionalReviewId(x)).ValueGeneratedNever();b.Property(x=>x.OrganizationId).HasConversion(x=>x.Value,x=>new OrganizationId(x)).IsRequired();b.Property(x=>x.ProfessionalProfileId).HasConversion(x=>x.Value,x=>new ProfessionalProfileId(x)).IsRequired();b.Property(x=>x.EngagementId).HasConversion(x=>x.Value,x=>new ProfessionalEngagementId(x)).IsRequired();b.Property(x=>x.AuthorUserId).HasConversion(x=>x.Value,x=>new UserId(x)).IsRequired();b.Property(x=>x.Status).HasConversion<string>().HasMaxLength(24).IsRequired();b.Property(x=>x.Comment).HasMaxLength(2000);b.Property(x=>x.ProfessionalResponse).HasMaxLength(2000);b.Property(x=>x.ModerationReason).HasMaxLength(512);b.Property(x=>x.RespondedByUserId).HasConversion(x=>x==null?(Guid?)null:x.Value.Value,x=>x==null?null:new UserId(x.Value));b.Property(x=>x.HiddenByUserId).HasConversion(x=>x==null?(Guid?)null:x.Value.Value,x=>x==null?null:new UserId(x.Value));var comparer=new ValueComparer<ProfessionalReviewRatings>((a,c)=>a==c,v=>v.GetHashCode(),v=>v);b.Property(x=>x.Ratings).HasConversion(v=>JsonSerializer.Serialize(v,(JsonSerializerOptions?)null),v=>JsonSerializer.Deserialize<ProfessionalReviewRatings>(v,(JsonSerializerOptions?)null)!).HasColumnType("jsonb").Metadata.SetValueComparer(comparer);b.HasIndex(x=>x.EngagementId).IsUnique();b.HasIndex(x=>new{x.ProfessionalProfileId,x.Status});b.Ignore(x=>x.OverallScore);b.Ignore(x=>x.CountsTowardReputation);b.Ignore(x=>x.DomainEvents);}
+}
+internal sealed class ProfessionalReviewReportConfiguration:IEntityTypeConfiguration<ProfessionalReviewReport>
+{
+ public void Configure(EntityTypeBuilder<ProfessionalReviewReport>b){b.ToTable("professional_review_reports");b.HasKey(x=>x.Id);b.Property(x=>x.Id).HasConversion(x=>x.Value,x=>new ProfessionalReviewReportId(x)).ValueGeneratedNever();b.Property(x=>x.ReviewId).HasConversion(x=>x.Value,x=>new ProfessionalReviewId(x)).IsRequired();b.Property(x=>x.OrganizationId).HasConversion(x=>x.Value,x=>new OrganizationId(x)).IsRequired();b.Property(x=>x.ReportedByUserId).HasConversion(x=>x.Value,x=>new UserId(x)).IsRequired();b.Property(x=>x.ReasonCode).HasMaxLength(80).IsRequired();b.Property(x=>x.Details).HasMaxLength(1000);b.Property(x=>x.Resolution).HasMaxLength(1000);b.Property(x=>x.Status).HasConversion<string>().HasMaxLength(24).IsRequired();b.Property(x=>x.ResolvedByUserId).HasConversion(x=>x==null?(Guid?)null:x.Value.Value,x=>x==null?null:new UserId(x.Value));b.HasIndex(x=>new{x.ReviewId,x.Status});b.Ignore(x=>x.DomainEvents);}
+}

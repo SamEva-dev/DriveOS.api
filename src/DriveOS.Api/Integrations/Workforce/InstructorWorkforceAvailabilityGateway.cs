@@ -1,10 +1,14 @@
 using DriveOS.Modules.SchedulingCapacity.Application.Bookings;
 using DriveOS.Modules.Workforce.Application.Availability;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Engagements;
 using DriveOS.SharedKernel.Identifiers;
 
 namespace DriveOS.Api.Integrations.Workforce;
 
-internal sealed class InstructorWorkforceAvailabilityGateway(IWorkforceAvailabilityReadService workforce) : IInstructorWorkforceAvailabilityGateway
+internal sealed class InstructorWorkforceAvailabilityGateway(
+    IWorkforceAvailabilityReadService workforce,
+    IProfessionalEngagementOperationalReadService externalProfessionals,
+    IExternalInstructorGlobalScheduleReadService globalSchedule) : IInstructorWorkforceAvailabilityGateway
 {
     public async Task<InstructorWorkforceAvailabilityResult> CheckAsync(
         OrganizationId organizationId,
@@ -27,19 +31,42 @@ internal sealed class InstructorWorkforceAvailabilityGateway(IWorkforceAvailabil
 
         WorkforceEmploymentAvailabilitySnapshot professional = await workforce.CheckTeachingAvailabilityAsync(
             organizationId, instructorUserId, from, branchId, null, cancellationToken);
-        if (!professional.IsProfessionallyAvailable)
+
+        if (professional.IsProfessionallyAvailable)
+        {
+            IReadOnlyCollection<WorkforceAbsenceSnapshot> absences = await workforce.ListApprovedAbsencesAsync(
+                organizationId, instructorUserId, from, to, cancellationToken);
+
+            foreach (WorkforceAbsenceSnapshot absence in absences)
+            {
+                if (Overlaps(absence, localStart, localEnd))
+                    return new(true, $"workforce.leave.approved:{absence.LeaveRequestId}");
+            }
+
+            return new(false, null);
+        }
+
+        // A real employee restriction/suspension must never be bypassed by Marketplace.
+        if (!string.Equals(professional.ReasonCode, "workforce.employee.not-current", StringComparison.Ordinal))
             return new(true, professional.RestrictionId.HasValue
                 ? $"{professional.ReasonCode}:{professional.RestrictionId.Value}"
                 : professional.ReasonCode);
 
-        IReadOnlyCollection<WorkforceAbsenceSnapshot> absences = await workforce.ListApprovedAbsencesAsync(
-            organizationId, instructorUserId, from, to, cancellationToken);
+        ExternalProfessionalOperationalEligibility external = await externalProfessionals.CheckAsync(
+            organizationId,
+            instructorUserId,
+            from,
+            branchId,
+            null,
+            cancellationToken);
 
-        foreach (WorkforceAbsenceSnapshot absence in absences)
-        {
-            if (Overlaps(absence, localStart, localEnd))
-                return new(true, $"workforce.leave.approved:{absence.LeaveRequestId}");
-        }
+        if (!external.IsKnownExternalProfessional || !external.IsEligible)
+            return new(true, external.ReasonCode ?? professional.ReasonCode);
+
+        bool crossOrganizationConflict=await globalSchedule.HasConflictAsync(
+            instructorUserId,organizationId,startAtUtc,endAtUtc,cancellationToken);
+        if(crossOrganizationConflict)
+            return new(true,"professionalMarketplace.schedule.crossOrganizationConflict");
 
         return new(false, null);
     }

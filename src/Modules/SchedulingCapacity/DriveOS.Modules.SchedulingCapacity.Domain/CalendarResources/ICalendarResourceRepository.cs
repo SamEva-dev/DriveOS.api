@@ -20,5 +20,17 @@ public interface ICalendarResourceRepository
         Guid externalResourceId,
         CancellationToken cancellationToken = default);
 
+    Task<CalendarResource?> GetByExternalReferenceAsync(
+        OrganizationId organizationId,
+        CalendarResourceType resourceType,
+        Guid externalResourceId,
+        CancellationToken cancellationToken = default);
+
+    Task<CalendarResource?> GetByExternalReferenceForUpdateAsync(
+        OrganizationId organizationId,
+        CalendarResourceType resourceType,
+        Guid externalResourceId,
+        CancellationToken cancellationToken = default);
+
     void Add(CalendarResource resource);
 }

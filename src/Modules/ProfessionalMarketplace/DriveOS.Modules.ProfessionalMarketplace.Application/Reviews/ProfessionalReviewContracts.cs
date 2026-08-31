@@ -1,0 +1,17 @@
+using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Modules.ProfessionalMarketplace.Domain.Reviews;
+using DriveOS.SharedKernel.Identifiers;
+namespace DriveOS.Modules.ProfessionalMarketplace.Application.Reviews;
+public sealed record CreateProfessionalReviewCommand(ProfessionalReviewId Id,OrganizationId OrganizationId,ProfessionalEngagementId EngagementId,ProfessionalReviewRatings Ratings,string? Comment,UserId ActorUserId):ICommand<ProfessionalReviewId>;
+public sealed record RespondProfessionalReviewCommand(ProfessionalReviewId Id,ProfessionalProfileId ProfileId,string Response,UserId ActorUserId):ICommand;
+public sealed record ReportProfessionalReviewCommand(ProfessionalReviewReportId Id,ProfessionalReviewId ReviewId,OrganizationId OrganizationId,string ReasonCode,string? Details,UserId ActorUserId):ICommand<ProfessionalReviewReportId>;
+public sealed record HideProfessionalReviewCommand(ProfessionalReviewId Id,string Reason,UserId ActorUserId):ICommand;
+public sealed record RestoreProfessionalReviewCommand(ProfessionalReviewId Id,UserId ActorUserId):ICommand;
+public sealed record ResolveProfessionalReviewReportCommand(ProfessionalReviewReportId Id,string Resolution,UserId ActorUserId):ICommand;
+public sealed record GetProfessionalReputationQuery(ProfessionalProfileId ProfileId):IQuery<ProfessionalReputationResponse>;
+public sealed record GetProfessionalReviewModerationQuery(ProfessionalProfileId ProfileId):IQuery<ProfessionalReviewModerationResponse>;
+public sealed record ProfessionalReviewResponse(Guid Id,Guid OrganizationId,Guid EngagementId,decimal OverallScore,ProfessionalReviewRatings Ratings,string? Comment,string? ProfessionalResponse,DateTimeOffset CreatedAtUtc);
+public sealed record ProfessionalReviewReportResponse(Guid Id,string ReasonCode,string? Details,string Status,string? Resolution,DateTimeOffset CreatedAtUtc,DateTimeOffset? ResolvedAtUtc);
+public sealed record ModeratedProfessionalReviewResponse(Guid Id,Guid OrganizationId,Guid EngagementId,decimal OverallScore,ProfessionalReviewRatings Ratings,string? Comment,string? ProfessionalResponse,DateTimeOffset CreatedAtUtc,string Status,DateTimeOffset? RespondedAtUtc,DateTimeOffset? HiddenAtUtc,string? ModerationReason,ProfessionalReviewReportResponse[] Reports);
+public sealed record ProfessionalReviewModerationResponse(Guid ProfileId,ModeratedProfessionalReviewResponse[] Reviews);
+public sealed record ProfessionalReputationResponse(Guid ProfileId,decimal AverageScore,int ReviewCount,decimal ReliabilityAverage,decimal PedagogyAverage,decimal CommunicationAverage,decimal PunctualityAverage,ProfessionalReviewResponse[] Reviews);

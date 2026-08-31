@@ -227,6 +227,113 @@ namespace DriveOS.Modules.Contracts.Infrastructure.Persistence.Migrations
                     b.ToTable("contract_document_versions", "contracts");
                 });
 
+            modelBuilder.Entity("DriveOS.Modules.Contracts.Domain.ProfessionalServiceContracts.ProfessionalServiceContract", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContractNumber")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("ContractType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DocumentReference")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("DocumentSha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("EngagementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("GeneratedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("GeneratedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PreviousVersions")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("ProfessionalProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProviderOrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("SentForSignatureAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("SentForSignatureByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Signatories")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("SignatureOrder")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)");
+
+                    b.Property<DateTimeOffset?>("SignedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset?>("TerminatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("TerminatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TerminationReason")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("TermsSnapshotJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EngagementId")
+                        .IsUnique();
+
+                    b.HasIndex("OrganizationId", "Status");
+
+                    b.ToTable("professional_service_contracts", "contracts");
+                });
+
             modelBuilder.Entity("DriveOS.Modules.Contracts.Domain.SignatureProcesses.SignatureProcess", b =>
                 {
                     b.Property<Guid>("Id")

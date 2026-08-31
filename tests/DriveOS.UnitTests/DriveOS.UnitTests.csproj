@@ -44,6 +44,8 @@
     <ProjectReference Include="..\..\src\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Application\DriveOS.Modules.TrainingDelivery.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Domain\DriveOS.Modules.TrainingDelivery.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\TrainingDelivery\DriveOS.Modules.TrainingDelivery.Infrastructure\DriveOS.Modules.TrainingDelivery.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\CommunicationEngagement\DriveOS.Modules.CommunicationEngagement.Infrastructure\DriveOS.Modules.CommunicationEngagement.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ProfessionalMarketplace\DriveOS.Modules.ProfessionalMarketplace.Infrastructure\DriveOS.Modules.ProfessionalMarketplace.Infrastructure.csproj" />
     <ProjectReference Include="..\DriveOS.ArchitectureTests\DriveOS.ArchitectureTests.csproj" />
     <ProjectReference Include="..\DriveOS.IntegrationTests\DriveOS.IntegrationTests.csproj" />
   </ItemGroup>

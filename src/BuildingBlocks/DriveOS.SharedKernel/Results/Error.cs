@@ -7,6 +7,8 @@ public sealed record Error(
     IReadOnlyDictionary<string, object?>? Parameters = null
 )
 {
+    public string Message => MessageKey;
+
     public static readonly Error None = new(string.Empty, string.Empty, ErrorType.None);
 
     public static Error Validation(

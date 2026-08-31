@@ -7,6 +7,7 @@ using DriveOS.Modules.Contracts.Domain.SignatureProcesses;
 using DriveOS.Modules.Contracts.Domain.ContractDocuments;
 using DriveOS.Modules.Contracts.Domain.ContractAmendments;
 using DriveOS.Modules.Contracts.Domain.TrainingContracts;
+using DriveOS.Modules.Contracts.Domain.ProfessionalServiceContracts;
 using DriveOS.Modules.Contracts.Infrastructure.Documents;
 using DriveOS.Modules.Contracts.Infrastructure.Persistence;
 using DriveOS.Modules.Contracts.Infrastructure.Persistence.Repositories;
@@ -36,6 +37,7 @@ public static class DependencyInjection
 
         services.AddScoped<IContractsUnitOfWork>(sp => sp.GetRequiredService<ContractsDbContext>());
         services.AddScoped<ITrainingContractRepository, TrainingContractRepository>();
+        services.AddScoped<IProfessionalServiceContractRepository, ProfessionalServiceContractRepository>();
         services.AddScoped<IContractAmendmentRepository, ContractAmendmentRepository>();
         services.AddScoped<ISignatureProcessRepository, SignatureProcessRepository>();
         services.AddScoped<IContractDocumentRepository, ContractDocumentRepository>();

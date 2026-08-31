@@ -92,7 +92,7 @@ public sealed class Curriculum : AggregateRoot<CurriculumId>, IAuditableEntity
         if (normalizedName.IsFailure)
             return Result.Failure<Curriculum>(normalizedName.Error);
 
-        Result<string?> normalizedDescription = NormalizeDescription(description);
+        Result<string> normalizedDescription = NormalizeDescription(description);
         if (normalizedDescription.IsFailure)
             return Result.Failure<Curriculum>(normalizedDescription.Error);
 
@@ -105,7 +105,7 @@ public sealed class Curriculum : AggregateRoot<CurriculumId>, IAuditableEntity
             organizationId,
             normalizedCode.Value,
             normalizedName.Value,
-            normalizedDescription.Value,
+            normalizedDescription.Value.Length == 0 ? null : normalizedDescription.Value,
             scopeResult.Value.CountryCode,
             scopeResult.Value.LicenseCategoryCode);
 
@@ -128,12 +128,12 @@ public sealed class Curriculum : AggregateRoot<CurriculumId>, IAuditableEntity
         if (normalizedName.IsFailure)
             return Result.Failure(normalizedName.Error);
 
-        Result<string?> normalizedDescription = NormalizeDescription(description);
+        Result<string> normalizedDescription = NormalizeDescription(description);
         if (normalizedDescription.IsFailure)
             return Result.Failure(normalizedDescription.Error);
 
         Name = normalizedName.Value;
-        Description = normalizedDescription.Value;
+        Description = normalizedDescription.Value.Length == 0 ? null : normalizedDescription.Value;
 
         RaiseDomainEvent(new CurriculumMetadataUpdatedDomainEvent(Id, OrganizationId, Name));
         return Result.Success();
@@ -435,16 +435,16 @@ public sealed class Curriculum : AggregateRoot<CurriculumId>, IAuditableEntity
         return Result.Success(normalized);
     }
 
-    private static Result<string?> NormalizeDescription(string? description)
+    private static Result<string> NormalizeDescription(string? description)
     {
         if (string.IsNullOrWhiteSpace(description))
-            return Result.Success<string?>(null);
+            return Result.Success(string.Empty);
 
         string normalized = description.Trim();
         if (normalized.Length > 2000)
-            return Result.Failure<string?>(CurriculumErrors.InvalidDescription);
+            return Result.Failure<string>(CurriculumErrors.InvalidDescription);
 
-        return Result.Success<string?>(normalized);
+        return Result.Success(normalized);
     }
 
     private static bool IsCodeCharacter(char value) =>

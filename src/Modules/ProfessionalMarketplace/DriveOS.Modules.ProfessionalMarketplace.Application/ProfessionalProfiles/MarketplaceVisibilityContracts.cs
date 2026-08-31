@@ -1,0 +1,6 @@
+using DriveOS.Application.Abstractions.Messaging;
+using DriveOS.Modules.ProfessionalMarketplace.Domain.ProfessionalProfiles;
+using DriveOS.SharedKernel.Identifiers;
+
+namespace DriveOS.Modules.ProfessionalMarketplace.Application.ProfessionalProfiles;
+public sealed record ChangeMarketplaceVisibilityCommand(ProfessionalProfileId ProfileId,MarketplaceVisibility Visibility,UserId ActorUserId):ICommand;

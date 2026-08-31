@@ -3,11 +3,16 @@ using DriveOS.Modules.Contracts.Domain.TrainingContracts;
 using DriveOS.Modules.Contracts.Domain.ContractAmendments;
 using DriveOS.Modules.Contracts.Domain.SignatureProcesses;
 using DriveOS.Modules.Contracts.Domain.ContractDocuments;
+using DriveOS.Modules.Contracts.Domain.ProfessionalServiceContracts;
+using DriveOS.SharedKernel.Identifiers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DriveOS.Modules.Contracts.Infrastructure.Persistence;
 public sealed class ContractsDbContext(DbContextOptions<ContractsDbContext> options) : DbContext(options), IContractsUnitOfWork
 {
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)=>
+        configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
     private IDbContextTransaction? currentTransaction;
     public DbSet<TrainingContract> TrainingContracts => Set<TrainingContract>();
     public DbSet<TrainingContractVersion> TrainingContractVersions => Set<TrainingContractVersion>();
@@ -16,6 +21,7 @@ public sealed class ContractsDbContext(DbContextOptions<ContractsDbContext> opti
     public DbSet<ContractAmendment> ContractAmendments => Set<ContractAmendment>();
     public DbSet<ContractDocument> ContractDocuments => Set<ContractDocument>();
     public DbSet<ContractDocumentVersion> ContractDocumentVersions => Set<ContractDocumentVersion>();
+    public DbSet<ProfessionalServiceContract> ProfessionalServiceContracts => Set<ProfessionalServiceContract>();
 
     public bool HasActiveTransaction => currentTransaction is not null;
 
@@ -69,6 +75,7 @@ public sealed class ContractsDbContext(DbContextOptions<ContractsDbContext> opti
     {
         modelBuilder.HasDefaultSchema(ContractsSchema.Name);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ContractsDbContext).Assembly);
+        ApplyUserIdConversions(modelBuilder);
         base.OnModelCreating(modelBuilder);
     }
 
@@ -93,4 +100,17 @@ public sealed class ContractsDbContext(DbContextOptions<ContractsDbContext> opti
         await currentTransaction.DisposeAsync();
         currentTransaction = null;
     }
+
+    private static void ApplyUserIdConversions(ModelBuilder modelBuilder)
+    {
+        var required=new ValueConverter<UserId,Guid>(x=>x.Value,x=>new UserId(x));
+        var optional=new ValueConverter<UserId?,Guid?>(x=>x.HasValue?x.Value.Value:null,x=>x.HasValue?new UserId(x.Value):null);
+        foreach(var property in modelBuilder.Model.GetEntityTypes().SelectMany(x=>x.GetProperties()))
+        {
+            if(property.GetValueConverter() is not null)continue;
+            if(property.ClrType==typeof(UserId))property.SetValueConverter(required);
+            else if(property.ClrType==typeof(UserId?))property.SetValueConverter(optional);
+        }
+    }
+    private sealed class UserIdConverter():ValueConverter<UserId,Guid>(x=>x.Value,x=>new UserId(x));
 }

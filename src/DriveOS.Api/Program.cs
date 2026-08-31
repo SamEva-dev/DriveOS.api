@@ -1,5 +1,19 @@
-using DriveOS.Modules.Students.Application.Instructors;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Compliance;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Engagements;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Invitations;
+using DriveOS.Api.BackgroundJobs;
+using DriveOS.Modules.CommunicationEngagement.Application.Notifications;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Notifications;
+using DriveOS.Modules.FundingBilling.Application.SupplierPayments;
+using DriveOS.Api.Endpoints.ProfessionalMarketplace;
+using DriveOS.Modules.ProfessionalMarketplace.Application;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Invoices;
+using DriveOS.Modules.ProfessionalMarketplace.Infrastructure;
+using DriveOS.Modules.CommunicationEngagement.Application;
+using DriveOS.Modules.CommunicationEngagement.Infrastructure;
 using DriveOS.Api.Integrations.Workforce;
+using DriveOS.Api.Integrations.ProfessionalMarketplace;
+using DriveOS.Api.Integrations.Communication;
 using DriveOS.Modules.Workforce.Application.BranchAssignments;
 using DriveOS.Modules.Workforce.Application.WorkingTime;
 using DriveOS.Api.Endpoints.Workforce;
@@ -94,6 +108,11 @@ using Itech.Emailing.Webhooks;
 using Itech.Emailing.Workers;
 using Serilog;
 using Serilog.Events;
+using DriveOS.Api.Endpoints.CommunicationEngagement;
+using DriveOS.Modules.ProfessionalMarketplace.Application.StudentAssignments;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Messaging;
+using DriveOS.Api.Integrations.RegulatoryTrainingRecords.France;
+using DriveOS.Api.Integrations.RegulatoryTrainingRecords;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -171,9 +190,12 @@ try
         .AddFleetResourcesInfrastructure(builder.Configuration)
         .AddWorkforceApplication()
         .AddWorkforceInfrastructure(builder.Configuration)
+        .AddProfessionalMarketplaceApplication()
+        .AddProfessionalMarketplaceInfrastructure(builder.Configuration)
+        .AddCommunicationEngagementApplication()
+        .AddCommunicationEngagementInfrastructure(builder.Configuration)
         .AddRegulatoryIntegrationsInfrastructure(builder.Configuration);
 
-    builder.Services.AddScoped<IInstructorWorkforceEligibilityGateway, InstructorWorkforceEligibilityGateway>();
     builder.Services.AddScoped<IWorkforceBranchDirectory, WorkforceBranchDirectory>();
     builder.Services.AddScoped<IStudentProvisioningGateway, StudentProvisioningGateway>();
     builder.Services.AddScoped<ITrainingContractSourceGateway, TrainingContractSourceGateway>();
@@ -187,6 +209,18 @@ try
     builder.Services.AddScoped<IVehicleReplacementEligibilityGateway, VehicleReplacementEligibilityGateway>();
     builder.Services.AddScoped<ITravelRoutingGateway, TravelRoutingGateway>();
     builder.Services.AddScoped<IInstructorWorkforceAvailabilityGateway, InstructorWorkforceAvailabilityGateway>();
+    builder.Services.AddScoped<IProfessionalSchedulingPreparationGateway, ProfessionalSchedulingPreparationGateway>();
+    builder.Services.AddScoped<IProfessionalServiceContractGateway, ProfessionalServiceContractGateway>();
+    builder.Services.AddScoped<IProfessionalInvoiceFinanceGateway, ProfessionalInvoiceFinanceGateway>();
+    builder.Services.AddScoped<IProfessionalStudentScopeGateway, ProfessionalStudentScopeGateway>();
+    builder.Services.AddScoped<IProfessionalComplianceOperationalGateway, ProfessionalComplianceOperationalGateway>();
+    builder.Services.AddScoped<ProfessionalEngagementClosureService>();
+    builder.Services.AddScoped<IFreelanceInvitationDeliveryGateway, FreelanceInvitationDeliveryGateway>();
+    builder.Services.AddScoped<IMarketplaceNotificationGateway, MarketplaceNotificationGateway>();
+    builder.Services.AddScoped<ISupplierFinanceNotificationGateway, SupplierFinanceNotificationGateway>();
+    builder.Services.AddScoped<ICommunicationNotificationEmailGateway, ItechCommunicationNotificationEmailGateway>();
+    builder.Services.AddScoped<IMarketplaceSatisfactionGateway, MarketplaceSatisfactionGateway>();
+    builder.Services.AddScoped<IMarketplaceCommunicationGateway, MarketplaceCommunicationGateway>();
     builder.Services.AddScoped<IWorkingTimeProjectionGateway, WorkingTimeProjectionGateway>();
     builder.Services.AddScoped<IConfirmedBookingSessionSourceGateway, ConfirmedBookingSessionSourceGateway>();
     builder.Services.AddScoped<IConfirmedGroupBookingSourceGateway, ConfirmedGroupBookingSourceGateway>();
@@ -200,10 +234,10 @@ try
     builder.Services.AddScoped<IExamReadinessSnapshotGateway, ExamReadinessSnapshotGateway>();
     builder.Services.AddScoped<IExamRegistrationFileSnapshotGateway, ExamRegistrationFileSnapshotGateway>();
     builder.Services.AddScoped<IRegulatoryTrainingRecordProvider, FrenchLivretNumeriqueProvider>();
-    builder.Services.AddScoped<DriveOS.Api.Integrations.RegulatoryTrainingRecords.France.IFrenchLivretNumeriqueOfficialClient, DriveOS.Api.Integrations.RegulatoryTrainingRecords.France.FrenchLivretNumeriqueOfficialClientUnavailable>();
-    builder.Services.AddScoped<IRegulatoryTrainingRecordTransportProvider, DriveOS.Api.Integrations.RegulatoryTrainingRecords.France.FrenchLivretNumeriqueTransportProvider>();
+    builder.Services.AddScoped<IFrenchLivretNumeriqueOfficialClient, FrenchLivretNumeriqueOfficialClientUnavailable>();
+    builder.Services.AddScoped<IRegulatoryTrainingRecordTransportProvider, FrenchLivretNumeriqueTransportProvider>();
     builder.Services.AddScoped<IRegulatoryTrainingRecordGateway, RegulatoryTrainingRecordGateway>();
-    builder.Services.AddScoped<IRegulatoryTrainingSessionProjector, DriveOS.Api.Integrations.RegulatoryTrainingRecords.RegulatoryTrainingSessionProjector>();
+    builder.Services.AddScoped<IRegulatoryTrainingSessionProjector, RegulatoryTrainingSessionProjector>();
     builder.Services.AddScoped<IRegulatoryExamFileRequirementGateway, RegulatoryExamFileRequirementGateway>();
     builder.Services.AddScoped<IExamReadinessOpinionContextGateway, ExamReadinessOpinionContextGateway>();
     builder.Services.AddScoped<IExamOperationalPlanningGateway, ExamOperationalPlanningGateway>();
@@ -221,6 +255,8 @@ try
     builder.Services.AddItechEmailing(builder.Configuration, emailing =>
         emailing.UsePostgres(driveOsConnectionString, typeof(LocaGuestFinancialNotificationGateway).Assembly.GetName().Name));
     builder.Services.AddHostedService<EmailDispatcherWorker>();
+    builder.Services.AddHostedService<ProfessionalComplianceExpirationWorker>();
+    builder.Services.AddHostedService<SupplierSettlementOverdueWorker>();
 
     builder.Services.AddDomainRelayValidation();
     builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
@@ -366,6 +402,31 @@ try
     app.MapExamOperationalPlanningEndpoints();
     app.MapFleetVehicleEndpoints();
     app.MapEmployeeEndpoints();
+    app.MapProfessionalProfileEndpoints();
+    app.MapProfessionalComplianceEndpoints();
+    app.MapProfessionalMarketplaceCompliancePolicyEndpoints();
+    app.MapProfessionalSearchEndpoints();
+    app.MapProfessionalOpportunityEndpoints();
+    app.MapProfessionalApplicationEndpoints();
+    app.MapProfessionalProposalEndpoints();
+    app.MapProfessionalMatchingEndpoints();
+    app.MapProfessionalCommercialOfferEndpoints();
+    app.MapProfessionalEngagementEndpoints();
+    app.MapProfessionalServiceContractEndpoints();
+    app.MapProfessionalMissionEndpoints();
+    app.MapProfessionalStudentAssignmentEndpoints();
+    app.MapFreelanceInvitationEndpoints();
+    app.MapExternalAccessGrantEndpoints();
+    app.MapServiceEntryEndpoints();
+    app.MapServiceDisputeEndpoints();
+    app.MapServiceStatementEndpoints();
+    app.MapProfessionalInvoiceEndpoints();
+    app.MapMarketplaceDashboardEndpoints();
+    app.MapCompliancePolicyEndpoints();
+    app.MapCommunicationNotificationEndpoints();
+    app.MapSupplierInvoiceEndpoints();
+    app.MapProfessionalReviewEndpoints();
+    app.MapProfessionalMarketplaceMessagingEndpoints();
     app.MapJobPositionEndpoints();
     app.MapLeavePolicyEndpoints();
     app.MapLeaveRequestEndpoints();

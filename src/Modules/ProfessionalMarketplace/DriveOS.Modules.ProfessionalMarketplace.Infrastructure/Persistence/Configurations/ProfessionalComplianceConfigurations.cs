@@ -1,0 +1,14 @@
+using DriveOS.Modules.ProfessionalMarketplace.Domain.Compliance;
+using DriveOS.SharedKernel.Identifiers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace DriveOS.Modules.ProfessionalMarketplace.Infrastructure.Persistence.Configurations;
+public sealed class ProfessionalDocumentConfiguration:IEntityTypeConfiguration<ProfessionalDocument>
+{
+    public void Configure(EntityTypeBuilder<ProfessionalDocument>b){b.ToTable("professional_documents");b.HasKey(x=>x.Id);b.Property(x=>x.Id).HasConversion(x=>x.Value,x=>new(x)).ValueGeneratedNever();b.Property(x=>x.ProfessionalProfileId).HasConversion(x=>x.Value,x=>new(x)).IsRequired();b.Property(x=>x.DocumentTypeCode).HasMaxLength(80).IsRequired();b.Property(x=>x.CountryCode).HasMaxLength(2).IsRequired();b.Property(x=>x.Status).HasConversion<string>().HasMaxLength(32).IsRequired();b.Property(x=>x.VerificationMethod).HasConversion<string>().HasMaxLength(40);b.Property(x=>x.VerifiedByUserId).HasConversion(x=>x!.Value.Value,x=>new(x));b.Property(x=>x.SupersededById).HasConversion(x=>x!.Value.Value,x=>new(x));b.Property(x=>x.CreatedByUserId).HasConversion(x=>x.HasValue?x.Value.Value:(Guid?)null,x=>x.HasValue?new UserId(x.Value):null);b.Property(x=>x.LastModifiedByUserId).HasConversion(x=>x.HasValue?x.Value.Value:(Guid?)null,x=>x.HasValue?new UserId(x.Value):null);b.HasIndex(x=>new{x.ProfessionalProfileId,x.DocumentReferenceId}).IsUnique();b.Ignore(x=>x.DomainEvents);}
+}
+public sealed class ProfessionalCredentialConfiguration:IEntityTypeConfiguration<ProfessionalCredential>
+{
+    public void Configure(EntityTypeBuilder<ProfessionalCredential>b){b.ToTable("professional_credentials");b.HasKey(x=>x.Id);b.Property(x=>x.Id).HasConversion(x=>x.Value,x=>new(x)).ValueGeneratedNever();b.Property(x=>x.ProfessionalProfileId).HasConversion(x=>x.Value,x=>new(x)).IsRequired();b.Property(x=>x.CredentialTypeCode).HasMaxLength(80).IsRequired();b.Property(x=>x.CountryCode).HasMaxLength(2).IsRequired();b.Property(x=>x.IssuingAuthority).HasMaxLength(200).IsRequired();b.Property(x=>x.ReferenceNumber).HasMaxLength(128);b.Property(x=>x.CategoryCodes).HasColumnType("text[]").IsRequired();b.Property(x=>x.EvidenceDocumentId).HasConversion(x=>x!.Value.Value,x=>new(x));b.Property(x=>x.Status).HasConversion<string>().HasMaxLength(32).IsRequired();b.Property(x=>x.VerificationMethod).HasConversion<string>().HasMaxLength(40);b.Property(x=>x.VerifiedByUserId).HasConversion(x=>x!.Value.Value,x=>new(x));b.Property(x=>x.CreatedByUserId).HasConversion(x=>x.HasValue?x.Value.Value:(Guid?)null,x=>x.HasValue?new UserId(x.Value):null);b.Property(x=>x.LastModifiedByUserId).HasConversion(x=>x.HasValue?x.Value.Value:(Guid?)null,x=>x.HasValue?new UserId(x.Value):null);b.HasIndex(x=>new{x.ProfessionalProfileId,x.CredentialTypeCode,x.CountryCode});b.Ignore(x=>x.DomainEvents);}
+}

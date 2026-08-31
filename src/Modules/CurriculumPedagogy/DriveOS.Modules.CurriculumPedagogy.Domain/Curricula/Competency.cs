@@ -63,7 +63,7 @@ public sealed class Competency : Entity<CompetencyId>
         if (normalizedName.IsFailure)
             return Result.Failure<Competency>(normalizedName.Error);
 
-        Result<string?> normalizedDescription = NormalizeDescription(description);
+        Result<string> normalizedDescription = NormalizeDescription(description);
         if (normalizedDescription.IsFailure)
             return Result.Failure<Competency>(normalizedDescription.Error);
 
@@ -79,7 +79,7 @@ public sealed class Competency : Entity<CompetencyId>
             curriculumModuleId,
             normalizedCode.Value,
             normalizedName.Value,
-            normalizedDescription.Value,
+            normalizedDescription.Value.Length == 0 ? null : normalizedDescription.Value,
             normalizedObjective.Value,
             order,
             isRequired));
@@ -96,7 +96,7 @@ public sealed class Competency : Entity<CompetencyId>
         if (normalizedName.IsFailure)
             return Result.Failure(normalizedName.Error);
 
-        Result<string?> normalizedDescription = NormalizeDescription(description);
+        Result<string> normalizedDescription = NormalizeDescription(description);
         if (normalizedDescription.IsFailure)
             return Result.Failure(normalizedDescription.Error);
 
@@ -108,7 +108,7 @@ public sealed class Competency : Entity<CompetencyId>
             return Result.Failure(CurriculumErrors.CompetencyInvalidOrder);
 
         Name = normalizedName.Value;
-        Description = normalizedDescription.Value;
+        Description = normalizedDescription.Value.Length == 0 ? null : normalizedDescription.Value;
         LearningObjective = normalizedObjective.Value;
         Order = order;
         IsRequired = isRequired;
@@ -133,16 +133,16 @@ public sealed class Competency : Entity<CompetencyId>
         return Result.Success(normalized);
     }
 
-    private static Result<string?> NormalizeDescription(string? description)
+    private static Result<string> NormalizeDescription(string? description)
     {
         if (string.IsNullOrWhiteSpace(description))
-            return Result.Success<string?>(null);
+            return Result.Success(string.Empty);
 
         string normalized = description.Trim();
         if (normalized.Length > 3000)
-            return Result.Failure<string?>(CurriculumErrors.CompetencyInvalidDescription);
+            return Result.Failure<string>(CurriculumErrors.CompetencyInvalidDescription);
 
-        return Result.Success<string?>(normalized);
+        return Result.Success(normalized);
     }
 
     private static Result<string> NormalizeObjective(string objective)

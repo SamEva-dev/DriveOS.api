@@ -7,6 +7,11 @@
     <Project Path="src/BuildingBlocks/DriveOS.SharedKernel/DriveOS.SharedKernel.csproj" Id="10ee4dcc-496b-4b35-920c-288294743c40" />
   </Folder>
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/CommunicationEngagement/">
+    <Project Path="src/Modules/CommunicationEngagement/DriveOS.Modules.CommunicationEngagement.Application/DriveOS.Modules.CommunicationEngagement.Application.csproj" />
+    <Project Path="src/Modules/CommunicationEngagement/DriveOS.Modules.CommunicationEngagement.Domain/DriveOS.Modules.CommunicationEngagement.Domain.csproj" />
+    <Project Path="src/Modules/CommunicationEngagement/DriveOS.Modules.CommunicationEngagement.Infrastructure/DriveOS.Modules.CommunicationEngagement.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Contracts/">
     <Project Path="src/Modules/Contracts/DriveOS.Modules.Contracts.Application/DriveOS.Modules.Contracts.Application.csproj" Id="275922f4-65c3-4689-a4ca-d6f923470dd6" />
     <Project Path="src/Modules/Contracts/DriveOS.Modules.Contracts.Domain/DriveOS.Modules.Contracts.Domain.csproj" Id="467d15d8-a970-46c9-9894-40b1ada34753" />
@@ -41,6 +46,11 @@
     <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Application/DriveOS.Modules.Organizations.Application.csproj" Id="8baf701c-becb-4b9b-aa0f-34a25edf32d4" />
     <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Domain/DriveOS.Modules.Organizations.Domain.csproj" Id="112bbccb-e436-4a28-8b99-b7374768d669" />
     <Project Path="src/Modules/Organizations/DriveOS.Modules.Organizations.Infrastructure/DriveOS.Modules.Organizations.Infrastructure.csproj" Id="5cbf3bf1-0066-4423-b44a-9a5ec1dd85bb" />
+  </Folder>
+  <Folder Name="/src/Modules/ProfessionalMarketplace/">
+    <Project Path="src/Modules/ProfessionalMarketplace/DriveOS.Modules.ProfessionalMarketplace.Application/DriveOS.Modules.ProfessionalMarketplace.Application.csproj" />
+    <Project Path="src/Modules/ProfessionalMarketplace/DriveOS.Modules.ProfessionalMarketplace.Domain/DriveOS.Modules.ProfessionalMarketplace.Domain.csproj" Id="23a86bfc-0a4b-467b-ba17-e6966aa4a349" />
+    <Project Path="src/Modules/ProfessionalMarketplace/DriveOS.Modules.ProfessionalMarketplace.Infrastructure/DriveOS.Modules.ProfessionalMarketplace.Infrastructure.csproj" Id="6cb00480-fe5b-4fec-8697-f103a94a204a" />
   </Folder>
   <Folder Name="/src/Modules/RegulatoryIntegrations/">
     <Project Path="src/Modules/RegulatoryIntegrations/DriveOS.Modules.RegulatoryIntegrations.Application/DriveOS.Modules.RegulatoryIntegrations.Application.csproj" Id="f267b866-7a5d-4268-ba68-7333bcb721a8" />

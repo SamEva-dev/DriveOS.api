@@ -671,12 +671,12 @@ public sealed class TrainingSession : AggregateRoot<TrainingSessionId>, IAuditab
             return CompletionRequestFingerprint == fingerprint ? Result.Success() : Result.Failure(TrainingSessionErrors.CompletionOperationConflict);
         if (Status == TrainingSessionStatus.Completed)
             return Result.Failure(TrainingSessionErrors.CompletionAlreadyCompleted);
+        if (_interruptions.Any(x => x.IsActive))
+            return Result.Failure(TrainingSessionErrors.CompletionActiveInterruption);
         if (Status != TrainingSessionStatus.InProgress || !ActualStartAtUtc.HasValue)
             return Result.Failure(TrainingSessionErrors.CompletionRequiresInProgress);
         if (actor.IsEmpty || operationId == Guid.Empty)
             return Result.Failure(TrainingSessionErrors.CompletionInvalid);
-        if (_interruptions.Any(x => x.IsActive))
-            return Result.Failure(TrainingSessionErrors.CompletionActiveInterruption);
         if (endEnergyLevelPercent is < 0 or > 100)
             return Result.Failure(TrainingSessionErrors.CompletionEnergyLevelInvalid);
 
@@ -865,14 +865,14 @@ public sealed class TrainingSession : AggregateRoot<TrainingSessionId>, IAuditab
 
         if (Status == TrainingSessionStatus.Completed)
             return Result.Failure<SessionReport>(TrainingSessionErrors.CompletionAlreadyCompleted);
+        if (_interruptions.Any(x => x.IsActive))
+            return Result.Failure<SessionReport>(TrainingSessionErrors.CompletionActiveInterruption);
         if (Status != TrainingSessionStatus.InProgress)
             return Result.Failure<SessionReport>(TrainingSessionErrors.CompletionRequiresInProgress);
         if (actor.IsEmpty || operationId == Guid.Empty)
             return Result.Failure<SessionReport>(TrainingSessionErrors.CompletionInvalid);
         if (!ActualStartAtUtc.HasValue)
             return Result.Failure<SessionReport>(TrainingSessionErrors.CompletionRequiresInProgress);
-        if (_interruptions.Any(x => x.IsActive))
-            return Result.Failure<SessionReport>(TrainingSessionErrors.CompletionActiveInterruption);
 
         bool hasAnyCreditReference = TrainingCreditAccountId.HasValue || CreditQuantity.HasValue || !string.IsNullOrWhiteSpace(CreditReservationReference);
         bool hasCompleteCreditReference = TrainingCreditAccountId.HasValue && CreditQuantity is > 0 && !string.IsNullOrWhiteSpace(CreditReservationReference);

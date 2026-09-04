@@ -1031,6 +1031,15 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("legal_name");
 
+                    b.Property<Guid?>("ProvisioningExternalUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("provisioning_external_user_id");
+
+                    b.Property<string>("ProvisioningKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("provisioning_key");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -1044,6 +1053,11 @@ namespace DriveOS.Modules.Organizations.Infrastructure.Persistence.Migrations
                         .HasColumnName("organization_type");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProvisioningKey")
+                        .IsUnique()
+                        .HasDatabaseName("ux_organizations_provisioning_key")
+                        .HasFilter("provisioning_key IS NOT NULL");
 
                     b.HasIndex("CountryCode", "LegalName")
                         .IsUnique()

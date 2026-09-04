@@ -1,5 +1,6 @@
 ﻿using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Identifiers;
@@ -10,6 +11,7 @@ namespace DriveOS.Modules.Organizations.Application.Branches.CreateBranch;
 internal sealed class CreateBranchCommandHandler(
     IOrganizationRepository organizationRepository,
     IBranchRepository branchRepository,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork
 ) : ICommandHandler<CreateBranchCommand, BranchId>
 {
@@ -118,6 +120,7 @@ internal sealed class CreateBranchCommandHandler(
         await branchRepository.AddAsync(branchResult.Value, cancellationToken);
 
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
 
         return Result.Success(branchResult.Value.Id);
     }

@@ -27,6 +27,7 @@ internal sealed class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         b.Property(x => x.LicenseCategoriesCsv).HasMaxLength(512).IsRequired();
         b.Property(x => x.AdaptationsCsv).HasMaxLength(1024).IsRequired();
         b.Property(x => x.ComplianceNotes).HasMaxLength(2000);
+        b.Property(x => x.CurrentOdometerKilometers).HasDefaultValue(0L);
         b.HasIndex(x => new { x.OrganizationId, x.RegistrationNumber }).IsUnique();
         b.HasIndex(x => new { x.OrganizationId, x.BranchId, x.OperationalStatus });
     }

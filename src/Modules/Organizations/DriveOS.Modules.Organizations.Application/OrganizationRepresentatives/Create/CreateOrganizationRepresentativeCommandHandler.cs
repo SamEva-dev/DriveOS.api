@@ -2,6 +2,7 @@ using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Modules.Organizations.Application.Abstractions;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.AccessSynchronization;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 using DriveOS.Modules.Organizations.Domain.Organizations;
@@ -13,6 +14,7 @@ internal sealed class CreateOrganizationRepresentativeCommandHandler(
     IOrganizationReadService organizationReadService,
     IOrganizationRepresentativeRepository repository,
     OrganizationRepresentativeAccessSynchronizationService accessSynchronizationService,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser
 ) : ICommandHandler<CreateOrganizationRepresentativeCommand, OrganizationRepresentativeId>
@@ -90,6 +92,7 @@ internal sealed class CreateOrganizationRepresentativeCommandHandler(
 
         await repository.AddAsync(result.Value, cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
         await accessSynchronizationService.SynchronizeAsync(result.Value, cancellationToken);
         return Result.Success(result.Value.Id);
     }

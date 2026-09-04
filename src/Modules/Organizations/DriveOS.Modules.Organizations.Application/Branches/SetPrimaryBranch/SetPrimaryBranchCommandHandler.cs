@@ -1,5 +1,6 @@
 ﻿using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.SharedKernel.Results;
 
@@ -7,6 +8,7 @@ namespace DriveOS.Modules.Organizations.Application.Branches.SetPrimaryBranch;
 
 internal sealed class SetPrimaryBranchCommandHandler(
     IBranchRepository branchRepository,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork
 ) : ICommandHandler<SetPrimaryBranchCommand>
 {
@@ -45,6 +47,7 @@ internal sealed class SetPrimaryBranchCommandHandler(
         }
 
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
 
         return Result.Success();
     }

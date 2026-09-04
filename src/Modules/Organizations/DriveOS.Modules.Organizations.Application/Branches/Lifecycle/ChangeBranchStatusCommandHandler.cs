@@ -2,6 +2,7 @@
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Domain.BranchAssignments;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.Organizations;
@@ -13,6 +14,7 @@ public sealed class ChangeBranchStatusCommandHandler(
     IBranchRepository branchRepository,
     IOrganizationRepository organizationRepository,
     IBranchUserAssignmentRepository branchUserAssignmentRepository,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
     IClock clock
@@ -143,6 +145,7 @@ public sealed class ChangeBranchStatusCommandHandler(
         }
 
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
 
         return Result.Success();
     }

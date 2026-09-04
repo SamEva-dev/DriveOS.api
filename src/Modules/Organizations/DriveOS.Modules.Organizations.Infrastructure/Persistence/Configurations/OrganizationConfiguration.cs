@@ -74,6 +74,19 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Organ
             );
 
         builder
+            .Property(organization => organization.ProvisioningExternalUserId)
+            .HasColumnName("provisioning_external_user_id")
+            .HasConversion(
+                userId => userId.HasValue ? userId.Value.Value : (Guid?)null,
+                value => value.HasValue ? new UserId(value.Value) : null
+            );
+
+        builder
+            .Property(organization => organization.ProvisioningKey)
+            .HasColumnName("provisioning_key")
+            .HasMaxLength(200);
+
+        builder
             .HasMany(organization => organization.StatusHistory)
             .WithOne()
             .HasForeignKey(entry => entry.OrganizationId)
@@ -87,6 +100,12 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Organ
             .HasIndex(organization => new { organization.CountryCode, organization.LegalName })
             .IsUnique()
             .HasDatabaseName("ux_organizations_country_legal_name");
+
+        builder
+            .HasIndex(organization => organization.ProvisioningKey)
+            .IsUnique()
+            .HasFilter("provisioning_key IS NOT NULL")
+            .HasDatabaseName("ux_organizations_provisioning_key");
 
         builder.Ignore(organization => organization.DomainEvents);
     }

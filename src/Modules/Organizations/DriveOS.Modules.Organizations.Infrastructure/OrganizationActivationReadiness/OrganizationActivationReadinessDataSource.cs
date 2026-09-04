@@ -121,7 +121,7 @@ internal sealed class OrganizationActivationReadinessDataSource(
             .Where(branch =>
                 branch.OrganizationId == organizationId
                 && branch.IsPrimary
-                && branch.Status != BranchStatus.Closed
+                && branch.Status == BranchStatus.Active
             )
             .Select(branch => (BranchId?)branch.Id)
             .SingleOrDefaultAsync(cancellationToken);
@@ -164,7 +164,7 @@ internal sealed class OrganizationActivationReadinessDataSource(
                     && dbContext.Branches.Any(branch =>
                         branch.Id == assignment.BranchId
                         && branch.OrganizationId == organizationId
-                        && branch.Status != BranchStatus.Closed
+                        && branch.Status == BranchStatus.Active
                     ),
                 cancellationToken
             );

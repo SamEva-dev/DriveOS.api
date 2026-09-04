@@ -1936,6 +1936,58 @@ namespace DriveOS.Modules.ProfessionalMarketplace.Infrastructure.Persistence.Mig
 
                     b.ToTable("professional_student_assignments", "professional");
                 });
+
+            modelBuilder.Entity("DriveOS.Modules.ProfessionalMarketplace.Infrastructure.Persistence.Outbox.MarketplaceOutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("EnqueuedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(700)
+                        .HasColumnType("character varying(700)");
+
+                    b.Property<string>("LastErrorCode")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset>("NextAttemptAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId")
+                        .IsUnique();
+
+                    b.HasIndex("Status", "NextAttemptAtUtc");
+
+                    b.ToTable("outbox_messages", "professional");
+                });
 #pragma warning restore 612, 618
         }
     }

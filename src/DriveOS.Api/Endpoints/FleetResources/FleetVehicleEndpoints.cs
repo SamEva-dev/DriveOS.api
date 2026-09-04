@@ -4,6 +4,7 @@ using DriveOS.Modules.FleetResources.Application.Vehicles;
 using DriveOS.Modules.FleetResources.Domain.Vehicles;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
+using DriveOS.Security.Contracts;
 
 namespace DriveOS.Api.Endpoints.FleetResources;
 
@@ -12,10 +13,11 @@ internal static class FleetVehicleEndpoints
     internal static IEndpointRouteBuilder MapFleetVehicleEndpoints(this IEndpointRouteBuilder app)
     {
         RouteGroupBuilder group = app.MapGroup("/api/fleet/vehicles").WithTags("Fleet - Vehicles");
-        group.MapGet("/", GetVehicles).RequireAuthorization("Fleet.Vehicles.Read");
-        group.MapGet("/{vehicleId:guid}", GetVehicle).RequireAuthorization("Fleet.Vehicles.Read");
-        group.MapPost("/", CreateVehicle).RequireAuthorization("Fleet.Vehicles.Manage");
-        group.MapPut("/{vehicleId:guid}/compliance", UpdateCompliance).RequireAuthorization("Fleet.Vehicles.ManageCompliance");
+        group.MapGet("/", GetVehicles).RequireAuthorization(DriveOsPermissionCodes.Fleet.VehiclesRead);
+        group.MapGet("/{vehicleId:guid}", GetVehicle).RequireAuthorization(DriveOsPermissionCodes.Fleet.VehiclesRead);
+        group.MapPost("/", CreateVehicle).RequireAuthorization(DriveOsPermissionCodes.Fleet.VehiclesManage);
+        group.MapPut("/{vehicleId:guid}/compliance", UpdateCompliance).RequireAuthorization(DriveOsPermissionCodes.Fleet.VehiclesManageCompliance);
+        group.MapPut("/{vehicleId:guid}/odometer", RecordOdometer).RequireAuthorization(DriveOsPermissionCodes.Fleet.VehiclesManage);
         return app;
     }
 
@@ -54,6 +56,14 @@ internal static class FleetVehicleEndpoints
         return r.IsSuccess ? Results.NoContent() : ToProblem(r.Error);
     }
 
+    private static async Task<IResult> RecordOdometer(Guid vehicleId, RecordFleetVehicleOdometerRequest request, IMediator mediator, ICurrentTenant tenant, ICurrentUser user, CancellationToken ct)
+    {
+        if (tenant.OrganizationId is not { } org || user.UserId is not { } actor) return Results.Unauthorized();
+        Result result = await mediator.Send(new RecordFleetVehicleOdometerCommand(org, new VehicleId(vehicleId),
+            request.OdometerKilometers, request.RecordedAtUtc, actor), ct);
+        return result.IsSuccess ? Results.NoContent() : ToProblem(result.Error);
+    }
+
     private static IResult ToProblem(Error error) => Results.Problem(statusCode: error.Type switch
     { ErrorType.NotFound => 404, ErrorType.Conflict => 409, ErrorType.Validation => 400, _ => 400 },
         extensions: new Dictionary<string, object?> { ["code"] = error.Code, ["messageKey"] = error.MessageKey });
@@ -63,3 +73,4 @@ public sealed record CreateFleetVehicleRequest(Guid? VehicleId, Guid? OwnerOrgan
     string Make, string Model, string TransmissionType, string EnergyType, bool DualControl, IReadOnlyCollection<string> LicenseCategories, IReadOnlyCollection<string>? Adaptations);
 public sealed record UpdateFleetVehicleComplianceRequest(bool TechnicalComplianceVerified, bool DocumentsCompliant, DateTimeOffset? InsuranceValidUntilUtc,
     bool MaintenanceBlocking, DateTimeOffset? NextMaintenanceDueAtUtc, string OperationalStatus, Guid? BranchId, Guid? ProviderOrganizationId, string? Notes);
+public sealed record RecordFleetVehicleOdometerRequest(long OdometerKilometers, DateTimeOffset RecordedAtUtc);

@@ -53,6 +53,8 @@ public sealed class Vehicle : AggregateRoot<VehicleId>, IAuditableEntity
     public DateTimeOffset? InsuranceValidUntilUtc { get; private set; }
     public bool MaintenanceBlocking { get; private set; }
     public DateTimeOffset? NextMaintenanceDueAtUtc { get; private set; }
+    public long CurrentOdometerKilometers { get; private set; }
+    public DateTimeOffset? LastOdometerRecordedAtUtc { get; private set; }
     public DateTimeOffset? LastComplianceVerifiedAtUtc { get; private set; }
     public string? ComplianceNotes { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
@@ -67,7 +69,7 @@ public sealed class Vehicle : AggregateRoot<VehicleId>, IAuditableEntity
         if (id.IsEmpty) return Result.Failure<Vehicle>(VehicleErrors.InvalidIdentifier);
         if (organizationId.IsEmpty || ownerOrganizationId.IsEmpty) return Result.Failure<Vehicle>(VehicleErrors.InvalidOrganization);
         if (string.IsNullOrWhiteSpace(registrationNumber)) return Result.Failure<Vehicle>(VehicleErrors.RegistrationRequired);
-        if (string.IsNullOrWhiteSpace(transmissionType) || string.IsNullOrWhiteSpace(energyType) || licenseCategories.Count == 0)
+        if (string.IsNullOrWhiteSpace(transmissionType) || string.IsNullOrWhiteSpace(energyType) || licenseCategories is null || licenseCategories.Count == 0)
             return Result.Failure<Vehicle>(VehicleErrors.TechnicalProfileRequired);
 
         return Result.Success(new Vehicle(id, organizationId, ownerOrganizationId, branchId, registrationNumber.Trim().ToUpperInvariant(),
@@ -96,8 +98,30 @@ public sealed class Vehicle : AggregateRoot<VehicleId>, IAuditableEntity
         return Result.Success();
     }
 
+    public Result RecordOdometer(long odometerKilometers, DateTimeOffset recordedAtUtc, DateTimeOffset nowUtc, UserId actorUserId)
+    {
+        if (odometerKilometers < CurrentOdometerKilometers || odometerKilometers > 9_999_999)
+            return Result.Failure(VehicleErrors.InvalidOdometer);
+        if (recordedAtUtc == default || recordedAtUtc.ToUniversalTime() > nowUtc.ToUniversalTime().AddMinutes(5))
+            return Result.Failure(VehicleErrors.InvalidOdometerDate);
+        if (LastOdometerRecordedAtUtc is { } previous && recordedAtUtc.ToUniversalTime() < previous)
+            return Result.Failure(VehicleErrors.InvalidOdometerDate);
+
+        CurrentOdometerKilometers = odometerKilometers;
+        LastOdometerRecordedAtUtc = recordedAtUtc.ToUniversalTime();
+        SetModifiedAudit(nowUtc, actorUserId);
+        return Result.Success();
+    }
+
     public bool SupportsLicenseCategory(string category) => ContainsToken(LicenseCategoriesCsv, category);
     public bool SupportsAdaptations(IEnumerable<string> required) => required.All(x => ContainsToken(AdaptationsCsv, x));
+    public bool HasSameTechnicalIdentity(string? vin, string transmissionType, string energyType, bool dualControl,
+        IEnumerable<string> licenseCategories, IEnumerable<string>? adaptations) =>
+        string.Equals(Vin, NormalizeOptional(vin), StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(TransmissionType, Normalize(transmissionType), StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(EnergyType, Normalize(energyType), StringComparison.OrdinalIgnoreCase) &&
+        DualControl == dualControl && LicenseCategoriesCsv == NormalizeSet(licenseCategories) &&
+        AdaptationsCsv == NormalizeSet(adaptations ?? []);
 
     public bool IsOperationalFor(DateTimeOffset startAtUtc, DateTimeOffset endAtUtc)
     {

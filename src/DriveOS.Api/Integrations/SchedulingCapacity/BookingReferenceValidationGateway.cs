@@ -3,8 +3,7 @@ using DriveOS.Modules.SchedulingCapacity.Domain.Bookings;
 using DriveOS.Modules.SchedulingCapacity.Domain.CalendarResources;
 using DriveOS.Modules.SchedulingCapacity.Infrastructure.Persistence;
 using DriveOS.Modules.Students.Application.Instructors;
-using DriveOS.Modules.Students.Domain.Students;
-using DriveOS.Modules.Students.Infrastructure.Persistence;
+using DriveOS.Modules.Students.Application.References;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +13,7 @@ namespace DriveOS.Api.Integrations.SchedulingCapacity;
 
 internal sealed class BookingReferenceValidationGateway(
     SchedulingCapacityDbContext schedulingDbContext,
-    StudentsDbContext studentsDbContext,
+    IStudentReferenceReadService students,
     IInstructorEligibilityGateway instructorEligibilityGateway) : IBookingReferenceValidationGateway
 {
     public async Task<Error?> ValidateAsync(
@@ -72,19 +71,10 @@ internal sealed class BookingReferenceValidationGateway(
 
         if (studentIds.Length > 0)
         {
-            PersonId[] typedStudentIds = studentIds.Select(static id => new PersonId(id)).ToArray();
-            var studentQuery = WhereStrongIdIn(
-                studentsDbContext.Students
-                    .AsNoTracking()
-                    .Where(x => x.OrganizationId == organizationId && x.Status != StudentStatus.Archived),
-                x => x.Id,
-                typedStudentIds);
+            IReadOnlyCollection<Guid> existingStudentIds = await students.FindExistingActiveIdsAsync(
+                organizationId, studentIds, cancellationToken);
 
-            Guid[] existingStudentIds = await studentQuery
-                .Select(x => x.Id.Value)
-                .ToArrayAsync(cancellationToken);
-
-            if (existingStudentIds.Length != studentIds.Length)
+            if (existingStudentIds.Count != studentIds.Length)
                 return BookingReferenceValidationErrors.StudentNotFound;
         }
 

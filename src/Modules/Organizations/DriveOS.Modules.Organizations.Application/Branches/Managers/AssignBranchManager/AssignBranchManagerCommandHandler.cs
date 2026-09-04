@@ -2,6 +2,7 @@
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Application.Abstractions.Time;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Domain.Branches;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Results;
@@ -11,6 +12,7 @@ namespace DriveOS.Modules.Organizations.Application.Branches.Managers.AssignBran
 internal sealed class AssignBranchManagerCommandHandler(
     IOrganizationRepository organizationRepository,
     IBranchRepository branchRepository,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
     IClock clock
@@ -63,6 +65,7 @@ internal sealed class AssignBranchManagerCommandHandler(
         }
 
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
 
         return Result.Success();
     }

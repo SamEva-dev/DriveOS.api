@@ -1,6 +1,7 @@
 using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Compliance;
 using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 using DriveOS.SharedKernel.Results;
@@ -10,6 +11,7 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Ac
 internal sealed class ActivateOrganizationLegalProfileCommandHandler(
     IOrganizationLegalProfileRepository repository,
     IOrganizationLegalProfileComplianceService complianceService,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser
 ) : ICommandHandler<ActivateOrganizationLegalProfileCommand>
@@ -42,6 +44,7 @@ internal sealed class ActivateOrganizationLegalProfileCommandHandler(
             return result;
 
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
         return Result.Success();
     }
 }

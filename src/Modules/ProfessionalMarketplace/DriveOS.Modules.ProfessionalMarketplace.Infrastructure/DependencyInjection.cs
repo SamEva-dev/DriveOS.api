@@ -26,6 +26,7 @@ using DriveOS.Modules.ProfessionalMarketplace.Infrastructure.Read;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using DriveOS.Modules.ProfessionalMarketplace.Infrastructure.Persistence.Outbox;
 
 namespace DriveOS.Modules.ProfessionalMarketplace.Infrastructure;
 
@@ -36,8 +37,12 @@ public static class DependencyInjection
         string cs = configuration.GetConnectionString("DriveOS")
             ?? throw new InvalidOperationException("The DriveOS database connection string is missing.");
 
-        services.AddDbContext<ProfessionalMarketplaceDbContext>(options =>
-            options.UseNpgsql(cs, npgsql => npgsql.MigrationsHistoryTable("__ef_migrations_history", ProfessionalMarketplaceSchema.Name)));
+        services.AddScoped<MarketplaceOutboxInterceptor>();
+        services.AddDbContext<ProfessionalMarketplaceDbContext>((provider, options) =>
+        {
+            options.UseNpgsql(cs, npgsql => npgsql.MigrationsHistoryTable("__ef_migrations_history", ProfessionalMarketplaceSchema.Name));
+            options.AddInterceptors(provider.GetRequiredService<MarketplaceOutboxInterceptor>());
+        });
         services.AddScoped<IProfessionalMarketplaceUnitOfWork>(sp => sp.GetRequiredService<ProfessionalMarketplaceDbContext>());
         services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
         services.AddScoped<IProfessionalDocumentRepository, ProfessionalDocumentRepository>();

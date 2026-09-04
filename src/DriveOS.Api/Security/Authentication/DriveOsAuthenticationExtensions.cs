@@ -97,7 +97,7 @@ internal static class DriveOsAuthenticationExtensions
 
                 options.Events = new JwtBearerEvents
                 {
-                    OnTokenValidated = context =>
+                    OnTokenValidated = async context =>
                     {
                         string? clientId =
                             context.Principal?.FindFirstValue(DriveOsClaimTypes.ClientId)
@@ -112,9 +112,16 @@ internal static class DriveOsAuthenticationExtensions
                         )
                         {
                             context.Fail("The access token was not issued for DriveOS.Web.");
+                            return;
                         }
 
-                        return Task.CompletedTask;
+                        var bearer = context.Request.Headers.Authorization.FirstOrDefault();
+                        var accessToken = !string.IsNullOrWhiteSpace(bearer) && bearer.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                            ? bearer[7..].Trim()
+                            : string.Empty;
+                        var sessionValidator = context.HttpContext.RequestServices.GetRequiredService<AuthGateSessionValidator>();
+                        if (!await sessionValidator.IsActiveAsync(accessToken, context.HttpContext.RequestAborted))
+                            context.Fail("AuthGate session is no longer active.");
                     },
                 };
             });

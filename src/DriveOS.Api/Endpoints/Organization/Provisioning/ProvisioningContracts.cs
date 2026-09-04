@@ -4,7 +4,15 @@ public sealed record ProvisionOrganizationRequest(
     Guid ExternalUserId,
     string LegalName,
     string CountryCode,
-    int OrganizationType = 1
+    int OrganizationType = 1,
+    ProvisionOrganizationOwnerRequest? Owner = null
+);
+
+public sealed record ProvisionOrganizationOwnerRequest(
+    string? FirstName,
+    string? LastName,
+    string? Email,
+    string? Phone
 );
 
 public sealed record ProvisionOrganizationResponse(Guid OrganizationId, string Status);

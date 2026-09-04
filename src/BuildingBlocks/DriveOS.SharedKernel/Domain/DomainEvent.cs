@@ -2,7 +2,7 @@
 
 public abstract record DomainEvent : IDomainEvent
 {
-    public Guid EventId { get; } = Guid.NewGuid();
+    public Guid EventId { get; init; } = Guid.NewGuid();
 
-    public DateTimeOffset OccurredAtUtc { get; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset OccurredAtUtc { get; init; } = DateTimeOffset.UtcNow;
 }

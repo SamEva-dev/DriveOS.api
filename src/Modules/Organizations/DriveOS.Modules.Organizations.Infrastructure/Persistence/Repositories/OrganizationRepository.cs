@@ -23,6 +23,19 @@ internal sealed class OrganizationRepository(OrganizationsDbContext dbContext)
             );
     }
 
+    public Task<Organization?> GetByProvisioningKeyAsync(
+        string idempotencyKey,
+        bool asNoTracking = false,
+        CancellationToken cancellationToken = default
+    )
+    {
+        IQueryable<Organization> query = ApplyTracking(dbContext.Organizations, asNoTracking);
+        return query.SingleOrDefaultAsync(
+            organization => organization.ProvisioningKey == idempotencyKey,
+            cancellationToken
+        );
+    }
+
     public async Task<Organization?> GetByIdAsync(
         OrganizationId id,
         bool asNoTracking = false,

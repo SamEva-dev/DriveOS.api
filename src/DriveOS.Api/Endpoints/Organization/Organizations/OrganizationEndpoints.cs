@@ -3,6 +3,7 @@ using DomainRelay.Mapping.Abstractions.Services;
 using DriveOS.Api.Contracts;
 using DriveOS.Api.Errors;
 using DriveOS.Application.Abstractions.Pagination;
+using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Sorting;
 using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.GetOrganizationActivationReadiness;
 using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Models;
@@ -11,6 +12,7 @@ using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizationByI
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizations;
 using DriveOS.Modules.Organizations.Application.Organizations.Lifecycle;
 using DriveOS.Modules.Organizations.Application.Organizations.OrganizationStatusHistory;
+using DriveOS.Modules.Organizations.Application.Organizations.ProvisionOrganization;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Security.Contracts;
 using DriveOS.SharedKernel.Identifiers;
@@ -34,9 +36,13 @@ public static class OrganizationEndpoints
             .WithSummary("Créer une organisation")
             .Accepts<CreateOrganizationRequest>("application/json")
             .Produces<CreateOrganizationResponse>(StatusCodes.Status201Created)
+            .Produces<CreateOrganizationResponse>(StatusCodes.Status200OK)
             .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
-            .RequireAuthorization(DriveOsPermissionCodes.Organizations.Create);
+            .RequireAuthorization(
+                DriveOsPermissionCodes.Organizations.Create,
+                DriveOsPermissionCodes.Organizations.CrossTenantManage
+            );
 
         group
             .MapGet("/{organizationId:guid}", GetOrganizationByIdAsync)
@@ -109,29 +115,60 @@ public static class OrganizationEndpoints
     private static async Task<IResult> CreateOrganizationAsync(
         CreateOrganizationRequest request,
         IMediator mediator,
-        IObjectMapper mapper,
+        ICurrentUser currentUser,
         HttpContext httpContext,
         CancellationToken cancellationToken
     )
     {
-        CreateOrganizationCommand command = mapper.Map<
-            CreateOrganizationRequest,
-            CreateOrganizationCommand
-        >(request);
+        if (!currentUser.IsAuthenticated || currentUser.UserId is null)
+            return OrganizationErrors.CurrentUserRequired.ToHttpResult(httpContext);
 
-        Result<OrganizationId> result = await mediator.Send(command, cancellationToken);
+        string idempotencyKey = CreateManualProvisioningKey(currentUser.UserId.Value, request);
+        var command = new ProvisionOrganizationCommand(
+            currentUser.UserId.Value,
+            idempotencyKey,
+            request.LegalName,
+            request.CountryCode,
+            request.OrganizationType
+        );
+
+        Result<ProvisionOrganizationResult> result = await mediator.Send(
+            command,
+            cancellationToken
+        );
 
         if (result.IsFailure)
         {
             return result.Error.ToHttpResult(httpContext);
         }
 
-        Guid organizationId = result.Value.Value;
+        Guid organizationId = result.Value.OrganizationId.Value;
+
+        if (!result.Value.WasCreated)
+            return Results.Ok(new CreateOrganizationResponse(organizationId));
 
         return Results.Created(
             $"/api/organizations/{organizationId:D}",
             new CreateOrganizationResponse(organizationId)
         );
+    }
+
+    private static string CreateManualProvisioningKey(
+        UserId userId,
+        CreateOrganizationRequest request
+    )
+    {
+        string source = string.Join(
+            "|",
+            "driveos-manual-organization",
+            userId.Value.ToString("D"),
+            request.CountryCode.Trim().ToUpperInvariant(),
+            request.LegalName.Trim().ToUpperInvariant()
+        );
+        byte[] hash = System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(source)
+        );
+        return $"driveos-manual-{Convert.ToHexString(hash).ToLowerInvariant()}";
     }
 
     private static async Task<IResult> GetOrganizationByIdAsync(
@@ -167,10 +204,62 @@ public static class OrganizationEndpoints
         [AsParameters] GetOrganizationsRequest request,
         IMediator mediator,
         IObjectMapper mapper,
+        ICurrentTenant currentTenant,
+        ICurrentUser currentUser,
         HttpContext httpContext,
         CancellationToken cancellationToken
     )
     {
+        if (
+            !currentUser.HasPermission(DriveOsPermissionCodes.Organizations.CrossTenantRead)
+            && !currentUser.HasPermission(DriveOsPermissionCodes.Organizations.CrossTenantManage)
+        )
+        {
+            if (currentTenant.OrganizationId is null)
+                return Results.Problem(
+                    statusCode: StatusCodes.Status403Forbidden,
+                    title: "security.organization_context_required"
+                );
+
+            Result<OrganizationResponse> scopedResult = await mediator.Send(
+                new GetOrganizationByIdQuery(currentTenant.OrganizationId.Value),
+                cancellationToken
+            );
+            if (scopedResult.IsFailure)
+                return scopedResult.Error.ToHttpResult(httpContext);
+
+            OrganizationResponse organization = scopedResult.Value;
+            string search = request.Search?.Trim() ?? string.Empty;
+            bool matches = string.IsNullOrWhiteSpace(search)
+                || organization.LegalName.Contains(search, StringComparison.OrdinalIgnoreCase)
+                || organization.CountryCode.Contains(search, StringComparison.OrdinalIgnoreCase);
+            IReadOnlyList<OrganizationListItemResponse> scopedItems = matches && request.PageNumber == 1
+                ?
+                [
+                    new OrganizationListItemResponse(
+                        organization.Id,
+                        organization.LegalName,
+                        organization.CountryCode,
+                        organization.Type,
+                        organization.Status,
+                        organization.CreatedAtUtc
+                    ),
+                ]
+                : [];
+
+            return Results.Ok(
+                new PagedResponse<OrganizationListItemResponse>(
+                    scopedItems,
+                    Math.Max(1, request.PageNumber),
+                    Math.Max(1, request.PageSize),
+                    matches ? 1 : 0,
+                    matches ? 1 : 0,
+                    request.PageNumber > 1 && matches,
+                    false
+                )
+            );
+        }
+
         OrganizationSortField sortBy = ParseSortField(request.SortBy);
 
         SortDirection sortDirection = ParseSortDirection(request.SortDirection);

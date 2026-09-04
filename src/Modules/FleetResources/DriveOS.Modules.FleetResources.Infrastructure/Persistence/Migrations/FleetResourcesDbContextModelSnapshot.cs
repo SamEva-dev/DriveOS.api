@@ -46,6 +46,11 @@ namespace DriveOS.Modules.FleetResources.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<long>("CurrentOdometerKilometers")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
+
                     b.Property<bool>("DocumentsCompliant")
                         .HasColumnType("boolean");
 
@@ -68,6 +73,9 @@ namespace DriveOS.Modules.FleetResources.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid?>("LastModifiedByUserId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("LastOdometerRecordedAtUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LicenseCategoriesCsv")
                         .IsRequired()

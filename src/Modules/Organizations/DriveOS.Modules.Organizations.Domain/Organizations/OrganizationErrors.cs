@@ -52,6 +52,26 @@ public static class OrganizationErrors
         messageKey: "errors.authentication.required"
     );
 
+    public static readonly Error InvalidProvisioningExternalUserId = Error.Validation(
+        code: "Organizations.Provisioning.ExternalUserId.Invalid",
+        messageKey: "errors.organizations.provisioning.externalUserId.invalid"
+    );
+
+    public static readonly Error InvalidProvisioningKey = Error.Validation(
+        code: "Organizations.Provisioning.IdempotencyKey.Invalid",
+        messageKey: "errors.organizations.provisioning.idempotencyKey.invalid"
+    );
+
+    public static readonly Error ProvisioningIdentityAlreadySet = Error.Conflict(
+        code: "Organizations.Provisioning.Identity.AlreadySet",
+        messageKey: "errors.organizations.provisioning.identity.alreadySet"
+    );
+
+    public static readonly Error ProvisioningKeyConflict = Error.Conflict(
+        code: "Organizations.Provisioning.IdempotencyKey.Conflict",
+        messageKey: "errors.organizations.provisioning.idempotencyKey.conflict"
+    );
+
     public static Error NotFoundById(OrganizationId id) =>
         Error.NotFound("Organizations.NotFound", $"The organization '{id}' was not found.");
 

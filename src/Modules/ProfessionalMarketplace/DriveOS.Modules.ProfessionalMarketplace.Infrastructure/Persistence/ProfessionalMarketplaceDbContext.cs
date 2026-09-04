@@ -18,6 +18,7 @@ using DriveOS.Modules.ProfessionalMarketplace.Domain.Disputes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using DriveOS.SharedKernel.Identifiers;
+using DriveOS.Modules.ProfessionalMarketplace.Infrastructure.Persistence.Outbox;
 
 namespace DriveOS.Modules.ProfessionalMarketplace.Infrastructure.Persistence;
 
@@ -50,6 +51,7 @@ public sealed class ProfessionalMarketplaceDbContext(DbContextOptions<Profession
     public DbSet<ServiceDispute> ServiceDisputes => Set<ServiceDispute>();
     public DbSet<ServiceStatement> ServiceStatements => Set<ServiceStatement>();
     public DbSet<ProfessionalInvoice> ProfessionalInvoices => Set<ProfessionalInvoice>();
+    public DbSet<MarketplaceOutboxMessage> OutboxMessages => Set<MarketplaceOutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

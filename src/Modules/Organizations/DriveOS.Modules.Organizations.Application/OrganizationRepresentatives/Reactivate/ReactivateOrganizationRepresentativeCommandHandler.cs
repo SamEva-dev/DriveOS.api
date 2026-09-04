@@ -1,6 +1,7 @@
 using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.AccessSynchronization;
 using DriveOS.Modules.Organizations.Domain.OrganizationRepresentatives;
 using DriveOS.SharedKernel.Results;
@@ -10,6 +11,7 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationRepresentatives.
 internal sealed class ReactivateOrganizationRepresentativeCommandHandler(
     IOrganizationRepresentativeRepository repository,
     OrganizationRepresentativeAccessSynchronizationService accessSynchronizationService,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser
 ) : ICommandHandler<ReactivateOrganizationRepresentativeCommand>
@@ -30,6 +32,7 @@ internal sealed class ReactivateOrganizationRepresentativeCommandHandler(
         if (r.IsFailure)
             return r;
         await unitOfWork.CommitAsync(ct);
+        readinessCacheInvalidator.Invalidate(c.OrganizationId);
         await accessSynchronizationService.SynchronizeAsync(e, ct);
         return Result.Success();
     }

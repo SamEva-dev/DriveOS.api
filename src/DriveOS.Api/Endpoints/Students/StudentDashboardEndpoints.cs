@@ -36,6 +36,7 @@ using DriveOS.Modules.Students.Domain.Statuses;
 using DriveOS.Modules.Students.Domain.Students;
 using DriveOS.Modules.Students.Domain.Suspensions;
 using DriveOS.Modules.Students.Domain.Transfers;
+using DriveOS.Security.Contracts;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
 
@@ -2701,17 +2702,17 @@ public static class StudentDashboardEndpoints
             currentUser.HasPermission("Students.Administration.Read"),
             currentUser.HasPermission("Finance.Summary.Read"),
             currentUser.HasPermission("Pedagogy.Summary.Read"),
-            currentUser.HasPermission("Planning.Read"),
-            currentUser.HasPermission("Exams.Read"),
-            currentUser.HasPermission("Documents.Read"),
-            currentUser.HasPermission("Communications.Read"),
-            currentUser.HasPermission("Incidents.Read"),
-            currentUser.HasPermission("Partners.Read"),
-            currentUser.HasPermission("Students.History.Read"),
-            currentUser.HasPermission("Planning.Create"),
+            currentUser.HasPermission(DriveOsPermissionCodes.Scheduling.BookingsRead),
+            currentUser.HasPermission(DriveOsPermissionCodes.Exams.DashboardRead),
+            currentUser.HasPermission(DriveOsPermissionCodes.StudentDocuments.Read),
+            currentUser.HasPermission(DriveOsPermissionCodes.Communication.Notifications.Read),
+            currentUser.HasPermission(DriveOsPermissionCodes.TrainingDelivery.IncidentsRead),
+            currentUser.HasPermission(DriveOsPermissionCodes.Partners.Read),
+            currentUser.HasPermission(DriveOsPermissionCodes.Students.HistoryRead),
+            currentUser.HasPermission(DriveOsPermissionCodes.Scheduling.BookingsCreate),
             currentUser.HasPermission("Finance.Payments.Create"),
-            currentUser.HasPermission("Documents.Create"),
-            currentUser.HasPermission("Communications.Create")
+            currentUser.HasPermission(DriveOsPermissionCodes.StudentDocuments.Upload),
+            currentUser.HasPermission(DriveOsPermissionCodes.Communication.Notifications.Manage)
         );
         Result<StudentOverviewResponse> result = await mediator.Send(
             new GetStudentOverviewQuery(

@@ -2,6 +2,7 @@ using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Modules.Organizations.Application.Abstractions;
 using DriveOS.Modules.Organizations.Application.Branches;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
 using DriveOS.SharedKernel.Results;
@@ -12,6 +13,7 @@ public sealed class CreateOrganizationSettingsCommandHandler(
     IOrganizationReadService organizationReadService,
     IBranchReadService branchReadService,
     IOrganizationSettingsRepository settingsRepository,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork
 ) : ICommandHandler<CreateOrganizationSettingsCommand, OrganizationSettingsId>
 {
@@ -134,6 +136,7 @@ public sealed class CreateOrganizationSettingsCommandHandler(
         await settingsRepository.AddAsync(creationResult.Value, cancellationToken);
 
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
 
         return Result.Success(creationResult.Value.Id);
     }

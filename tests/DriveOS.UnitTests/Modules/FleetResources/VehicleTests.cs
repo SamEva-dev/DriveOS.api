@@ -30,4 +30,35 @@ public sealed class VehicleTests
         vehicle.UpdateCompliance(true, true, now.AddHours(1), false, now.AddMonths(3), VehicleOperationalStatus.Available, null, null, null, now, user);
         vehicle.IsOperationalFor(now.AddHours(2), now.AddHours(3)).Should().BeFalse();
     }
+
+    [Fact]
+    public void Vehicle_should_keep_odometer_monotonic_and_accept_idempotent_replay()
+    {
+        var org = new OrganizationId(Guid.NewGuid());
+        var user = new UserId(Guid.NewGuid());
+        var now = DateTimeOffset.UtcNow;
+        var vehicle = Vehicle.Create(VehicleId.New(), org, org, null, "CC-123-CC", null, "Citroen", "C3",
+            "Manual", "Petrol", true, ["B"]).Value;
+
+        vehicle.RecordOdometer(42_000, now.AddMinutes(-2), now, user).IsSuccess.Should().BeTrue();
+        vehicle.RecordOdometer(42_000, now.AddMinutes(-1), now, user).IsSuccess.Should().BeTrue();
+        vehicle.CurrentOdometerKilometers.Should().Be(42_000);
+
+        vehicle.RecordOdometer(41_999, now, now, user).Error.Should().Be(VehicleErrors.InvalidOdometer);
+        vehicle.CurrentOdometerKilometers.Should().Be(42_000);
+    }
+
+    [Fact]
+    public void Vehicle_should_reject_backdated_or_future_odometer_reading()
+    {
+        var org = new OrganizationId(Guid.NewGuid());
+        var user = new UserId(Guid.NewGuid());
+        var now = DateTimeOffset.UtcNow;
+        var vehicle = Vehicle.Create(VehicleId.New(), org, org, null, "DD-123-DD", null, "Renault", "Zoé",
+            "Automatic", "Electric", true, ["B"]).Value;
+
+        vehicle.RecordOdometer(12_000, now, now, user).IsSuccess.Should().BeTrue();
+        vehicle.RecordOdometer(12_100, now.AddMinutes(-1), now, user).Error.Should().Be(VehicleErrors.InvalidOdometerDate);
+        vehicle.RecordOdometer(12_100, now.AddMinutes(6), now, user).Error.Should().Be(VehicleErrors.InvalidOdometerDate);
+    }
 }

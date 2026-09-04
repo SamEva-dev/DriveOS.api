@@ -1,60 +1,14 @@
-using DriveOS.Modules.ProfessionalMarketplace.Application.Compliance;
-using DriveOS.Modules.ProfessionalMarketplace.Application.Engagements;
-using DriveOS.Modules.ProfessionalMarketplace.Application.Invitations;
-using DriveOS.Api.BackgroundJobs;
-using DriveOS.Modules.CommunicationEngagement.Application.Notifications;
-using DriveOS.Modules.ProfessionalMarketplace.Application.Notifications;
-using DriveOS.Modules.FundingBilling.Application.SupplierPayments;
-using DriveOS.Api.Endpoints.ProfessionalMarketplace;
-using DriveOS.Modules.ProfessionalMarketplace.Application;
-using DriveOS.Modules.ProfessionalMarketplace.Application.Invoices;
-using DriveOS.Modules.ProfessionalMarketplace.Infrastructure;
-using DriveOS.Modules.CommunicationEngagement.Application;
-using DriveOS.Modules.CommunicationEngagement.Infrastructure;
-using DriveOS.Api.Integrations.Workforce;
-using DriveOS.Api.Integrations.ProfessionalMarketplace;
-using DriveOS.Api.Integrations.Communication;
-using DriveOS.Modules.Workforce.Application.BranchAssignments;
-using DriveOS.Modules.Workforce.Application.WorkingTime;
-using DriveOS.Api.Endpoints.Workforce;
-using DriveOS.Modules.Workforce.Application;
-using DriveOS.Modules.Workforce.Infrastructure;
-using DriveOS.Modules.RegulatoryIntegrations.Infrastructure;
-using DriveOS.Application.Abstractions.Integrations.RegulatoryTrainingRecords;
-using DriveOS.Api.Endpoints.FleetResources;
-using DriveOS.Modules.FleetResources.Infrastructure;
-using DriveOS.Modules.FleetResources.Application;
-using DriveOS.Modules.ExamsCertification.Application.Readiness;
-using DriveOS.Modules.ExamsCertification.Application.Registrations.File;
-using DriveOS.Modules.ExamsCertification.Application.Readiness.Opinions;
-using DriveOS.Api.Integrations.ExamsCertification;
-using DriveOS.Modules.ExamsCertification.Application;
-using DriveOS.Modules.ExamsCertification.Infrastructure;
-using DriveOS.Modules.ExamsCertification.Application.Registrations.Operations;
-using DriveOS.Modules.ExamsCertification.Application.Registrations.Assignments;
-using DriveOS.Modules.ExamsCertification.Application.Registrations.Preparation;
-using DriveOS.Modules.ExamsCertification.Application.Success;
-using DriveOS.Modules.ExamsCertification.Application.Remediation;
-using DriveOS.Modules.TrainingDelivery.Application;
-using DriveOS.Modules.TrainingDelivery.Infrastructure;
-using DriveOS.Modules.TrainingDelivery.Application.Sessions;
-using DriveOS.Modules.TrainingDelivery.Application.GroupSessions;
-using DriveOS.Modules.TrainingDelivery.Application.Consequences;
-using DriveOS.Modules.TrainingDelivery.Application.CancellationConsequences;
-using DriveOS.Api.Integrations.TrainingDelivery;
-using DriveOS.Api.Endpoints.TrainingDelivery;
-using DriveOS.Modules.SchedulingCapacity.Application.Bookings;
-using DriveOS.Modules.SchedulingCapacity.Application.Replacements;
-using DriveOS.Modules.SchedulingCapacity.Application.Travel;
-using DriveOS.Modules.SchedulingCapacity.Application.SlotSearch;
 using DomainRelay.Validation;
 using DriveOS.Api;
+using DriveOS.Api.BackgroundJobs;
 using DriveOS.Api.Configuration;
-using DriveOS.Api.Endpoints.Crm;
+using DriveOS.Api.Endpoints.CommunicationEngagement;
 using DriveOS.Api.Endpoints.Contracts;
+using DriveOS.Api.Endpoints.Crm;
 using DriveOS.Api.Endpoints.CurriculumPedagogy;
-using DriveOS.Api.Endpoints.FundingBilling;
 using DriveOS.Api.Endpoints.ExamsCertification;
+using DriveOS.Api.Endpoints.FleetResources;
+using DriveOS.Api.Endpoints.FundingBilling;
 using DriveOS.Api.Endpoints.Organization.AccessManagement;
 using DriveOS.Api.Endpoints.Organization.BranchAssignments;
 using DriveOS.Api.Endpoints.Organization.BranchConfigurationOverrides;
@@ -63,62 +17,114 @@ using DriveOS.Api.Endpoints.Organization.Networks;
 using DriveOS.Api.Endpoints.Organization.OrganizationConfigurations;
 using DriveOS.Api.Endpoints.Organization.OrganizationLegalProfiles;
 using DriveOS.Api.Endpoints.Organization.OrganizationRepresentatives;
-using DriveOS.Api.Endpoints.Organization.RegulatoryIntegrations;
 using DriveOS.Api.Endpoints.Organization.Organizations;
 using DriveOS.Api.Endpoints.Organization.OrganizationSequences;
 using DriveOS.Api.Endpoints.Organization.OrganizationSettings;
 using DriveOS.Api.Endpoints.Organization.OrganizationSubscriptions;
+using DriveOS.Api.Endpoints.Organization.RegulatoryIntegrations;
+using DriveOS.Api.Endpoints.ProfessionalMarketplace;
 using DriveOS.Api.Endpoints.Provisioning;
+using DriveOS.Api.Endpoints.SchedulingCapacity;
 using DriveOS.Api.Endpoints.Students;
 using DriveOS.Api.Endpoints.Students.RegulatoryIdentities;
+using DriveOS.Api.Endpoints.TrainingDelivery;
+using DriveOS.Api.Endpoints.Workforce;
 using DriveOS.Api.Errors;
+using DriveOS.Api.Security.Authentication;
 using DriveOS.Api.Infrastructure.Logging;
-using DriveOS.Api.Integrations.Students;
-using DriveOS.Api.Integrations.SchedulingCapacity;
+using DriveOS.Api.Integrations.Communication;
 using DriveOS.Api.Integrations.Contracts;
-using DriveOS.Api.Integrations.FundingBilling;
 using DriveOS.Api.Integrations.CurriculumPedagogy;
-using DriveOS.Modules.CRM.Application;
-using DriveOS.Modules.CRM.Application.Leads.ConvertLead;
-using DriveOS.Modules.CRM.Infrastructure;
+using DriveOS.Api.Integrations.CurriculumPedagogy.Notifications;
+using DriveOS.Api.Integrations.ExamsCertification;
+using DriveOS.Api.Integrations.FundingBilling;
+using DriveOS.Api.Integrations.FundingBilling.Notifications;
+using DriveOS.Api.Integrations.ProfessionalMarketplace;
+using DriveOS.Api.Integrations.RegulatoryTrainingRecords;
+using DriveOS.Api.Integrations.RegulatoryTrainingRecords.France;
+using DriveOS.Api.Integrations.SchedulingCapacity;
+using DriveOS.Api.Integrations.Students;
+using DriveOS.Api.Integrations.TrainingDelivery;
+using DriveOS.Api.Integrations.Workforce;
+using DriveOS.Application.Abstractions.Integrations.RegulatoryTrainingRecords;
+using DriveOS.Modules.CommunicationEngagement.Application;
+using DriveOS.Modules.CommunicationEngagement.Application.Notifications;
+using DriveOS.Modules.CommunicationEngagement.Infrastructure;
 using DriveOS.Modules.Contracts.Application;
 using DriveOS.Modules.Contracts.Application.TrainingContracts.Create;
 using DriveOS.Modules.Contracts.Infrastructure;
+using DriveOS.Modules.CRM.Application;
+using DriveOS.Modules.CRM.Application.Leads.ConvertLead;
+using DriveOS.Modules.CRM.Infrastructure;
 using DriveOS.Modules.CurriculumPedagogy.Application;
-using DriveOS.Modules.CurriculumPedagogy.Infrastructure;
-using DriveOS.Modules.SchedulingCapacity.Application;
-using DriveOS.Modules.SchedulingCapacity.Infrastructure;
-using DriveOS.Api.Endpoints.SchedulingCapacity;
+using DriveOS.Modules.CurriculumPedagogy.Application.Notifications;
 using DriveOS.Modules.CurriculumPedagogy.Application.TrainingPaths;
+using DriveOS.Modules.CurriculumPedagogy.Infrastructure;
+using DriveOS.Modules.ExamsCertification.Application;
+using DriveOS.Modules.ExamsCertification.Application.Readiness;
+using DriveOS.Modules.ExamsCertification.Application.Readiness.Opinions;
+using DriveOS.Modules.ExamsCertification.Application.Registrations.Assignments;
+using DriveOS.Modules.ExamsCertification.Application.Registrations.File;
+using DriveOS.Modules.ExamsCertification.Application.Registrations.Operations;
+using DriveOS.Modules.ExamsCertification.Application.Registrations.Preparation;
+using DriveOS.Modules.ExamsCertification.Application.Remediation;
+using DriveOS.Modules.ExamsCertification.Application.Success;
+using DriveOS.Modules.ExamsCertification.Infrastructure;
+using DriveOS.Modules.FleetResources.Application;
+using DriveOS.Modules.FleetResources.Infrastructure;
 using DriveOS.Modules.FundingBilling.Application;
 using DriveOS.Modules.FundingBilling.Application.BillingAccounts.Create;
-using DriveOS.Modules.FundingBilling.Application.Invoices.Issue;
 using DriveOS.Modules.FundingBilling.Application.CreditNotes.Issue;
+using DriveOS.Modules.FundingBilling.Application.Invoices.Issue;
+using DriveOS.Modules.FundingBilling.Application.Notifications;
+using DriveOS.Modules.FundingBilling.Application.SupplierPayments;
 using DriveOS.Modules.FundingBilling.Infrastructure;
 using DriveOS.Modules.Organizations.Application;
 using DriveOS.Modules.Organizations.Infrastructure;
+using DriveOS.Modules.ProfessionalMarketplace.Application;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Compliance;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Engagements;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Invitations;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Invoices;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Messaging;
+using DriveOS.Modules.ProfessionalMarketplace.Application.Notifications;
+using DriveOS.Modules.ProfessionalMarketplace.Application.StudentAssignments;
+using DriveOS.Modules.ProfessionalMarketplace.Infrastructure;
+using DriveOS.Api.Endpoints.Operations;
+using DriveOS.Modules.RegulatoryIntegrations.Infrastructure;
+using DriveOS.Modules.SchedulingCapacity.Application;
+using DriveOS.Modules.SchedulingCapacity.Application.Bookings;
+using DriveOS.Modules.SchedulingCapacity.Application.Replacements;
+using DriveOS.Modules.SchedulingCapacity.Application.SlotSearch;
+using DriveOS.Modules.SchedulingCapacity.Application.Travel;
+using DriveOS.Modules.SchedulingCapacity.Infrastructure;
 using DriveOS.Modules.Students.Application;
 using DriveOS.Modules.Students.Infrastructure;
-using DriveOS.Api.Integrations.FundingBilling.Notifications;
-using DriveOS.Api.Integrations.CurriculumPedagogy.Notifications;
-using DriveOS.Modules.CurriculumPedagogy.Application.Notifications;
-using DriveOS.Modules.FundingBilling.Application.Notifications;
+using DriveOS.Modules.TrainingDelivery.Application;
+using DriveOS.Modules.TrainingDelivery.Application.CancellationConsequences;
+using DriveOS.Modules.TrainingDelivery.Application.Consequences;
+using DriveOS.Modules.TrainingDelivery.Application.GroupSessions;
+using DriveOS.Modules.TrainingDelivery.Application.Sessions;
+using DriveOS.Modules.TrainingDelivery.Infrastructure;
+using DriveOS.Modules.Workforce.Application;
+using DriveOS.Modules.Workforce.Application.BranchAssignments;
+using DriveOS.Modules.Workforce.Application.WorkingTime;
+using DriveOS.Modules.Workforce.Infrastructure;
 using Itech.Emailing.Registration;
 using Itech.Emailing.Webhooks;
 using Itech.Emailing.Workers;
 using Serilog;
 using Serilog.Events;
-using DriveOS.Api.Endpoints.CommunicationEngagement;
-using DriveOS.Modules.ProfessionalMarketplace.Application.StudentAssignments;
-using DriveOS.Modules.ProfessionalMarketplace.Application.Messaging;
-using DriveOS.Api.Integrations.RegulatoryTrainingRecords.France;
-using DriveOS.Api.Integrations.RegulatoryTrainingRecords;
+using Serilog.Formatting.Compact;
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
     .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
+    .WriteTo.Console(new RenderedCompactJsonFormatter())
+    .CreateLogger();
 
 try
 {
@@ -126,19 +132,65 @@ try
     var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddSingleton(TimeProvider.System);
 
-    builder.Services.AddSerilog(
-        (services, configuration) =>
+    static void ConfigureSerilogFilePaths(WebApplicationBuilder b, string homeEnvVar, string appFolder)
+    {
+        var home = ResolveHomeDirectory(homeEnvVar, appFolder);
+
+        var appLogPath = Path.Combine(home, "log", "DriveOS", "DriveOSService_log.txt");
+        var efLogPath = Path.Combine(home, "log", "DriveOS", "EntityFramework", "EntityFramework_log.txt");
+
+        Directory.CreateDirectory(Path.GetDirectoryName(appLogPath)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(efLogPath)!);
+
+        b.Configuration["Serilog:WriteTo:1:Args:configureLogger:WriteTo:0:Args:path"] = appLogPath;
+        b.Configuration["Serilog:WriteTo:2:Args:configureLogger:WriteTo:0:Args:path"] = efLogPath;
+    }
+
+    static string ResolveHomeDirectory(string envVarName, string appFolderName)
+    {
+        var fromEnv = Environment.GetEnvironmentVariable(envVarName);
+        if (!string.IsNullOrWhiteSpace(fromEnv))
         {
-            configuration
-                .ReadFrom.Configuration(builder.Configuration)
-                .ReadFrom.Services(services)
-                .Enrich.FromLogContext()
-                .Enrich.WithProperty(
-                    LoggingConstants.ApplicationNameProperty,
-                    LoggingConstants.ApplicationName
-                );
+            return fromEnv;
         }
-    );
+
+        var baseDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (string.IsNullOrWhiteSpace(baseDir))
+        {
+            baseDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        }
+
+        if (string.IsNullOrWhiteSpace(baseDir))
+        {
+            baseDir = AppContext.BaseDirectory;
+        }
+
+        var resolved = Path.Combine(baseDir, appFolderName);
+        Environment.SetEnvironmentVariable(envVarName, resolved, EnvironmentVariableTarget.Process);
+        return resolved;
+    }
+
+    ConfigureSerilogFilePaths(builder, "DRIVEOS_HOME", "DriveOS");
+
+    // Use Serilog
+    builder.Host.UseSerilog((ctx, services, loggerConfiguration) =>
+        loggerConfiguration
+            .ReadFrom.Configuration(ctx.Configuration)
+            .ReadFrom.Services(services));
+
+    //builder.Services.AddSerilog(
+    //    (services, configuration) =>
+    //    {
+    //        configuration
+    //            .ReadFrom.Configuration(builder.Configuration)
+    //            .ReadFrom.Services(services)
+    //            .Enrich.FromLogContext()
+    //            .Enrich.WithProperty(
+    //                LoggingConstants.ApplicationNameProperty,
+    //                LoggingConstants.ApplicationName
+    //            );
+    //    }
+    //);
 
     builder.Services.AddOpenApi(
         "v1",
@@ -257,6 +309,7 @@ try
     builder.Services.AddHostedService<EmailDispatcherWorker>();
     builder.Services.AddHostedService<ProfessionalComplianceExpirationWorker>();
     builder.Services.AddHostedService<SupplierSettlementOverdueWorker>();
+    builder.Services.AddHostedService<MarketplaceOutboxDispatcherWorker>();
 
     builder.Services.AddDomainRelayValidation();
     builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
@@ -352,6 +405,7 @@ try
     app.UseHttpsRedirection();
     app.UseCors("DriveOsWeb");
     app.UseAuthentication();
+    app.UseMiddleware<OrganizationContextAuthorizationMiddleware>();
     app.UseAuthorization();
 
     app.MapBrevoTransactionalWebhook("/api/webhooks/brevo/transactional");
@@ -450,7 +504,7 @@ try
     app.MapExamAnalyticsEndpoints();
     app.MapGroupTrainingSessionEndpoints();
 
-    app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "DriveOS.Api" }));
+    app.MapDriveOsHealthEndpoints();
     Log.Information("{Application} started successfully", LoggingConstants.ApplicationName);
 
     app.Run();

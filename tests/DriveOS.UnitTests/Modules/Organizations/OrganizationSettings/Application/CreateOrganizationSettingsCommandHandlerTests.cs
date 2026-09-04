@@ -7,6 +7,7 @@ using DriveOS.Modules.Organizations.Application.Branches.StatusHistory;
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizationById;
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizations;
 using DriveOS.Modules.Organizations.Application.Organizations.OrganizationStatusHistory;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Application.OrganizationSettings.CreateOrganizationSettings;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.Modules.Organizations.Domain.OrganizationSettings;
@@ -27,6 +28,7 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             new ExistingOrganizationReadService(organizationId),
             new ExistingBranchReadService(organizationId, branchId),
             repository,
+            new NoOpReadinessCacheInvalidator(),
             unitOfWork
         );
 
@@ -55,6 +57,7 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             new MissingOrganizationReadService(),
             new MissingBranchReadService(),
             repository,
+            new NoOpReadinessCacheInvalidator(),
             unitOfWork
         );
 
@@ -79,6 +82,7 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             new ExistingOrganizationReadService(organizationId),
             new MissingBranchReadService(),
             repository,
+            new NoOpReadinessCacheInvalidator(),
             unitOfWork
         );
 
@@ -104,6 +108,7 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             new ExistingOrganizationReadService(organizationId),
             new MissingBranchReadService(),
             repository,
+            new NoOpReadinessCacheInvalidator(),
             unitOfWork
         );
 
@@ -287,5 +292,11 @@ public sealed class CreateOrganizationSettingsCommandHandlerTests
             BranchId branchId,
             CancellationToken cancellationToken
         ) => throw new NotSupportedException();
+    }
+
+    private sealed class NoOpReadinessCacheInvalidator
+        : IOrganizationActivationReadinessCacheInvalidator
+    {
+        public void Invalidate(OrganizationId organizationId) { }
     }
 }

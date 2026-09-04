@@ -3,6 +3,7 @@ using DriveOS.Api.Errors;
 using DriveOS.Api.Security;
 using DriveOS.Modules.Organizations.Application.Organizations.CreateOrganization;
 using DriveOS.Modules.Organizations.Application.Organizations.GetOrganizationById;
+using DriveOS.Modules.Organizations.Application.Organizations.ProvisionOrganization;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Identifiers;
 using DriveOS.SharedKernel.Results;
@@ -25,6 +26,7 @@ public static class ProvisioningEndpoints
             .WithName("ProvisionDriveOsOrganization")
             .WithSummary("Créer une organisation DriveOS depuis AuthGate")
             .Produces<ProvisionOrganizationResponse>(StatusCodes.Status201Created)
+            .Produces<ProvisionOrganizationResponse>(StatusCodes.Status200OK)
             .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
             .Produces<ApiErrorResponse>(StatusCodes.Status409Conflict)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -60,24 +62,43 @@ public static class ProvisioningEndpoints
             );
         }
 
-        var command = new CreateOrganizationCommand(
+        string idempotencyKey = httpContext.Request.Headers["Idempotency-Key"].ToString().Trim();
+        if (string.IsNullOrWhiteSpace(idempotencyKey) || idempotencyKey.Length > 200)
+            return Results.BadRequest(
+                new
+                {
+                    code = "provisioning.idempotency_key_required",
+                    messageKey = "errors.provisioning.idempotencyKey.required",
+                }
+            );
+
+        var command = new ProvisionOrganizationCommand(
+            new UserId(request.ExternalUserId),
+            idempotencyKey,
             request.LegalName,
             request.CountryCode,
             request.OrganizationType
         );
 
-        Result<OrganizationId> result = await mediator.Send(command, cancellationToken);
+        Result<ProvisionOrganizationResult> result = await mediator.Send(
+            command,
+            cancellationToken
+        );
 
         if (result.IsFailure)
         {
             return result.Error.ToHttpResult(httpContext);
         }
 
-        Guid organizationId = result.Value.Value;
+        Guid organizationId = result.Value.OrganizationId.Value;
+
+        var response = new ProvisionOrganizationResponse(organizationId, result.Value.Status);
+        if (!result.Value.WasCreated)
+            return Results.Ok(response);
 
         return Results.Created(
             $"/api/provisioning/organizations/{organizationId:D}",
-            new ProvisionOrganizationResponse(organizationId, OrganizationStatus.Draft.ToString())
+            response
         );
     }
 

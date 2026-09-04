@@ -40,6 +40,10 @@ public sealed class Organization : AggregateRoot<OrganizationId>, IAuditableEnti
 
     public UserId? LastModifiedByUserId { get; private set; }
 
+    public UserId? ProvisioningExternalUserId { get; private set; }
+
+    public string? ProvisioningKey { get; private set; }
+
     private readonly List<OrganizationStatusHistoryEntry> _statusHistory = [];
 
     public IReadOnlyCollection<OrganizationStatusHistoryEntry> StatusHistory =>
@@ -114,6 +118,28 @@ public sealed class Organization : AggregateRoot<OrganizationId>, IAuditableEnti
     {
         LastModifiedAtUtc = modifiedAtUtc;
         LastModifiedByUserId = modifiedByUserId;
+    }
+
+    public Result SetProvisioningIdentity(UserId externalUserId, string idempotencyKey)
+    {
+        if (externalUserId.IsEmpty)
+            return Result.Failure(OrganizationErrors.InvalidProvisioningExternalUserId);
+
+        string normalizedKey = idempotencyKey?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(normalizedKey) || normalizedKey.Length > 200)
+            return Result.Failure(OrganizationErrors.InvalidProvisioningKey);
+
+        if (
+            (ProvisioningKey is not null
+                && !string.Equals(ProvisioningKey, normalizedKey, StringComparison.Ordinal))
+            || (ProvisioningExternalUserId.HasValue
+                && ProvisioningExternalUserId.Value != externalUserId)
+        )
+            return Result.Failure(OrganizationErrors.ProvisioningIdentityAlreadySet);
+
+        ProvisioningExternalUserId = externalUserId;
+        ProvisioningKey = normalizedKey;
+        return Result.Success();
     }
 
     public void SubmitForActivation(

@@ -10,6 +10,7 @@ using DriveOS.Modules.Students.Application.ExternalTransfers;
 using DriveOS.Modules.Students.Application.Guardians;
 using DriveOS.Modules.Students.Application.Instructors;
 using DriveOS.Modules.Students.Application.Provisioning;
+using DriveOS.Modules.Students.Application.References;
 using DriveOS.Modules.Students.Application.Reactivations;
 using DriveOS.Modules.Students.Application.Relationships;
 using DriveOS.Modules.Students.Application.RegulatoryIdentities;
@@ -76,6 +77,7 @@ public static class DependencyInjection
         );
         services.AddScoped<IStudentsUnitOfWork>(p => p.GetRequiredService<StudentsDbContext>());
         services.AddScoped<IStudentDashboardReadService, StudentDashboardReadService>();
+        services.AddScoped<IStudentReferenceReadService, StudentReferenceReadService>();
         services.AddScoped<IStudentProvisioningService, StudentProvisioningService>();
         services.AddScoped<IStudentReadService, StudentReadService>();
         services.AddScoped<IDirectEnrollmentService, DirectEnrollmentService>();

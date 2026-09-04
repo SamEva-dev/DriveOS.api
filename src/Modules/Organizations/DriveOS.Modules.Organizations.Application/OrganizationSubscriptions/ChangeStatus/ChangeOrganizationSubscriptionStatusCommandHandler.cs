@@ -1,5 +1,6 @@
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Domain.Subscriptions;
 using DriveOS.SharedKernel.Results;
 
@@ -7,6 +8,7 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationSubscriptions.Ch
 
 public sealed class ChangeOrganizationSubscriptionStatusCommandHandler(
     IOrganizationSubscriptionRepository repository,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork
 ) : ICommandHandler<ChangeOrganizationSubscriptionStatusCommand>
 {
@@ -64,6 +66,7 @@ public sealed class ChangeOrganizationSubscriptionStatusCommandHandler(
         if (result.IsFailure)
             return result;
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
         return Result.Success();
     }
 }

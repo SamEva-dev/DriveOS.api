@@ -11,8 +11,17 @@ public sealed class CreateFleetVehicleCommandHandler(IVehicleRepository reposito
 {
     public async Task<Result<DriveOS.SharedKernel.Identifiers.VehicleId>> Handle(CreateFleetVehicleCommand command, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(command.RegistrationNumber))
+            return Result.Failure<DriveOS.SharedKernel.Identifiers.VehicleId>(VehicleErrors.RegistrationRequired);
+        if (string.IsNullOrWhiteSpace(command.TransmissionType) || string.IsNullOrWhiteSpace(command.EnergyType) ||
+            command.LicenseCategories is null || command.LicenseCategories.Count == 0)
+            return Result.Failure<DriveOS.SharedKernel.Identifiers.VehicleId>(VehicleErrors.TechnicalProfileRequired);
         Vehicle? existing = await repository.FindByRegistrationAsync(command.OrganizationId, command.RegistrationNumber, cancellationToken);
-        if (existing is not null) return Result.Success(existing.Id);
+        if (existing is not null)
+            return existing.HasSameTechnicalIdentity(command.Vin, command.TransmissionType, command.EnergyType, command.DualControl,
+                command.LicenseCategories, command.Adaptations)
+                ? Result.Success(existing.Id)
+                : Result.Failure<DriveOS.SharedKernel.Identifiers.VehicleId>(VehicleErrors.RegistrationConflict);
         Result<Vehicle> created = Vehicle.Create(command.VehicleId, command.OrganizationId, command.OwnerOrganizationId, command.BranchId,
             command.RegistrationNumber, command.Vin, command.Make, command.Model, command.TransmissionType, command.EnergyType, command.DualControl,
             command.LicenseCategories, command.Adaptations);
@@ -40,6 +49,20 @@ public sealed class UpdateFleetVehicleComplianceCommandHandler(IVehicleRepositor
     }
 }
 
+public sealed class RecordFleetVehicleOdometerCommandHandler(IVehicleRepository repository, IFleetResourcesUnitOfWork unitOfWork, IClock clock)
+    : ICommandHandler<RecordFleetVehicleOdometerCommand>
+{
+    public async Task<Result> Handle(RecordFleetVehicleOdometerCommand command, CancellationToken cancellationToken)
+    {
+        Vehicle? vehicle = await repository.GetByIdForUpdateAsync(command.OrganizationId, command.VehicleId, cancellationToken);
+        if (vehicle is null) return Result.Failure(VehicleErrors.NotFound);
+        Result result = vehicle.RecordOdometer(command.OdometerKilometers, command.RecordedAtUtc, clock.UtcNow, command.ActorUserId);
+        if (result.IsFailure) return result;
+        await unitOfWork.CommitAsync(cancellationToken);
+        return Result.Success();
+    }
+}
+
 public sealed class GetFleetVehicleQueryHandler(IVehicleRepository repository) : IQueryHandler<GetFleetVehicleQuery, FleetVehicleResponse>
 {
     public async Task<Result<FleetVehicleResponse>> Handle(GetFleetVehicleQuery query, CancellationToken cancellationToken)
@@ -50,7 +73,8 @@ public sealed class GetFleetVehicleQueryHandler(IVehicleRepository repository) :
     internal static FleetVehicleResponse Map(Vehicle x) => new(x.Id.Value, x.OrganizationId.Value, x.OwnerOrganizationId.Value,
         x.ProviderOrganizationId?.Value, x.BranchId?.Value, x.RegistrationNumber, x.Vin, x.Make, x.Model, x.TransmissionType, x.EnergyType,
         x.DualControl, Split(x.LicenseCategoriesCsv), Split(x.AdaptationsCsv), x.OperationalStatus.ToString(), x.TechnicalComplianceVerified,
-        x.DocumentsCompliant, x.InsuranceValidUntilUtc, x.MaintenanceBlocking, x.NextMaintenanceDueAtUtc, x.LastComplianceVerifiedAtUtc, x.ComplianceNotes);
+        x.DocumentsCompliant, x.InsuranceValidUntilUtc, x.MaintenanceBlocking, x.NextMaintenanceDueAtUtc, x.LastComplianceVerifiedAtUtc,
+        x.ComplianceNotes, x.CurrentOdometerKilometers, x.LastOdometerRecordedAtUtc);
     private static IReadOnlyCollection<string> Split(string value) => value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 }
 

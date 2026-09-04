@@ -44,6 +44,45 @@ public sealed class OrganizationTests
         Assert.Equal(OrganizationErrors.EmptyLegalName, result.Error);
     }
 
+    [Fact]
+    public void SetProvisioningIdentity_WithValidValues_ShouldPersistStableIdentity()
+    {
+        Organization organization = Organization.Create(
+            OrganizationId.New(),
+            "Auto-école Horizon",
+            "FR",
+            OrganizationType.DrivingSchool
+        ).Value;
+        var externalUserId = new UserId(Guid.NewGuid());
+
+        var result = organization.SetProvisioningIdentity(
+            externalUserId,
+            "authgate-org-stable-key"
+        );
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(externalUserId, organization.ProvisioningExternalUserId);
+        Assert.Equal("authgate-org-stable-key", organization.ProvisioningKey);
+    }
+
+    [Fact]
+    public void SetProvisioningIdentity_WithDifferentSecondKey_ShouldFail()
+    {
+        Organization organization = Organization.Create(
+            OrganizationId.New(),
+            "Auto-école Horizon",
+            "FR",
+            OrganizationType.DrivingSchool
+        ).Value;
+        var externalUserId = new UserId(Guid.NewGuid());
+        organization.SetProvisioningIdentity(externalUserId, "first-key");
+
+        var result = organization.SetProvisioningIdentity(externalUserId, "second-key");
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(OrganizationErrors.ProvisioningIdentityAlreadySet, result.Error);
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData("F")]

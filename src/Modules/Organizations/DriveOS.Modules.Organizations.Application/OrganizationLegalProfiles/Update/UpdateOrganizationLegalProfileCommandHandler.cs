@@ -2,6 +2,7 @@ using DriveOS.Application.Abstractions.Authentication;
 using DriveOS.Application.Abstractions.Messaging;
 using DriveOS.Application.Abstractions.Persistence;
 using DriveOS.Modules.Organizations.Application.Abstractions;
+using DriveOS.Modules.Organizations.Application.OrganizationActivationReadiness.Cache;
 using DriveOS.Modules.Organizations.Domain.OrganizationLegalProfiles;
 using DriveOS.Modules.Organizations.Domain.Organizations;
 using DriveOS.SharedKernel.Results;
@@ -11,6 +12,7 @@ namespace DriveOS.Modules.Organizations.Application.OrganizationLegalProfiles.Up
 internal sealed class UpdateOrganizationLegalProfileCommandHandler(
     IOrganizationReadService organizationReadService,
     IOrganizationLegalProfileRepository repository,
+    IOrganizationActivationReadinessCacheInvalidator readinessCacheInvalidator,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser
 ) : ICommandHandler<UpdateOrganizationLegalProfileCommand>
@@ -68,6 +70,7 @@ internal sealed class UpdateOrganizationLegalProfileCommandHandler(
         if (result.IsFailure)
             return result;
         await unitOfWork.CommitAsync(cancellationToken);
+        readinessCacheInvalidator.Invalidate(command.OrganizationId);
         return Result.Success();
     }
 }

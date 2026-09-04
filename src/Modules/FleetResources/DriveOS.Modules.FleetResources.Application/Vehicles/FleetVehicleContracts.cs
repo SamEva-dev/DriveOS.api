@@ -12,6 +12,9 @@ public sealed record UpdateFleetVehicleComplianceCommand(OrganizationId Organiza
     bool DocumentsCompliant, DateTimeOffset? InsuranceValidUntilUtc, bool MaintenanceBlocking, DateTimeOffset? NextMaintenanceDueAtUtc,
     VehicleOperationalStatus OperationalStatus, BranchId? BranchId, OrganizationId? ProviderOrganizationId, string? Notes, UserId ActorUserId) : ICommand;
 
+public sealed record RecordFleetVehicleOdometerCommand(OrganizationId OrganizationId, VehicleId VehicleId,
+    long OdometerKilometers, DateTimeOffset RecordedAtUtc, UserId ActorUserId) : ICommand;
+
 public sealed record GetFleetVehicleQuery(OrganizationId OrganizationId, VehicleId VehicleId) : IQuery<FleetVehicleResponse>;
 public sealed record GetFleetVehiclesQuery(OrganizationId OrganizationId) : IQuery<IReadOnlyList<FleetVehicleResponse>>;
 
@@ -19,7 +22,8 @@ public sealed record FleetVehicleResponse(Guid Id, Guid OrganizationId, Guid Own
     string RegistrationNumber, string? Vin, string Make, string Model, string TransmissionType, string EnergyType, bool DualControl,
     IReadOnlyCollection<string> LicenseCategories, IReadOnlyCollection<string> Adaptations, string OperationalStatus,
     bool TechnicalComplianceVerified, bool DocumentsCompliant, DateTimeOffset? InsuranceValidUntilUtc, bool MaintenanceBlocking,
-    DateTimeOffset? NextMaintenanceDueAtUtc, DateTimeOffset? LastComplianceVerifiedAtUtc, string? ComplianceNotes);
+    DateTimeOffset? NextMaintenanceDueAtUtc, DateTimeOffset? LastComplianceVerifiedAtUtc, string? ComplianceNotes,
+    long CurrentOdometerKilometers, DateTimeOffset? LastOdometerRecordedAtUtc);
 
 public sealed record FleetVehicleComplianceRequirement(string TrainingCategory, string? TransmissionType, bool DualControlRequired,
     IReadOnlyCollection<string> RequiredAdaptations, string? EnergyType);

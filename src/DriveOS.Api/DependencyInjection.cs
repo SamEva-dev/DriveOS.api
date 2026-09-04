@@ -15,6 +15,7 @@ public static class DependencyInjection
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
+        services.AddHttpClient<AuthGateSessionValidator>(client => client.Timeout = TimeSpan.FromSeconds(35));
         services.AddDriveOsAuthentication(configuration);
 
         services.AddDomainRelayMapping(builder =>
